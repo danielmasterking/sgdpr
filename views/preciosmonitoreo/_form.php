@@ -34,7 +34,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
     <?php ActiveForm::end(); ?>
 
     <?php if( !isset($actualizar) ):?>
-    	<table class="table table-striped">
+    	<table class="table table-striped my-data">
     		<thead>
     			<tr>
     				<th></th>
@@ -55,8 +55,8 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 										
 						if(in_array("administrador", $permisos) ){
 						   
-						  echo Html::a('<i class="fa fa-pencil fa-fw"></i>',Yii::$app->request->baseUrl.'/preciosmonitoreo/update?id='.$row->id);
-						  echo Html::a('<i class="fa fa-remove"></i>',Yii::$app->request->baseUrl.'/preciosmonitoreo/delete?id='.$row->id,['data-method'=>'post','data-confirm' => 'Está seguro de eliminar elemento']);
+						  echo Html::a('<i class="fa fa-edit fa-fw"></i>',Yii::$app->request->baseUrl.'/preciosmonitoreo/update?id='.$row->id,['class'=>'btn btn-primary btn-xs']);
+						  echo Html::a('<i class="fa fa-trash"></i>',Yii::$app->request->baseUrl.'/preciosmonitoreo/delete?id='.$row->id,['data-method'=>'post','data-confirm' => 'Está seguro de eliminar elemento','class'=>'btn btn-danger btn-xs']);
 		  
 						 }
 						 
@@ -65,7 +65,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 					</td>
 					<td><?= $row->empresa->nombre?></td>
 					<td><?= $row->sistemamonitoreo->nombre?></td>
-					<td><?= '$ '.number_format($row->valor_unitario, 0, '.', '.').' COP'?></td>
+					<td><?= '$ '.number_format((double)$row->valor_unitario, 0, '.', '.').' COP'?></td>
 					<td><?= $row->ano?></td>
 
     			</tr>

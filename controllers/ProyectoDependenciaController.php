@@ -142,6 +142,7 @@ class ProyectoDependenciaController extends Controller
         $tipo_reportes=TipoReportes::find()->all();
         $list_reportes = ArrayHelper::map($tipo_reportes, 'id', 'nombre');
         $list_sistemas=$model3->ProyectoSistemas($id);
+        $list_sistemas[0]='General';
         $model_seguimiento->fecha=date('Y-m-d');
         $model_seguimiento->usuario=Yii::$app->session['usuario-exito'];
         $provedores=$model2->ProyectoProvedor($id);
@@ -666,7 +667,7 @@ class ProyectoDependenciaController extends Controller
                     
                     if(in_array($value->marca_id,$marcas_permitidas)){
                         
-                       if($tamano_dependencias_permitidas > 0){
+                       /*if($tamano_dependencias_permitidas > 0){
                            
                            if(in_array($value->codigo,$dependencias_permitidas)){
                                
@@ -678,10 +679,10 @@ class ProyectoDependenciaController extends Controller
                            }
                            
                            
-                       }else{
+                       }else{*/
                            
                            $data_dependencias[] =  $value->codigo;
-                       }    
+                       //}    
                    
                     }
 

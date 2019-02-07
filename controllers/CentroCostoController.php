@@ -643,7 +643,7 @@ class CentroCostoController extends Controller
         //$empresa=$_POST['empresa'];
         $sistema=$_POST['sistema'];
         //$year=date('Y');
-        $year='2018';
+        $year='2019';
 
          $precio_monitoreo=PreciosMonitoreo::find()->where([
              'id_empresa' =>$empresa,
