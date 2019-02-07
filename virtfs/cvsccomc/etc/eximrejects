@@ -1,0 +1,1 @@
+host_accept_relay: Please turn on SMTP Authentication in your mail client.  $sender_fullhost is not permitted to relay through this server without authentication.

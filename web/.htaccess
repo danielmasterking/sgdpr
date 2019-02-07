@@ -1,0 +1,41 @@
+RewriteEngine on
+
+#START Security: Disallow access to folders
+Options -Indexes
+# END Security
+ 
+# If a directory or a file exists, use it directly
+# Otherwise forward it to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/cpanel-dcv/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/pki-validation/[A-F0-9]{32}\.txt(?:\ Comodo\ DCV)?$
+RewriteRule . index.php
+
+#RewriteRule .*\.(jpg|jpeg|gif|png|bmp)$ - [F,NC]
+RewriteCond %{HTTP_HOST} ^sgsexito\.cvsc\.com\.co$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.sgsexito\.cvsc\.com\.co$
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/cpanel-dcv/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/pki-validation/[A-F0-9]{32}\.txt(?:\ Comodo\ DCV)?$
+RewriteRule ^(.*)$ "https\:\/\/sistemagestiondpr\.co\/sgs\/web$1" [R=301,L]
+RewriteCond %{HTTP_HOST} ^sgs\.cvsc\.co$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.sgs\.cvsc\.co$
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/cpanel-dcv/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/pki-validation/[A-F0-9]{32}\.txt(?:\ Comodo\ DCV)?$
+RewriteRule ^(.*)$ "https\:\/\/sistemagestiondpr\.co\/sgs\/web$1" [R=301,L]
+RewriteCond %{HTTP_HOST} ^sgsexito\.cvsc\.co$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.sgsexito\.cvsc\.co$
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/cpanel-dcv/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/pki-validation/[A-F0-9]{32}\.txt(?:\ Comodo\ DCV)?$
+RewriteRule ^(.*)$ "https\:\/\/sistemagestiondpr\.co\/sgs\/web$1" [R=301,L]
+RewriteCond %{HTTP_HOST} ^sgs\.cvsc\.com\.co$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.sgs\.cvsc\.com\.co$
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/cpanel-dcv/[0-9a-zA-Z_-]+$
+RewriteCond %{REQUEST_URI} !^/\.well-known/pki-validation/[A-F0-9]{32}\.txt(?:\ Comodo\ DCV)?$
+RewriteRule ^(.*)$ "https\:\/\/sistemagestiondpr\.co\/sgs\/web$1" [R=301,L]
+

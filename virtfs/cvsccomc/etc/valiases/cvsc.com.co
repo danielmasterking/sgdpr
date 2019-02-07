@@ -1,0 +1,21 @@
+admin@cvsc.com.co: lindacanas@cvsc.com.co
+angelagomez@cvsc.com.co: "|/usr/local/cpanel/bin/autorespond angelagomez@cvsc.com.co /home/cvsccomc/.autorespond"
+armandoospino@cvsc.com.co: armando_ospino@ingenieros.com
+asistentecontable@cvsc.com.co: auxiliarcontable@cvsc.com.co
+barranquilla@cvsc.com.co: soniavilla@cvsc.com.co
+carolinaoliveros@cvsc.com.co: diegopena@cvsc.com.co,soniavilla@cvsc.com.co
+clienteinterno@cvsc.com.co: lindacanas@cvsc.com.co
+emilianogonzalez@cvsc.com.co: marlylopez@cvsc.com.co
+financiero@cvsc.com.co: habibsiman@cvsc.com.co
+habibsiman@cvsc.com.co: diegopena@cvsc.com.co,soniavilla@cvsc.com.co
+heinzpichler@cvsc.com.co: adelaidahernandez@cvsc.com.co,soniavilla@cvsc.com.co
+josecarmona@cvsc.com.co: juandelgado@cvsc.com.co
+lilianagravier@cvsc.com.co: marcelinotamara@cvsc.com.co
+linaleon@cvsc.com.co: auxiliarmed@cvsc.com.co
+manuelbarraza@cvsc.com.co: supervisormedellin@cvsc.com.co
+oscarortega@cvsc.com.co: diegopena@cvsc.com.co,soniavilla@cvsc.com.co
+paolarocha@cvsc.com.co: elganavas@cvsc.com.co
+victorrizo@cvsc.com.co: "|/usr/local/cpanel/bin/autorespond victorrizo@cvsc.com.co /home/cvsccomc/.autorespond",cartera@cvsc.com.co
+vivianavalbuena@cvsc.com.co: marthabohorquez@cvsc.com.co
+yanethturriago@cvsc.com.co: diegopena@cvsc.com.co,soniavilla@cvsc.com.co
+*: ":fail: No Such User Here"

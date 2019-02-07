@@ -1,0 +1,10 @@
+
+RewriteEngine on
+
+RewriteCond %{HTTP_HOST} ^sgs\.cvsc\.com\.co$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.sgs\.cvsc\.com\.co$
+RewriteRule ^/?$ "http\:\/\/sgsexito\.cvsc\.com\.co\/" [R=301,L]
+
+RewriteCond %{HTTP_HOST} sistemagestiondpr\.co [NC]
+RewriteCond %{SERVER_PORT} 80
+RewriteRule ^(.*)$ https://sistemagestiondpr.co/$1 [R,L]

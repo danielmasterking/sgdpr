@@ -1,0 +1,2 @@
+auth       sufficient   pam_pwdfile.so pwdfile /etc/techproxy.shadow
+session    optional     pam_hooks.so /usr/sec/bin/remove_techproxy_login

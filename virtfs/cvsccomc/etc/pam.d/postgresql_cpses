@@ -1,0 +1,3 @@
+#%PAM-1.0
+auth    required pam_cpses.so
+account required pam_cpses.so

@@ -1,0 +1,16 @@
+/dev/root /usr/local/cpanel/3rdparty/mailman virtfs defaults 0 0
+/dev/root /etc/alternatives virtfs defaults 0 0
+/dev/root /var/spool virtfs defaults 0 0
+/dev/root /usr/sbin virtfs defaults 0 0
+/dev/root /etc/mail virtfs defaults 0 0
+/dev/root /var/tmp virtfs defaults 0 0
+/dev/root /lib64 virtfs defaults 0 0
+/dev/root /sbin virtfs defaults 0 0
+/dev/root /opt virtfs defaults 0 0
+/dev/root /usr virtfs defaults 0 0
+/dev/root /var virtfs defaults 0 0
+/dev/root /tmp virtfs defaults 0 0
+/dev/root /dev virtfs defaults 0 0
+/dev/root /bin virtfs defaults 0 0
+/dev/root /lib virtfs defaults 0 0
+none /proc proc rw 0 0
