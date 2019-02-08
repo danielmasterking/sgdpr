@@ -140,6 +140,7 @@ $usuarios=$model->ProyectoUsuario($model->id);
                             if($cont_sistema==0){
                                 $promedio_total="0%";
                             }else{
+                                //echo "acumulador=".$acumulador."- num=".$cont_sistema;
                                 $promedio_total=round(($acumulador/$cont_sistema),2, PHP_ROUND_HALF_DOWN);
                                 if($promedio_total>100){
                                     $promedio_total=100;
@@ -187,7 +188,6 @@ $usuarios=$model->ProyectoUsuario($model->id);
                 <div class="row">
                     <div class="col-md-3">
                    
-                    <?//= Html::a('<i class="fa fa-plus"></i> Agregar seguimiento', ['agregar', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
                         <button class="btn btn-primary" data-toggle="modal" data-target="#modal-seguimiento">
                             <i class="fa fa-plus"></i> Agregar seguimiento
                         </button>
@@ -753,8 +753,7 @@ $usuarios=$model->ProyectoUsuario($model->id);
                 <div class="row">
                    
                     <div class="col-md-4">
-                        <?//= $form->field($model, 'avance') ?>
-
+                        
                         <?php
                             echo $form->field($model_seguimiento, 'id_provedor')->dropDownList($provedores,['prompt'=>'Select...']); 
                         ?>
@@ -767,8 +766,7 @@ $usuarios=$model->ProyectoUsuario($model->id);
                     </div>
 
                      <div class="col-md-4">
-                        <?//= $form->field($model, 'avance') ?>
-
+                        
                         <?php
                             echo $form->field($model_seguimiento, 'avance')->dropDownList($array_porcentaje,['id'=>'avance']); 
                         ?>
@@ -792,8 +790,7 @@ $usuarios=$model->ProyectoUsuario($model->id);
 
             
                 <div class="form-group">
-                    <?//= Html::submitButton('Crear', ['class' => 'btn btn-primary']) ?>
-                     <?= Html::submitButton($model_seguimiento->isNewRecord ? 'Crear' : 'Actualizar', ['class' => $model_seguimiento->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+                    <?= Html::submitButton($model_seguimiento->isNewRecord ? 'Crear' : 'Actualizar', ['class' => $model_seguimiento->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
                 </div>
             <?php ActiveForm::end(); ?>
         <!-- *************************************************************************************************************************** -->

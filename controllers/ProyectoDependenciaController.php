@@ -113,7 +113,7 @@ class ProyectoDependenciaController extends Controller
      */
     public function actionView($id)
     {   
-        $detalle=ProyectoSeguimiento::find()->where('id_proyecto='.$id)->orderby('fecha DESC')->all();
+        $detalle=ProyectoSeguimiento::find()->where('id_proyecto='.$id)->orderby('id,fecha DESC')->all();
         $presupuestos = ProyectosPresupuesto::find()->where('fk_proyectos='.$id)->orderby('id DESC')->all();
         /*$porcentaje_total = (new \yii\db\Query())
         ->select('(SUM(avance)/COUNT(id)) as TOTAL')
@@ -154,7 +154,7 @@ class ProyectoDependenciaController extends Controller
         //////////////////////////////////////
         $historial=ProyectosHistoricoPorcentaje::find()
         ->where('id_proyecto='.$id)
-        ->orderby('fecha DESC')
+        ->orderby('id,fecha DESC')
         ->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
@@ -266,6 +266,11 @@ class ProyectoDependenciaController extends Controller
             if($_POST['ProyectoSeguimiento']['id_tipo_reporte']!=6){
                 $model->setAttribute('avance','');
             }
+
+            if($_POST['ProyectoSeguimiento']['id_sistema']==0){
+                $model->setAttribute('id_sistema',7);
+            }
+
             if($model->save()){
 
                 if($model->id_tipo_reporte==6){

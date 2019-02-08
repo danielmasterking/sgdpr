@@ -175,15 +175,28 @@ class Proyectos extends \yii\db\ActiveRecord
     }
 
     public function PromedioSistema($id_proyecto,$id_sistema){
-        $porcentaje_total = (new \yii\db\Query())
-        ->select('/*(SUM(avance)/COUNT(id)) as TOTAL*/ avance')
-        ->from('proyecto_seguimiento')
-        ->where('id_proyecto='.$id_proyecto.' AND id_sistema='.$id_sistema.' AND id_tipo_reporte=6')
-        ->orderby('id DESC')
+        $query=ProyectoSeguimiento::find()
+        ->where('id_proyecto='.$id_proyecto.' AND id_sistema=7 AND id_tipo_reporte=6')
+        ->orderby('fecha,id DESC')
         ->limit(1)
         ->one();
 
-        return $porcentaje_total['avance'];
+        if($query!=null){
+
+            return $query->avance;
+
+        }else{
+
+            $porcentaje_total = (new \yii\db\Query())
+            ->select('/*(SUM(avance)/COUNT(id)) as TOTAL*/ avance')
+            ->from('proyecto_seguimiento')
+            ->where('id_proyecto='.$id_proyecto.' AND id_sistema='.$id_sistema.' AND id_tipo_reporte=6')
+            ->orderby('id DESC')
+            ->limit(1)
+            ->one();
+
+            return $porcentaje_total['avance'];
+        }
     }
 
 

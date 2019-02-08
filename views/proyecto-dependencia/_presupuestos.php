@@ -7,7 +7,7 @@ $total_iva_riesgo=0;
 $total_iva_activo=0;
 $total_iva_gasto=0;
 ?>
-<h1>Presupuestos</h1>
+<h1 class="text-center">Presupuestos</h1>
 
 <button onclick="tableToExcel('testTable', 'W3C Example Table')" class="btn btn-primary">
     <i class="fas fa-file-excel"></i> Exportar
