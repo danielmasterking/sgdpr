@@ -170,6 +170,12 @@ $usuarios=$model->ProyectoUsuario($model->id);
             </a>
         </li>
 
+        <li role="presentation">
+            <a href="#cronograma" aria-controls="cronograma" role="tab" data-toggle="tab">
+                <i class="fa   fa-calendar"></i> Cronograma
+            </a>
+        </li>
+
         <?php if(in_array("presupuestos", $permisos)){ ?>
         <li role="presentation">
             <a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-money-bill-alt"></i> Presupuesto</a>
@@ -517,6 +523,15 @@ $usuarios=$model->ProyectoUsuario($model->id);
             <?= $this->render('_historial',['historial'=>$historial]) ?>
         </div>
 
+        <div role="tabpanel" class="tab-pane" id="cronograma">
+            <br>
+            <button class="btn btn-primary" data-toggle="modal" data-target="#Modalcronograma">
+                <i class="fa fa-plus"></i> Agregar
+            </button>
+            <h1 class="text-center">Cronograma</h1>
+            <?= $this->render('_list_cronograma',['cronograma'=>$cronograma,'id'=>$id]) ?>
+        </div>
+
       </div>
     </div>
     
@@ -794,6 +809,26 @@ $usuarios=$model->ProyectoUsuario($model->id);
                 </div>
             <?php ActiveForm::end(); ?>
         <!-- *************************************************************************************************************************** -->
+      </div>
+     <!--  <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div> -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cronograma-->
+<div class="modal fade" id="Modalcronograma" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Cronograma</h4>
+      </div>
+      <div class="modal-body">
+
+        <?= $this->render('_form_cronograma',['model'=>$model_cronograma,'id'=>$id]) ?>
       </div>
      <!--  <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

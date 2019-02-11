@@ -219,5 +219,10 @@ class Proyectos extends \yii\db\ActiveRecord
         return $sistemas;
     }
 
+    public static function Seguimiento($id){
+        $detalle=ProyectoSeguimiento::find()->where('id_proyecto='.$id)->orderby('fecha DESC')->limit(1)->one();
+        return $detalle;
+    }
+
 
 }

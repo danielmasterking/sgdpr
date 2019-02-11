@@ -24,6 +24,7 @@ use app\models\DetallePedido;
 use app\models\SistemaProyectos;
 use app\models\ProyectoSistema;
 use app\models\ProyectosHistoricoPorcentaje;
+use app\models\CronogramaProyecto;
 use yii\web\UploadedFile;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
@@ -94,7 +95,7 @@ class ProyectoDependenciaController extends Controller
 
             $usuarios_asignados=ProyectoUsuarios::UsuariosAsignados(Yii::$app->session['usuario-exito']);
 
-            $rows=$model->find()->where(' '.$in_final.' '.$usuarios_asignados.' (solicitante="'.Yii::$app->session['usuario-exito'].'")')->orderBy('id DESC')->all();
+            $rows=$model->find()->where(' '.$in_final.' '.$usuarios_asignados.' (solicitante="'.Yii::$app->session['usuario-exito'].'")')/*->orderBy('id DESC')*/->all();
             
         }
 
@@ -113,7 +114,7 @@ class ProyectoDependenciaController extends Controller
      */
     public function actionView($id)
     {   
-        $detalle=ProyectoSeguimiento::find()->where('id_proyecto='.$id)->orderby('id,fecha DESC')->all();
+        $detalle=ProyectoSeguimiento::find()->where('id_proyecto='.$id)->orderby('fecha DESC')->all();
         $presupuestos = ProyectosPresupuesto::find()->where('fk_proyectos='.$id)->orderby('id DESC')->all();
         /*$porcentaje_total = (new \yii\db\Query())
         ->select('(SUM(avance)/COUNT(id)) as TOTAL')
@@ -154,7 +155,13 @@ class ProyectoDependenciaController extends Controller
         //////////////////////////////////////
         $historial=ProyectosHistoricoPorcentaje::find()
         ->where('id_proyecto='.$id)
-        ->orderby('id,fecha DESC')
+        ->orderby('fecha DESC')
+        ->all();
+
+        $model_cronograma=new CronogramaProyecto; 
+        $cronograma=$model_cronograma->find()
+        ->where('id_proyecto='.$id)
+        ->orderby('fecha_inicio DESC')
         ->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
@@ -170,7 +177,9 @@ class ProyectoDependenciaController extends Controller
             'list_sistemas'=>$list_sistemas,
             'array_porcentaje'=>$array_porcentaje,
             'provedores'=>$provedores,
-            'list_reportes'=>$list_reportes
+            'list_reportes'=>$list_reportes,
+            'model_cronograma'=>$model_cronograma,
+            'cronograma'=>$cronograma
         ]);
     }
 
@@ -1553,5 +1562,15 @@ class ProyectoDependenciaController extends Controller
                 'id' => $id
             ]);
 
+    }
+
+    public function actionAgregarcronograma($id){
+        $model=new CronogramaProyecto;
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $model->setAttribute('id_proyecto', $id);
+            $model->save();
+            return $this->redirect(['view','id'=>$id]);
+        }
     }
 }

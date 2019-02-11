@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use app\models\Proyectos;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\ProyectoDependenciaSearch */
@@ -21,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="row">
         <div class="col-md-12">
-            <table  class="table table-striped my-data" data-page-length='50'>
+            <table  class="table table-striped data-table" data-page-length='50'>
                 <thead>
                     <tr>
                         <th></th>
@@ -32,6 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <th>Fecha de apertura</th>
                         <th>Estado Presupuesto</th>
                         <th># Seguimientos</th>
+                        <th>Ultima Actualizacion</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,7 +51,12 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= $row->cecoo->ciudad->zona->zona->nombre?></td>    
                         <td><?= $row->fecha_apertura?></td>
                         <td><?= $row->estado?></td>
-                        <td><?= $model->NumSeguimientos($row->id)?></td>    
+                        <td><?= $model->NumSeguimientos($row->id)?></td>
+                        <td>
+                            <?php
+                                echo Proyectos::Seguimiento($row->id)->fecha;
+                            ?>
+                        </td>    
                     </tr>
                     <?php endforeach;?>
                 </tbody>
@@ -58,3 +65,43 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
     
 </div>
+
+<script type="text/javascript">
+    $(function(){
+        var table3 = $('.data-table').DataTable({
+        "columnDefs": [{
+            "className": "dt-center",
+            "targets": "_all"
+        }],
+        "order": [[ 8, "desc" ]],
+        dom: 'Bfrtip',
+        buttons: ['excel', 'pdf'],
+        // "order": [[0,"desc"]],
+        language: {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+    table3.buttons().container().appendTo($('.col-sm-6:eq(0)', table3.table().container()));
+    });
+</script>

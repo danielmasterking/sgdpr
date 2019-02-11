@@ -468,7 +468,7 @@ foreach ($jornada as $key) {
         var total_ftes=(ftes_diurno + ftes_nocturno);
         //alert("Diurno:"+ftes_diurno+" -  Nocturno:"+ftes_nocturno);
         //alert(total_ftes);
-        total_ftes=Number(Math.round(total_ftes+'e3')+'e-3')
+        //total_ftes=Number(Math.round(total_ftes+'e3')+'e-3')
 
         if(isNaN(total_ftes)){
             total_ftes=0;
