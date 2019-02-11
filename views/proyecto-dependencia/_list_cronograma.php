@@ -16,7 +16,7 @@ use yii\helpers\Html;
         <?php foreach($cronograma as $cr): ?>
         <tr>
             <td>
-                <?= Html::a('<i class="fa fa-edit"></i>', ['editarcronogrma','id'=>$cr->id,'id_proyecto'=>$id], ['class' => 'btn btn-primary btn-xs']) ?>
+                <?= Html::a('<i class="fa fa-edit"></i>', ['editarcronograma','id'=>$cr->id,'id_proyecto'=>$id], ['class' => 'btn btn-primary btn-xs']) ?>
                 <?= Html::a('<i class="fa fa-trash"></i>', ['deletecronograma','id'=>$cr->id,'id_proyecto'=>$id], ['class' => 'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar?']) ?>
             </td>
             <td><?= $cr->tipo_trabajo?></td>

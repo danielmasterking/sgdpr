@@ -1573,4 +1573,22 @@ class ProyectoDependenciaController extends Controller
             return $this->redirect(['view','id'=>$id]);
         }
     }
+
+    public function actionEditarcronograma($id,$id_proyecto){
+        $model=CronogramaProyecto::findOne($id);
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            //$model->setAttribute('id_proyecto', $id);
+            $model->save();
+            return $this->redirect(['view','id'=>$id_proyecto]);
+        }else{
+            return $this->render('_form_cronograma',['model'=>$model,'id'=>$id_proyecto]);
+        }
+    }
+
+    public function actionDeletecronograma($id,$id_proyecto){
+        $model=CronogramaProyecto::findOne($id);
+
+        if($model->delete())
+            return $this->redirect(['view','id'=>$id_proyecto]);
+    }
 }

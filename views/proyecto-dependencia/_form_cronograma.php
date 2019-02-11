@@ -11,8 +11,14 @@ use marqu3s\summernote\Summernote;
 ?>
 <div class="site-form">
 
+    <?php  
+      if(!$model->isNewRecord){
+    ?>
+    <?= Html::a('<i class="fa fa-arrow-left"></i> Volver',Yii::$app->request->baseUrl.'/proyecto-dependencia/view?id='.$id, ['class'=>'btn btn-primary']) ?>
+    <h1>Editar Cronograma</h1>
+    <?php } ?>
     <?php $form = ActiveForm::begin([
-        'action'=>Url::toRoute(['agregarcronograma', 'id' =>$id])
+        'action'=>$model->isNewRecord?Url::toRoute(['agregarcronograma', 'id' =>$id]):''
     ]); ?>
         <div class="row">
             <div class="col-md-12">
@@ -61,7 +67,7 @@ use marqu3s\summernote\Summernote;
         </div>
 
         <div class="form-group">
-            <?= Html::submitButton('Crear', ['class' => 'btn btn-primary']) ?>
+            <?= Html::submitButton($model->isNewRecord?'Crear':'Actualizar', ['class' => 'btn btn-primary']) ?>
         </div>
     <?php ActiveForm::end(); ?>
 
