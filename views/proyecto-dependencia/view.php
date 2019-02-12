@@ -39,6 +39,11 @@ echo "</pre>";*/
     #avance{
         width: 70px;
     }
+
+    #calendar {
+      max-width: 900px;
+      margin: 40px auto;
+    }
 </style>
 <div class="proyecto-dependencia-view">
 
@@ -532,11 +537,15 @@ echo "</pre>";*/
         <div role="tabpanel" class="tab-pane" id="cronograma">
             <br>
             <button class="btn btn-primary" data-toggle="modal" data-target="#Modalcronograma">
-                <i class="fa fa-plus"></i> Agregar
+                <i class="fa fa-plus"></i> Agregar Cronograma
             </button>
-            <h1 class="text-center">Cronograma</h1>
-            <?php //echo $this->render('_list_cronograma',['cronograma'=>$cronograma,'id'=>$id]) ?>
-            <div id="calendar"></div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+            
         </div>
 
       </div>
@@ -835,7 +844,7 @@ echo "</pre>";*/
       </div>
       <div class="modal-body">
 
-        <?= $this->render('_form_cronograma',['model'=>$model_cronograma,'id'=>$id]) ?>
+        <?= $this->render('_form_cronograma',['model'=>$model_cronograma,'id'=>$id,'list_usuarios'=>$list_usuarios]) ?>
       </div>
      <!--  <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -1889,6 +1898,7 @@ function cambiarEstadoPresupuesto(estado){
     //Full calendar plugins para cronograma
     $(function(){
         $('#calendar').fullCalendar({
+          height:"parent",
           lang: 'es',
           header: {
             left: 'prev,next today',
@@ -1896,9 +1906,9 @@ function cambiarEstadoPresupuesto(estado){
             right: 'month,agendaWeek,agendaDay,listWeek'
           },
           //defaultDate: '2019-01-12',
-          navLinks: true, // can click day/week names to navigate views
+          /*navLinks: true, // can click day/week names to navigate views
           editable: false,
-          eventLimit: true, // allow "more" link when too many events
+          eventLimit: true, // allow "more" link when too many events*/
           eventRender: function( event, element, view ) {
            element.find('.fc-title').prepend('<span class="fa fa-calendar"></span> '); 
           },
@@ -1932,8 +1942,30 @@ function cambiarEstadoPresupuesto(estado){
           },
           events:<?= $json_crono?>
         });
+
+
+        var colorChooser = $('#color-chooser-btn')
+        $('#color-chooser > li > a').click(function (e) {
+          e.preventDefault()
+          //Save color
+          currColor = $(this).css('color')
+          console.log(currColor)
+          //Add color effect to button
+          $('#add-new-event').css({ 'background-color': currColor, 'border-color': currColor })
+          //var rgb=$('#add-new-event').css('background-color')
+          //console.log(hexadecimal)
+          /*var reemplazar=rgb.replace("rgb",'');
+          reemplazar=reemplazar.replace("(",'');
+          reemplazar=reemplazar.replace(")",'');
+          var explode=reemplazar.split(',');
+          console.log(explode);
+          var hexadecimal=rgb2hex(explode[0],explode[1],explode[2]);*/
+          $('#new-event').val(currColor)
+        });
     });
-    
 
-
+    function rgb2hex(red, green, blue) {
+        var rgb = blue | (green << 8) | (red << 16);
+        return '#' + (0x1000000 + rgb).toString(16).slice(1)
+    }
 </script>

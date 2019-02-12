@@ -167,15 +167,18 @@ class ProyectoDependenciaController extends Controller
         $array_crono=[];
         foreach ($cronograma as $crono) {
             $array_crono[]=[
-                'title'=>$crono->tipo_trabajo,
+                'title'=>$crono->tipo_trabajo."  ".$crono->fecha_inicio." - ".$crono->fecha_fin,
                 'start'=>$crono->fecha_inicio,
-                'id'=>$crono->id
+                'end'=>$crono->fecha_fin,
+                'id'=>$crono->id,
+                'color'=>(string)$crono->color
                 ];
         }
 
         $json_crono=json_encode($array_crono);
 
-
+        $usuarios=Usuario::find()->where('estado="A"')->all();
+        $list_usuarios=ArrayHelper::map($usuarios, 'usuario', 'usuario');
         return $this->render('view', [
             'model' => $this->findModel($id),
             'detalle'=>$detalle,
@@ -193,7 +196,8 @@ class ProyectoDependenciaController extends Controller
             'list_reportes'=>$list_reportes,
             'model_cronograma'=>$model_cronograma,
             'cronograma'=>$cronograma,
-            'json_crono'=>$json_crono
+            'json_crono'=>$json_crono,
+            'list_usuarios'=>$list_usuarios
         ]);
     }
 
@@ -254,12 +258,13 @@ class ProyectoDependenciaController extends Controller
             }
 
             $dependencias     = CentroCosto::find()->where("estado IN('D','A')")->orderBy(['nombre' => SORT_ASC])->all();
+            
             return $this->render('create', [
                 'model' => $model,
                 'dependencias'     => $dependencias,
                 'distritosUsuario' => $distritosUsuario,
                 'marcasUsuario'    => $marcasUsuario,
-                'zonasUsuario'     => $zonasUsuario,
+                'zonasUsuario'     => $zonasUsuario
             ]);
         }
     }
@@ -1583,6 +1588,7 @@ class ProyectoDependenciaController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->setAttribute('id_proyecto', $id);
+            $model->setAttribute('color', $_POST['color_evento']);
             $model->save();
             return $this->redirect(['view','id'=>$id]);
         }
@@ -1595,7 +1601,9 @@ class ProyectoDependenciaController extends Controller
             $model->save();
             return $this->redirect(['view','id'=>$id_proyecto]);
         }else{
-            return $this->render('_form_cronograma',['model'=>$model,'id'=>$id_proyecto]);
+            $usuarios=Usuario::find()->where('estado="A"')->all();
+            $list_usuarios=ArrayHelper::map($usuarios, 'usuario', 'usuario');
+            return $this->render('_form_cronograma',['model'=>$model,'id'=>$id_proyecto,'list_usuarios'=>$list_usuarios]);
         }
     }
 
