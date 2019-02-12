@@ -2,6 +2,8 @@
 #mdialTamanio{
   width: 100% !important;
 }
+
+
 </style>
 <?php
 
@@ -24,6 +26,10 @@ $this->title = "Proyecto-".$model->cecoo->nombre."-".$model->nombre;
 $this->params['breadcrumbs'][] = ['label' => 'Proyecto Dependencias', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 $usuarios=$model->ProyectoUsuario($model->id);
+
+/*echo "<pre>";
+print_r($json_crono);
+echo "</pre>";*/
 ?>
 <style type="text/css">
     img.mediana{
@@ -529,7 +535,8 @@ $usuarios=$model->ProyectoUsuario($model->id);
                 <i class="fa fa-plus"></i> Agregar
             </button>
             <h1 class="text-center">Cronograma</h1>
-            <?= $this->render('_list_cronograma',['cronograma'=>$cronograma,'id'=>$id]) ?>
+            <?php //echo $this->render('_list_cronograma',['cronograma'=>$cronograma,'id'=>$id]) ?>
+            <div id="calendar"></div>
         </div>
 
       </div>
@@ -834,6 +841,31 @@ $usuarios=$model->ProyectoUsuario($model->id);
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary">Save changes</button>
       </div> -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Cronograma-->
+<div class="modal fade" id="Modaleditarcronograma" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Cronograma</h4>
+      </div>
+      <div class="modal-body" id="cronobody">
+
+       
+      </div>
+       <div class="modal-footer">
+        <a href=""  class="btn btn-primary" id="editar-crono">
+            <i class="fa fa-edit"></i> Editar
+        </a>
+        <a href=""  class="btn btn-danger" data-confirm="Seguro desea eliminar?" id="eliminar-crono">
+            <i class="fa fa-trash"></i> Eliminar
+        </a>
+         
+      </div> 
     </div>
   </div>
 </div>
@@ -1853,4 +1885,55 @@ function cambiarEstadoPresupuesto(estado){
         }
 
     });
+
+    //Full calendar plugins para cronograma
+    $(function(){
+        $('#calendar').fullCalendar({
+          lang: 'es',
+          header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay,listWeek'
+          },
+          //defaultDate: '2019-01-12',
+          navLinks: true, // can click day/week names to navigate views
+          editable: false,
+          eventLimit: true, // allow "more" link when too many events
+          eventRender: function( event, element, view ) {
+           element.find('.fc-title').prepend('<span class="fa fa-calendar"></span> '); 
+          },
+          eventClick: function(calEvent, jsEvent, view) {
+            $('#editar-crono').attr({
+                href: '<?php echo Yii::$app->request->baseUrl?>/proyecto-dependencia/editarcronograma?id='+calEvent.id+'&id_proyecto=<?= $id?>'
+            });
+            $('#eliminar-crono').attr({
+                href: '<?php echo Yii::$app->request->baseUrl?>/proyecto-dependencia/deletecronograma?id='+calEvent.id+'&id_proyecto=<?= $id?>'
+            });
+            $.ajax({
+                url:"<?php echo Yii::$app->request->baseUrl . '/proyecto-dependencia/info-cronograma'; ?>",
+                type:'POST',
+                dataType:"json",
+                data:{id:calEvent.id},
+                cache:false,
+                //contentType:false,
+                //processData:false,
+                beforeSend:  function() {
+                    $('#info').html('Cargando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');
+                },
+                success: function(data_response){
+                    
+                    $('#cronobody').html(data_response.respuesta);
+                    
+                }
+            });
+            $('#Modaleditarcronograma').modal('show');
+            
+
+          },
+          events:<?= $json_crono?>
+        });
+    });
+    
+
+
 </script>

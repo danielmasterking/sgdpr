@@ -20,7 +20,8 @@ class AppAsset extends AssetBundle
     public $css = [
         
 		'js/DataTables/datatables.min.css',
-        'css/bootstrap-toggle.min.css',
+    'css/bootstrap-toggle.min.css',
+    'js/fullcalendar/fullcalendar.min.css'
         //'css/main.css',
         //'css/sticky-footer-navbar.css',
     ];
@@ -31,6 +32,8 @@ class AppAsset extends AssetBundle
        'js/momentjs.js',
        'js/moment-duration-format.js',
        'js/main.js',
+       'js/fullcalendar/fullcalendar.min.js',
+       'js/fullcalendar/locale/es.js'
     ];
     public $depends = [
         'yii\web\YiiAsset',

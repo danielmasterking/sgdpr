@@ -163,6 +163,19 @@ class ProyectoDependenciaController extends Controller
         ->where('id_proyecto='.$id)
         ->orderby('fecha_inicio DESC')
         ->all();
+
+        $array_crono=[];
+        foreach ($cronograma as $crono) {
+            $array_crono[]=[
+                'title'=>$crono->tipo_trabajo,
+                'start'=>$crono->fecha_inicio,
+                'id'=>$crono->id
+                ];
+        }
+
+        $json_crono=json_encode($array_crono);
+
+
         return $this->render('view', [
             'model' => $this->findModel($id),
             'detalle'=>$detalle,
@@ -179,7 +192,8 @@ class ProyectoDependenciaController extends Controller
             'provedores'=>$provedores,
             'list_reportes'=>$list_reportes,
             'model_cronograma'=>$model_cronograma,
-            'cronograma'=>$cronograma
+            'cronograma'=>$cronograma,
+            'json_crono'=>$json_crono
         ]);
     }
 
@@ -1590,5 +1604,15 @@ class ProyectoDependenciaController extends Controller
 
         if($model->delete())
             return $this->redirect(['view','id'=>$id_proyecto]);
+    }
+
+    public function actionInfoCronograma(){
+        $id=$_POST['id'];
+        $model=CronogramaProyecto::findOne($id);
+        $res= $this->renderPartial('_info_crono', array('model'=>$model), true);
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return [
+            'respuesta' => $res
+        ];
     }
 }
