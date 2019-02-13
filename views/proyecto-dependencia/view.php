@@ -549,7 +549,7 @@ echo "</pre>";*/
                     </a>
                   </h4>
                 </div>
-                <div id="collapseOnecrono" class="panel-collapse collapse " role="tabpanel" aria-labelledby="headingOne">
+                <div id="collapseOnecrono" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                   <div class="panel-body">
                         <div class="row">
                             <div class="col-md-12">
