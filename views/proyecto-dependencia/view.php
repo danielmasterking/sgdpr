@@ -539,12 +539,45 @@ echo "</pre>";*/
             <button class="btn btn-primary" data-toggle="modal" data-target="#Modalcronograma">
                 <i class="fa fa-plus"></i> Agregar Cronograma
             </button>
-            
-            <div class="row">
-                <div class="col-md-12">
-                    <div id="calendar"></div>
+            <br><br>
+            <div class="panel-group" id="accordioncrono" role="tablist" aria-multiselectable="true">
+              <div class="panel panel-primary">
+                <div class="panel-heading" role="tab" id="headingOnecrono">
+                  <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordioncrono" href="#collapseOnecrono" aria-expanded="true" aria-controls="collapseOnecrono">
+                      <i class="fa fa-calendar"></i> Calendario
+                    </a>
+                  </h4>
                 </div>
+                <div id="collapseOnecrono" class="panel-collapse collapse " role="tabpanel" aria-labelledby="headingOne">
+                  <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="calendar"></div>
+                            </div>
+                        </div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel panel-primary">
+                <div class="panel-heading" role="tab" id="headingTwocrono">
+                  <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordioncrono" href="#collapseTwocrono" aria-expanded="false" aria-controls="collapseTwocrono">
+                      <i class="fa fa-list"></i> Listado
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseTwocrono" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                  <div class="panel-body">
+                    <?= $this->render('_list_cronograma',['cronograma'=>$cronograma,'id'=>$id]) ?>
+
+                  </div>
+                </div>
+              </div>
+           
             </div>
+            
+            
             
         </div>
 
