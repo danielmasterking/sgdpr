@@ -1589,6 +1589,7 @@ class ProyectoDependenciaController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->setAttribute('id_proyecto', $id);
             $model->setAttribute('color', $_POST['color_evento']);
+            $model->setAttribute('usuario', Yii::$app->session['usuario-exito']);
             $model->save();
             return $this->redirect(['view','id'=>$id]);
         }

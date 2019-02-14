@@ -1961,7 +1961,7 @@ function cambiarEstadoPresupuesto(estado){
                 //contentType:false,
                 //processData:false,
                 beforeSend:  function() {
-                    $('#info').html('Cargando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');
+                    $('#cronobody').html('Cargando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');
                 },
                 success: function(data_response){
                     

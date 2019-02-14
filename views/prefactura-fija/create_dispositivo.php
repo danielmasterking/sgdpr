@@ -384,7 +384,8 @@ $tipo_servicio ['No Prestado'] = 'No Prestado';
 	   	    var cant_diurno=arr_diurno[1].length;
 
 	   	    if(cant_diurno>3){
-	   	    	ftes_diurno=Number(Math.round(ftes_diurno+'e3')+'e-3')
+	   	    	//ftes_diurno=Number(Math.round(ftes_diurno+'e3')+'e-3')
+	   	    	ftes_diurno=myRound(ftes_diurno,3);
 	   	    }
 
 
@@ -397,7 +398,8 @@ $tipo_servicio ['No Prestado'] = 'No Prestado';
 	   	    var cant_nocturno=arr_nocturno[1].length;
 
 	   	    if(cant_nocturno>3){
-	   	    	ftes_nocturno=Number(Math.round(ftes_nocturno+'e3')+'e-3')
+	   	    	//ftes_nocturno=Number(Math.round(ftes_nocturno+'e3')+'e-3')
+	   	    	ftes_nocturno=myRound(ftes_nocturno,3);
 	   	    }
 
 
@@ -416,7 +418,7 @@ $tipo_servicio ['No Prestado'] = 'No Prestado';
 	   	var total_ftes=(ftes_diurno + ftes_nocturno);
 
 
-	   	total_ftes=Number(Math.round(total_ftes+'e3')+'e-3')
+	   	//total_ftes=Number(Math.round(total_ftes+'e3')+'e-3')
 	   	$('#ftes').html(total_ftes)
 	   	//console.log("ftes_diurno= "+ftes_diurno)
 	   	//console.log("ftes_nocturno= "+ftes_nocturno)
@@ -469,7 +471,10 @@ $tipo_servicio ['No Prestado'] = 'No Prestado';
 
    	}
 
-  
+  	function myRound(num, dec) {
+ 	 	var exp = Math.pow(10, dec || 2); // 2 decimales por defecto
+  		return parseInt(num * exp, 10) / exp;
+	}
 
    	Number.prototype.formatPrice = function(n, x) {
         var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';
