@@ -59,6 +59,8 @@ $this->title='Login'
         ?>
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
+
+      <?= $form->field($model, 'rememberMe')->checkbox([]) ?>
       <div class="row">
         
         <!-- /.col -->
@@ -73,3 +75,8 @@ $this->title='Login'
     
 
   </div>
+  <script type="text/javascript">
+    $(function(){
+      $('#loginform-rememberme').attr({checked: false});
+    });
+  </script>
