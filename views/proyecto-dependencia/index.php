@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <th>Marca</th>
                         <th>Regional</th>
                         <th>Fecha de apertura</th>
-                        <th>Estado Presupuesto</th>
+                        <!-- <th>Estado Presupuesto</th> -->
                         <th># Seguimientos</th>
                         <th>Ultima Actualizacion</th>
                     </tr>
@@ -50,7 +50,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= $row->cecoo->marca->nombre?></td>   
                         <td><?= $row->cecoo->ciudad->zona->zona->nombre?></td>    
                         <td><?= $row->fecha_apertura?></td>
-                        <td><?= $row->estado?></td>
+                        <!-- <td><?//= $row->estado?></td> -->
                         <td><?= $model->NumSeguimientos($row->id)?></td>
                         <td>
                             <?php
@@ -73,7 +73,7 @@ $this->params['breadcrumbs'][] = $this->title;
             "className": "dt-center",
             "targets": "_all"
         }],
-        "order": [[ 8, "desc" ]],
+        "order": [[ 7, "desc" ]],
         dom: 'Bfrtip',
         buttons: ['excel', 'pdf'],
         // "order": [[0,"desc"]],

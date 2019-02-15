@@ -38,7 +38,7 @@ class ProyectoSeguimiento extends \yii\db\ActiveRecord
             [['reporte'], 'string'],
             [['avance', 'usuario'], 'string', 'max' => 50],
             [['image'],'safe'],
-            [['image'],'file','extensions'=>'jpg, gif, png, jpeg', 'maxFiles' => 5],   
+            [['image'],'file','extensions'=>'jpg, gif, png, jpeg,pdf', 'maxFiles' => 5],   
         ];
     }
 

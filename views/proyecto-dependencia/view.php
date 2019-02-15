@@ -271,7 +271,7 @@ echo "</pre>";*/
                                     <a title="Click para ver imagen completa" data-toggle="modal" data-target="#myModal" onclick="cargar_imagen('<?= Yii::$app->request->baseUrl.$adj->archivo ?>');"><img src="<?= Yii::$app->request->baseUrl.$adj->archivo ?>" class="img-responsive img-thumbnail"  style='height:50px;width: 70px'></a><br>
 
                                     <?php else: ?>
-                                    <a title="<?= $nombre_archivo?>"  href="<?= Yii::$app->request->baseUrl.$adj->archivo ?>" download=""><i class="fa fa-file-archive-o fa-2x"></i> </a><br>
+                                    <a title="<?= $nombre_archivo?>"  href="<?= Yii::$app->request->baseUrl.$adj->archivo ?>" download=""><i class="far fa-file-archive fa-2x"></i> </a><br>
                                     <?php endif; ?>
 
                                     <?php endforeach;?>
@@ -843,7 +843,7 @@ echo "</pre>";*/
                         <?php 
                             echo $form->field($model_seguimiento, 'image[]')->widget(FileInput::classname(), [
                             'options' => ['multiple'=>true],
-                            'pluginOptions'=>['allowedFileExtensions'=>['jpg', 'gif', 'png','jpeg'],
+                            'pluginOptions'=>['allowedFileExtensions'=>['jpg', 'gif', 'png','jpeg','pdf'],
                                                //'maxFileSize' => 5120,
                               ]
                              ]);

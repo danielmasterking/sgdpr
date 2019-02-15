@@ -77,7 +77,7 @@ class ProyectoDependencia extends \yii\db\ActiveRecord
         foreach ($query as $row) {
             $provedores[$row->id_provedor]=$row->provedor->nombre;
         }
-
+        $provedores['33']='N/A';
         return $provedores;
     }
 
