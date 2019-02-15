@@ -199,6 +199,7 @@ class SiteController extends Controller
             }
             if(in_array("dependencia-ver", $permisos)){
                $this->redirect(['centro-costo/index']);
+              //echo $model->rememberMe;
             }else{
                 $this->redirect(['site/about']);
             }

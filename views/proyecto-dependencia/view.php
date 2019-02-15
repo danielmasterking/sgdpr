@@ -1931,6 +1931,7 @@ function cambiarEstadoPresupuesto(estado){
     //Full calendar plugins para cronograma
     $(function(){
         $('#calendar').fullCalendar({
+          selectable: true,
           height:"parent",
           lang: 'es',
           header: {
@@ -1938,6 +1939,7 @@ function cambiarEstadoPresupuesto(estado){
             center: 'title',
             right: 'month,agendaWeek,agendaDay,listWeek'
           },
+
           //defaultDate: '2019-01-12',
           /*navLinks: true, // can click day/week names to navigate views
           editable: false,
@@ -1971,6 +1973,24 @@ function cambiarEstadoPresupuesto(estado){
             });
             $('#Modaleditarcronograma').modal('show');
             
+
+          },
+          dayClick: function(date, jsEvent, view) {
+            $('#Modalcronograma').modal('show');
+            $('#cronogramaproyecto-fecha_inicio-disp').val(date.format())
+            $('#cronogramaproyecto-fecha_inicio').val(date.format())
+            //alert('Clicked on: ' + date.format());
+
+          },
+          select: function(startDate, endDate) {
+            //alert('selected ' + startDate.format() + ' to ' + endDate.format());
+            $('#Modalcronograma').modal('show');
+            $('#cronogramaproyecto-fecha_inicio-disp').val(startDate.format());
+            $('#cronogramaproyecto-fecha_inicio').val(startDate.format());
+
+            $('#cronogramaproyecto-fecha_fin-disp').val(endDate.format());
+            $('#cronogramaproyecto-fecha_fin').val(endDate.format());
+
 
           },
           events:<?= $json_crono?>

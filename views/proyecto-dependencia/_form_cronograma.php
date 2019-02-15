@@ -87,7 +87,7 @@ use kartik\widgets\Select2;
         <div class="row">
             <div class="col-md-6">
                 <?= $form->field($model, 'fecha_inicio')->widget(DateControl::classname(), [
-                              'autoWidget'=>true,
+                             'autoWidget'=>true,
                              'displayFormat' => 'php:Y-m-d',
                              'saveFormat' => 'php:Y-m-d',
                               'type'=>DateControl::FORMAT_DATE,
@@ -97,7 +97,7 @@ use kartik\widgets\Select2;
             </div>
             <div class="col-md-6">
                 <?= $form->field($model, 'fecha_fin')->widget(DateControl::classname(), [
-                              'autoWidget'=>true,
+                             'autoWidget'=>true,
                              'displayFormat' => 'php:Y-m-d',
                              'saveFormat' => 'php:Y-m-d',
                               'type'=>DateControl::FORMAT_DATE,
