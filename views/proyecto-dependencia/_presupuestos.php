@@ -23,12 +23,12 @@ $total_iva_gasto=0;
 <?php 
 if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?>
     
-    <button style="display:<?php echo $model->estado=='ABIERTO'?'block':'none'; ?>;" id="bloquear_presupuesto" type="button" class="btn btn-danger lock" onclick="cambiarEstadoPresupuesto('CERRADO')">
+    <button style="display:<?php echo $model->estado=='ABIERTO'?'inline':'none'; ?>;" id="bloquear_presupuesto" type="button" class="btn btn-danger lock" onclick="cambiarEstadoPresupuesto('CERRADO')">
         <i class="fa fa-unlock"></i>
         BLOQUEAR PRESUPUESTO
     </button>
 
-    <button style="display:<?php echo $model->estado=='CERRADO'?'block':'none'; ?>;"  id="desbloquear_presupuesto" type="button" class="btn btn-danger lock" onclick="cambiarEstadoPresupuesto('ABIERTO')">
+    <button style="display:<?php echo $model->estado=='CERRADO'?'inline':'none'; ?>;"  id="desbloquear_presupuesto" type="button" class="btn btn-danger lock" onclick="cambiarEstadoPresupuesto('ABIERTO')">
         <i class="fa fa-lock"></i>
         DESBLOQUEAR PRESUPUESTO
     </button>
@@ -386,11 +386,11 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
     </button>
 <?php } ?>
 
-<button id="cr_pedido" class="btn btn-primary" data-toggle="modal" data-target="#Modalpedido" style="display:<?php echo $model->estado=='ABIERTO'?'block':'none'; ?>;">
+<button id="cr_pedido" class="btn btn-primary" data-toggle="modal" data-target="#Modalpedido" style="display:<?php echo $model->estado=='ABIERTO'?'inline':'none'; ?>;">
     <i class="fa fa-plus"></i> Pedir Normal
 </button>
 
-<button id="cr_pedido_especial" class="btn btn-primary" data-toggle="modal" data-target="#Modalpedidoespecial" style="display:<?php echo $model->estado=='ABIERTO'?'block':'none'; ?>;">
+<button id="cr_pedido_especial" class="btn btn-primary" data-toggle="modal" data-target="#Modalpedidoespecial" style="display:<?php echo $model->estado=='ABIERTO'?'inline':'none'; ?>;">
     <i class="fa fa-plus"></i> Pedir Especial
 </button>
    
