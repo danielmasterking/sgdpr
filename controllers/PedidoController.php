@@ -23,6 +23,7 @@ use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
+use yii\data\Pagination;
 
 /**
  * PedidoController implements the CRUD actions for Pedido model.
@@ -51,7 +52,7 @@ class PedidoController extends Controller
                     'RechazarProductoFinanciero', 'RechazarProductoFinancieroEspecial', 'RechazarProductoTecnico',
                     'RechazarProductoTecnicoEspecial', 'AprobarProducto', 'AprobarProductoEspecial', 'View', 'create', 'CreateEspeciales',
                     'RechazarProductoCoordinadorTodos', 'RechazarProductoEspecialCoordinadorTodos', 'RechazarProductoTecnicoTodos', 'RechazarProductoEspecialTecnicoTodos', 'RechazarProductoFinancieroTodos', 'RechazarProductoEspecialFinancieroTodos',
-                    'Update', 'Delete', 'EliminarPedido', 'EliminarPedidoEspecial'],
+                    'Update', 'Delete', 'EliminarPedido', 'EliminarPedidoEspecial','prefacturaIndex'],
                 'rules' => [
                     [
                         'allow'   => true,
@@ -69,7 +70,7 @@ class PedidoController extends Controller
                             'RechazarProductoFinanciero', 'RechazarProductoFinancieroEspecial', 'RechazarProductoTecnico',
                             'RechazarProductoTecnicoEspecial', 'AprobarProducto', 'AprobarProductoEspecial', 'View', 'create', 'CreateEspeciales',
                             'RechazarProductoCoordinadorTodos', 'RechazarProductoEspecialCoordinadorTodos', 'RechazarProductoTecnicoTodos', 'RechazarProductoEspecialTecnicoTodos', 'RechazarProductoFinancieroTodos', 'RechazarProductoEspecialFinancieroTodos',
-                            'Update', 'Delete', 'EliminarPedido', 'EliminarPedidoEspecial'],
+                            'Update', 'Delete', 'EliminarPedido', 'EliminarPedidoEspecial','prefacturaIndex'],
                         'roles'   => ['@'], //para usuarios logueados
                     ],
                 ],
@@ -3725,5 +3726,75 @@ class PedidoController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+
+    public function actionPrefacturaIndex(){
+
+        $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
+        $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+        $zonasUsuario = array();
+        $marcasUsuario = array();
+        
+        if($usuario != null){
+          $zonasUsuario = $usuario->zonas;      
+          $marcasUsuario = $usuario->marcas;
+        }
+        $data_marcas=array();
+        foreach($marcasUsuario as $marca){
+            
+            $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
+        }
+
+        $query = (new \yii\db\Query())
+        ->select('dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido')
+        ->from('prefactura_pedido');
+        //FILTROS
+        if(isset($_POST['enviar'])){
+           
+            if(isset($_POST['dependencias']) && $_POST['dependencias']!=''){
+                $query->andWhere('dependencia="'.$_POST['dependencias'].'" ');
+            }
+            if(isset($_POST['marca']) && $_POST['marca']!=''){
+                $query->andWhere('marca="'.$_POST['marca'].'" ');
+            }
+            if(isset($_POST['buscar']) && $_POST['buscar']!=''){
+                $query->andWhere(" 
+                DEPENDENCIA like '%".$_POST['buscar']."%' OR 
+                marca like '%".$_POST['buscar']."%' OR 
+                ceco like '%".$_POST['buscar']."%' 
+                OR solicitante like '%".$_POST['buscar']."%' 
+                OR material like '%".trim($_POST['buscar'])."%' 
+                OR cebe like '%".$_POST['buscar']."%' 
+                ");
+            }
+        }
+
+        $ordenado=isset($_POST['ordenado']) && $_POST['ordenado']!=''?$_POST['ordenado']:"fecha_pedido";
+        $forma=isset($_POST['forma']) && $_POST['forma']!=''?$_POST['forma']:"SORT_DESC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        $count = $query->count();
+        // crea un objeto paginación con dicho total
+        $pagination = new Pagination(['totalCount' => $count]);
+        
+        $command = $query->offset($pagination->offset)->limit(/*$pagination->limit*/30)->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        $pagina=isset($_GET['page'])?$_GET['page']:1;
+        
+        return $this->render('prefactura_index', [
+            'rows'=>$rows,
+            'pagination'=>$pagination,
+            'count'=>$count,
+            'dependencias'=>$dependencias,
+            'marcas'=>$data_marcas,
+            'pagina'=>$pagina
+        ]);
     }
 }

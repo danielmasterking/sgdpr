@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Yii;
+use app\models\CentroCosto;
+use app\models\Usuario;
 
 /**
  * This is the model class for table "pedido".
@@ -95,5 +97,103 @@ class Pedido extends \yii\db\ActiveRecord
     public function getDependencia()
     {
         return $this->hasOne(CentroCosto::className(), ['codigo' => 'centro_costo_codigo']);
+    }
+
+    public static function DependenciasUsuario($id,$idname){//$idname "Id" or "Name"
+        $usuario= Usuario::findOne($id);
+        $zonasUsuario     = array();
+        $marcasUsuario    = array();
+        $distritosUsuario = array();
+        $dependencias     = CentroCosto::find()->where(['not in', 'estado', ['C']])->orderBy(['nombre' => SORT_ASC])->all();
+
+        if ($usuario != null) {
+
+            $zonasUsuario     = $usuario->zonas;
+            $marcasUsuario    = $usuario->marcas;
+            $distritosUsuario = $usuario->distritos;
+
+        }
+
+
+        $ciudades_zonas = array();
+
+            foreach($zonasUsuario as $zona){
+                
+                 $ciudades_zonas [] = $zona->zona->ciudades;    
+                
+            }
+
+            $ciudades_permitidas = array();
+
+            foreach($ciudades_zonas as $ciudades){
+                
+                foreach($ciudades as $ciudad){
+                    
+                    $ciudades_permitidas [] = $ciudad->ciudad->codigo_dane;
+                    
+                }
+                
+            }
+
+            $marcas_permitidas = array();
+
+            foreach($marcasUsuario as $marca){
+                
+                    
+                    $marcas_permitidas [] = $marca->marca_id;
+
+            }
+
+            $dependencias_distritos = array();
+
+            foreach($distritosUsuario as $distrito){
+                
+                 $dependencias_distritos [] = $distrito->distrito->dependencias;    
+                
+            }
+
+            $dependencias_permitidas = array();
+
+            foreach($dependencias_distritos as $dependencias0){
+                
+                foreach($dependencias0 as $dependencia0){
+                    
+                    $dependencias_permitidas [] = $dependencia0->dependencia->codigo;
+                    
+                }
+                
+            }
+
+
+            foreach($dependencias as $value){
+    
+                if(in_array($value->ciudad_codigo_dane,$ciudades_permitidas)){
+                    
+                    if(in_array($value->marca_id,$marcas_permitidas)){
+                        
+                       if($tamano_dependencias_permitidas > 0){
+                           
+                           if(in_array($value->codigo,$dependencias_permitidas)){
+                               
+                             $data_dependencias[$value->codigo] =  $value->nombre;
+                               
+                           }else{
+                               //temporal mientras se asocian distritos
+                               $data_dependencias[] =  $value->codigo;
+                           }
+                           
+                           
+                       }else{
+                           
+                           //$data_dependencias[] =  $value->codigo;
+
+                           $data_dependencias[$idname=="Id"?$value->codigo:$value->nombre] =  $value->nombre;
+                       }    
+                   
+                    }
+
+                }
+            }
+            return $data_dependencias;
     }
 }

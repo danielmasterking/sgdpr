@@ -47,12 +47,19 @@ $config = [
         'urlManager'   => [
             'showScriptName'  => false,
             'enablePrettyUrl' => true,
+            //'enableStrictParsing' => true,
+            'rules' => [
+                ['class' => 'yii\rest\UrlRule', 'controller' => 'api'],
+            ],
         ],
 
         'request'      => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey'  => 'HZcDFyhTDHXRLDVGS25druF57XR7LOSo',
             'enableCsrfValidation' => false,
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ]
         ],
         'cache'        => [
             'class' => 'yii\caching\FileCache',
