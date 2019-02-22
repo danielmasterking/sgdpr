@@ -1591,13 +1591,14 @@ class PedidoController extends Controller
             \moonland\phpexcel\Excel::widget([
                 'models' => $pendientes,
                 'mode' => 'export',
-                'columns' => ['fecha','repetido','dependencia','cebe','producto','cantidad','proveedor','orden','codigo_activo','precio_neto','precio_total','ffinanciera','ofinanciera','mrechazo','Imputacion','Fecha_pedido'],
+                'columns' => ['fecha','repetido','dependencia','cebe','producto','observaciones','cantidad','proveedor','orden','codigo_activo','precio_neto','precio_total','ffinanciera','ofinanciera','mrechazo','Imputacion','Fecha_pedido'],
                 'headers' => [
                     'fecha' => 'FECHA',
                     'repetido' => 'REPETIDO?',
                     'dependencia' => 'DEPENDENCIA',
                     'cebe'=>'CEBE',
                     'producto'=>'PRODUCTO',
+                    'observaciones'=>'Observacion',
                     'cantidad'=>'CANTIDAD',
                     'proveedor'=>'PROVEEDOR',
                     'orden'=>'ORDEN COMPRA',
@@ -1783,13 +1784,14 @@ class PedidoController extends Controller
             \moonland\phpexcel\Excel::widget([
                 'models' => $pendientes,
                 'mode' => 'export',
-                'columns' => ['fecha','repetido','dependencia','cebe','producto','cantidad','proveedor','orden','codigo_activo','precio_sugerido','precio_total','ffinanciera','ofinanciera','mrechazo','Imputacion','Fecha_pedido'],
+                'columns' => ['fecha','repetido','dependencia','cebe','producto','observaciones','cantidad','proveedor','orden','codigo_activo','precio_sugerido','precio_total','ffinanciera','ofinanciera','mrechazo','Imputacion','Fecha_pedido'],
                 'headers' => [
                     'fecha' => 'FECHA',
                     'repetido' => 'REPETIDO?',
                     'dependencia' => 'DEPENDENCIA',
                     'cebe'=>'CEBE',
                     'producto'=>'PRODUCTO',
+                    'observaciones'=>'Observacion',
                     'cantidad'=>'CANTIDAD',
                     'proveedor'=>'PROVEEDOR',
                     'orden'=>'ORDEN COMPRA',
