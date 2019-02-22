@@ -11,6 +11,7 @@ use yii\bootstrap\Modal;
 		   <th>Dependencia</th>
 		   <th>CeBe</th>
            <th>Producto</th>
+           <th>Observacion</th>
            <th>Prod. Sugerido</th>
 		   <th>Cant.</th>
 		   <th>Proveedor</th>
@@ -42,6 +43,7 @@ use yii\bootstrap\Modal;
 					
                 <td><?= $pendiente['cebe']?></td>
                 <td><?= $pendiente['producto']?></td>
+                <td><?= $pendiente['observaciones']?></td>
 				<td><?= $pendiente['producto_sugerido']?></td>
                 <td><?= $pendiente['cantidad']?></td>				
 				<td><?= $pendiente['proveedor']?></td>

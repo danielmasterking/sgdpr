@@ -1507,7 +1507,7 @@ class PedidoController extends Controller
                 WHEN dp.imputacion="F" THEN "Proyecto"
                 ELSE ""
             END) Imputacion,'.
-            'p.fecha Fecha_pedido')
+            'p.fecha Fecha_pedido,dp.observaciones')
         ->from('detalle_pedido dp, detalle_maestra dm, pedido p, proveedor pr, centro_costo cc, maestra_proveedor mp')
         ->where("dp.pedido_id=p.id AND dp.detalle_maestra_id=dm.id AND p.centro_costo_codigo=cc.codigo AND dm.proveedor=pr.codigo AND dp.estado NOT IN ('R','Y','F','T','A','P') AND dm.maestra_proveedor_id=mp.id AND pr.id=mp.proveedor_id");
         if(isset($_POST['desde'])){
@@ -1699,7 +1699,7 @@ class PedidoController extends Controller
                 WHEN dp.imputacion="F" THEN "Proyecto"
                 ELSE ""
             END) Imputacion,'.
-            'p.fecha Fecha_pedido')
+            'p.fecha Fecha_pedido,p.observaciones')
         ->from('detalle_pedido_especial dp, maestra_especial me, pedido p, centro_costo cc')
         ->where('dp.pedido_id=p.id AND dp.maestra_especial_id=me.id AND p.centro_costo_codigo=cc.codigo');
         if(isset($_POST['desde'])){
@@ -3750,28 +3750,28 @@ class PedidoController extends Controller
         ->select('dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido')
         ->from('prefactura_pedido');
         //FILTROS
-        if(isset($_POST['enviar'])){
+        if(isset($_GET['enviar'])){
            
-            if(isset($_POST['dependencias']) && $_POST['dependencias']!=''){
-                $query->andWhere('dependencia="'.$_POST['dependencias'].'" ');
+            if(isset($_GET['dependencias']) && $_GET['dependencias']!=''){
+                $query->andWhere('dependencia="'.$_GET['dependencias'].'" ');
             }
-            if(isset($_POST['marca']) && $_POST['marca']!=''){
-                $query->andWhere('marca="'.$_POST['marca'].'" ');
+            if(isset($_GET['marca']) && $_GET['marca']!=''){
+                $query->andWhere('marca="'.$_GET['marca'].'" ');
             }
-            if(isset($_POST['buscar']) && $_POST['buscar']!=''){
+            if(isset($_GET['buscar']) && $_GET['buscar']!=''){
                 $query->andWhere(" 
-                DEPENDENCIA like '%".$_POST['buscar']."%' OR 
-                marca like '%".$_POST['buscar']."%' OR 
-                ceco like '%".$_POST['buscar']."%' 
-                OR solicitante like '%".$_POST['buscar']."%' 
-                OR material like '%".trim($_POST['buscar'])."%' 
-                OR cebe like '%".$_POST['buscar']."%' 
+                DEPENDENCIA like '%".$_GET['buscar']."%' OR 
+                marca like '%".$_GET['buscar']."%' OR 
+                ceco like '%".$_GET['buscar']."%' 
+                OR solicitante like '%".$_GET['buscar']."%' 
+                OR material like '%".trim($_GET['buscar'])."%' 
+                OR cebe like '%".$_GET['buscar']."%' 
                 ");
             }
         }
 
-        $ordenado=isset($_POST['ordenado']) && $_POST['ordenado']!=''?$_POST['ordenado']:"fecha_pedido";
-        $forma=isset($_POST['forma']) && $_POST['forma']!=''?$_POST['forma']:"SORT_DESC";
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"fecha_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
 
         $query->orderBy([
             $ordenado => $forma

@@ -128,11 +128,11 @@ echo "</pre>";*/
                             echo $promedio_sistema."%";
                         }*/
                         $promedio_sistema=$model->PromedioSistema($model->id,$st->id_sistema);
-                        if($promedio_sistema>$st->sistema->porcentaje){
-                            echo $st->sistema->porcentaje."%";
-                        }else{
+                        //if($promedio_sistema>$st->sistema->porcentaje){
+                            //echo $st->sistema->porcentaje."%";
+                        //}else{
                             echo $promedio_sistema."%";
-                        }
+                        //}
                         
 
                     ?>
