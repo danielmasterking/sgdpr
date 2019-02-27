@@ -224,6 +224,14 @@
         </li>
         <?php }?>
 
+        <?php if(in_array("administrador", $permisos)){ ?>
+        <li class="<?= $action=='ventana_inicio' && $controller=='prefactura-fija'?'active':'' ?>">
+          <a href="<?= Yii::$app->request->baseUrl.'/pedido/prefactura-index'?>">
+            &nbsp;<i class="far fa-file-excel"></i> <span>&nbsp;&nbsp;&nbsp;Prefactura-pedido</span>
+          </a>
+        </li>
+        <?php }?>
+        
         <?php if(in_array("servicio-prefacturacion", $permisos)){ ?>
         <li class="<?= $action=='informedispositivos' && $controller=='prefactura-fija'?'active':'' ?>">
           <a href="<?= Yii::$app->request->baseUrl.'/prefactura-fija/informedispositivos'?>">

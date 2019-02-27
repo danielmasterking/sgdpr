@@ -2,11 +2,16 @@
 use yii\widgets\LinkPager;
 use yii\helpers\Url;
 use kartik\widgets\Select2;
+use yii\helpers\Html;
 
 
-$this->title = 'Prefactura Pedido';
+$this->title = 'Prefactura Aprobados';
 ?>
+<?= $this->render('_tabsConsolidado',['prefactura' => 'active']) ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
+
+<?php //echo Html::a('<i class="fas fa-ban"></i> Rechazados',Yii::$app->request->baseUrl.'/pedido/prefactura-rechazados',['class'=>'btn btn-primary']) ?>	
+<br>
 
 <div class="col-md-12">
   <div class="box box-primary collapsed-box box-solid">
@@ -21,7 +26,7 @@ $this->title = 'Prefactura Pedido';
     </div>
     <!-- /.box-header -->
     <div class="box-body">
-       <form id="form_excel" method="get" action="<?php echo Url::toRoute('prefactura-index')?>">
+       <form id="form_excel" method="get" action="<?php echo Url::toRoute('prefactura-aprobados')?>">
             <div class="row">
                 
                 <div class="col-md-3">
@@ -96,23 +101,12 @@ $this->title = 'Prefactura Pedido';
     echo LinkPager::widget([
         'pagination' => $pagination
     ]);
-?> 
-<form action="<?php echo Url::toRoute('aprobar-rechazar')?>" method="post" id="form-aprobar-rechazar">
-
-<button class="btn btn-primary" type="submit" name="aprobar">
-    <i class="fas fa-clipboard-check"></i> Aprobar seleccionados
-</button>
-<button class="btn btn-danger" type="submit" name="rechazar">
-    <i class="fas fa-ban"></i> Rechazar seleccionados
-</button>
+?>
 <div class="col-md-12">
   <div class="table-responsive">
-   
       <table class="table table-striped">
         <thead>
             <tr>
-               <th><input type="checkbox" id="todos"></th>
-               <th>Acciones</th>
                <th>Dependencia</th>
                <th>Ceco</th>
                <th>Cebe</th>
@@ -126,18 +120,6 @@ $this->title = 'Prefactura Pedido';
         <tbody>
         <?php foreach($rows as $rw):?>
             <tr>
-
-                <td>
-                    <input type="checkbox" name="seleccion[]" class="check" value="<?= $rw['id']?>">
-                </td>
-                <td>
-                    <a class="btn btn-success btn-xs" href="<?php echo Url::toRoute(['aprobar-prefactura','id'=>$rw['id']])?>" data-confirm="Seguro desea aprobar este producto?" title="Aprobar">
-                        <i class="fas fa-clipboard-check"></i>
-                    </a>
-                    <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#myModal" onclick="Rechazo(<?= $rw['id']?>);" title="Rechazar" type="button">
-                        <i class="fas fa-ban"></i>
-                    </button>
-                </td>
                 <td><?= $rw['dependencia']?></td>
                 <td><?= $rw['ceco']?></td>
                 <td><?= $rw['cebe']?></td>
@@ -151,84 +133,5 @@ $this->title = 'Prefactura Pedido';
         <?php endforeach;?>
         </tbody>
       </table>
-    
   </div>
 </div> 
-</form>
-
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Motivo Rechazo</h4>
-      </div>
-      <div class="modal-body">
-        <form method="post" acion="" id="form-rechazo">
-
-         <label>Observacion:</label>
-         <textarea class="form-control" name="observacion" id="observacion" rows="5"></textarea>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary" >Confirmar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-<script type="text/javascript">
-    $(function(){
-        $('#form-rechazo').submit(function(event) {
-            /* Act on the event */
-            var confirmar=confirm('Seguro desea rechazar este producto?');
-
-            if(confirmar){
-                if($('#observacion').val()==''){
-                    alert('La observacion es obligatoria')
-                    return false;
-                }
-            }else{
-
-                return false;
-            }
-        });
-
-
-        $("#todos").change(function () {
-          $("input:checkbox").prop('checked', $(this).prop("checked"));
-        });
-
-
-        $('#form-aprobar-rechazar').submit(function(event) {
-            /* Act on the event */
-            var contador=0;
-            // Recorremos todos los checkbox para contar los que estan seleccionados
-            $(".check").each(function(){
-
-                if($(this).is(":checked"))
-
-                    contador++;
-
-            });
-
-            if(contador>0){
-
-                var confirmar=confirm('Seguro desea realizar esta accion?');
-
-                if(!confirmar){
-                    return false;
-                }
-            }else{
-
-                alert('Selecciona un pedido');
-                return false;
-            }
-        });
-
-    });
-    function Rechazo(id){
-        $('#form-rechazo').attr('action', '<?php echo Url::toRoute('rechazar-prefactura')?>'+'?id='+id);
-    }
-</script>

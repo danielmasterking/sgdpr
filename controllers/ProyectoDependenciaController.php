@@ -143,10 +143,11 @@ class ProyectoDependenciaController extends Controller
         $tipo_reportes=TipoReportes::find()->all();
         $list_reportes = ArrayHelper::map($tipo_reportes, 'id', 'nombre');
         $list_sistemas=$model3->ProyectoSistemas($id);
-        $list_sistemas[0]='General';
+        $list_sistemas[7]='General';
         $model_seguimiento->fecha=date('Y-m-d');
         $model_seguimiento->usuario=Yii::$app->session['usuario-exito'];
         $provedores=$model2->ProyectoProvedor($id);
+
         $array_porcentaje=[];
 
         for ($i=0; $i <= 100; $i++) { 
@@ -215,29 +216,36 @@ class ProyectoDependenciaController extends Controller
             $model->setAttribute('fecha_apertura',$_POST['Proyectos']['fecha_apertura']);
             $model->save();
             $provedores=$_POST['provedor'];
-            foreach ($provedores as $pr) {
-                $proyecto_provedor=new ProyectoProvedor();
-                $proyecto_provedor->setAttribute('id_proyecto',$model->id);
-                $proyecto_provedor->setAttribute('id_provedor',$pr);
-                $proyecto_provedor->save();
+
+            if(count($provedores)>0){
+                foreach ($provedores as $pr) {
+                    $proyecto_provedor=new ProyectoProvedor();
+                    $proyecto_provedor->setAttribute('id_proyecto',$model->id);
+                    $proyecto_provedor->setAttribute('id_provedor',$pr);
+                    $proyecto_provedor->save();
+                }
             }
 
             $usuarios=$_POST['usuarios'];
 
-            foreach ($usuarios as $us) {
-                $proyecto_usuario=new ProyectoUsuarios();
-                $proyecto_usuario->setAttribute('id_proyecto',$model->id);
-                $proyecto_usuario->setAttribute('usuario',$us);
-                $proyecto_usuario->save();
+            if(count($usuarios)>0){
+                foreach ($usuarios as $us) {
+                    $proyecto_usuario=new ProyectoUsuarios();
+                    $proyecto_usuario->setAttribute('id_proyecto',$model->id);
+                    $proyecto_usuario->setAttribute('usuario',$us);
+                    $proyecto_usuario->save();
+                }
             }
 
             $sistemas=$_POST['sistemas'];
 
-            foreach ($sistemas as $st) {
-                $proyecto_sistema=new ProyectoSistema();
-                $proyecto_sistema->setAttribute('id_proyecto',$model->id);
-                $proyecto_sistema->setAttribute('id_sistema',$st);
-                $proyecto_sistema->save();
+            if(count($sistemas)>0){
+                foreach ($sistemas as $st) {
+                    $proyecto_sistema=new ProyectoSistema();
+                    $proyecto_sistema->setAttribute('id_proyecto',$model->id);
+                    $proyecto_sistema->setAttribute('id_sistema',$st);
+                    $proyecto_sistema->save();
+                }
             }
 
             return $this->redirect(['view','id'=>$model->id]);
@@ -295,9 +303,9 @@ class ProyectoDependenciaController extends Controller
                 $model->setAttribute('avance','');
             }
 
-            if($_POST['ProyectoSeguimiento']['id_sistema']==0){
-                $model->setAttribute('id_sistema',7);
-            }
+            //if($_POST['ProyectoSeguimiento']['id_sistema']==0){
+              //  $model->setAttribute('id_sistema',7);
+            //}
 
             if($model->save()){
 
@@ -361,6 +369,8 @@ class ProyectoDependenciaController extends Controller
         $model2=new ProyectoDependencia();
         $model3=new Proyectos();
         $sistemas=$model3->ProyectoSistemas($id_proyecto);
+
+        $sistemas[7]='General';
         $tipo_reportes=TipoReportes::find()->all();
         $list_reportes = ArrayHelper::map($tipo_reportes, 'id', 'nombre');
         //$sistemas=$model->Sistemas();
@@ -458,32 +468,37 @@ class ProyectoDependenciaController extends Controller
             $model->save();
             ProyectoProvedor::deleteAll('id_proyecto = :id ', [':id' =>$id]);
             $provedores=$_POST['provedor'];
-            foreach ($provedores as $pr) {
-                $proyecto_provedor=new ProyectoProvedor();
-                $proyecto_provedor->setAttribute('id_proyecto',$model->id);
-                $proyecto_provedor->setAttribute('id_provedor',$pr);
-                $proyecto_provedor->save();
+
+            if(count($provedores)>0){
+                foreach ($provedores as $pr) {
+                    $proyecto_provedor=new ProyectoProvedor();
+                    $proyecto_provedor->setAttribute('id_proyecto',$model->id);
+                    $proyecto_provedor->setAttribute('id_provedor',$pr);
+                    $proyecto_provedor->save();
+                }
             }
 
             ProyectoUsuarios::deleteAll('id_proyecto = :id ', [':id' =>$id]);
             $usuarios=$_POST['usuarios'];
-
-            foreach ($usuarios as $us) {
-                $proyecto_usuario=new ProyectoUsuarios();
-                $proyecto_usuario->setAttribute('id_proyecto',$model->id);
-                $proyecto_usuario->setAttribute('usuario',$us);
-                $proyecto_usuario->save();
+            if(count($usuarios)>0){
+                foreach ($usuarios as $us) {
+                    $proyecto_usuario=new ProyectoUsuarios();
+                    $proyecto_usuario->setAttribute('id_proyecto',$model->id);
+                    $proyecto_usuario->setAttribute('usuario',$us);
+                    $proyecto_usuario->save();
+                }
             }
 
             ProyectoSistema::deleteAll('id_proyecto = :id ', [':id' =>$id]);
 
             $sistemas=$_POST['sistemas'];
-
-            foreach ($sistemas as $st) {
-                $proyecto_sistema=new ProyectoSistema();
-                $proyecto_sistema->setAttribute('id_proyecto',$model->id);
-                $proyecto_sistema->setAttribute('id_sistema',$st);
-                $proyecto_sistema->save();
+            if(count($sistemas)>0){
+                foreach ($sistemas as $st) {
+                    $proyecto_sistema=new ProyectoSistema();
+                    $proyecto_sistema->setAttribute('id_proyecto',$model->id);
+                    $proyecto_sistema->setAttribute('id_sistema',$st);
+                    $proyecto_sistema->save();
+                }
             }
 
             return $this->redirect(['view', 'id' => $model->id]);

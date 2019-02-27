@@ -143,7 +143,7 @@ class Proyectos extends \yii\db\ActiveRecord
         foreach ($query as $row) {
             $provedores[$row->id_provedor]=$row->provedor->nombre;
         }
-        $provedores['33']='N/A';
+        
         return $provedores;
     }
 
@@ -177,7 +177,7 @@ class Proyectos extends \yii\db\ActiveRecord
     public function PromedioSistema($id_proyecto,$id_sistema){
         $query=ProyectoSeguimiento::find()
         ->where('id_proyecto='.$id_proyecto.' AND id_sistema=7 AND id_tipo_reporte=6')
-        ->orderby('fecha,id DESC')
+        ->orderby('fecha DESC')
         ->limit(1)
         ->one();
 

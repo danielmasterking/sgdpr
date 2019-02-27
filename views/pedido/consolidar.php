@@ -62,6 +62,9 @@ foreach($pendientes as $pen){
 
 
 ?>
+
+<?= $this->render('_tabsConsolidado',['consolidado' => 'active']) ?>
+
     <div class="page-header">
 	  <h1><small><i class="fas fa-handshake"></i></small> <?= Html::encode($this->title) ?></h1>
 	</div>
@@ -71,35 +74,17 @@ foreach($pendientes as $pen){
 	</div>	
 <?php $form2 = ActiveForm::begin(); ?>	 
 
-   <div class="col-md-12">
    
-      <div class="col-md-3">
 
-         <?= Html::a('Especiales',Yii::$app->request->baseUrl.'/pedido/consolidar-especial',['class'=>'btn btn-primary']) ?>		
-		
-	  </div>   
-   
-      <div class="col-md-3">
+<?= Html::a('Especiales',Yii::$app->request->baseUrl.'/pedido/consolidar-especial',['class'=>'btn btn-primary']) ?>		
 
-         <input type="submit" name="generar" value="Realizar Equivalencia" class="btn btn-primary"/>	  
-		
-	  </div>
+<input type="submit" name="generar" value="Realizar Equivalencia" class="btn btn-primary"/>	  
+
+<?= Html::a('Cabecera',Yii::$app->request->baseUrl.'/pedido/cabecera',['class'=>'btn btn-primary']) ?>		
 	  
-      <div class="col-md-3">
-
-        <?= Html::a('Cabecera',Yii::$app->request->baseUrl.'/pedido/cabecera',['class'=>'btn btn-primary']) ?>		
+<input type="submit" name="finalizar" value="Finalizar" class="btn btn-primary"/>	  
+<br><br>
 	  
-	  </div>	
-
-      <div class="col-md-3">
-
-         <input type="submit" name="finalizar" value="Finalizar" class="btn btn-primary"/>	  
-		
-	  </div>	  
-   
-   </div>
-   
-   <p>&nbsp;</p>
    	<div class="table-responsive">
 	 <table  class="display my-data2" data-page-length='20' cellspacing="0" width="100%">
 	 

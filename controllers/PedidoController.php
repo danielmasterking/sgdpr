@@ -161,7 +161,7 @@ class PedidoController extends Controller
                         if (strlen($mensaje) > 1) {
 
                             $detallePedido->setAttribute('orden_compra', $mensaje);
-                            $detallePedido->setAttribute('usuario_aprobador', Yii::$app->session['usuario-exito']);
+                            //$detallePedido->setAttribute('usuario_aprobador', Yii::$app->session['usuario-exito']);
                         }
                         $detallePedido->save();
                     }
@@ -470,7 +470,7 @@ class PedidoController extends Controller
                         if (strlen($mensaje) > 1) {
 
                             $detallePedido->setAttribute('orden_compra', $mensaje);
-                            $detallePedido->setAttribute('usuario_aprobador', Yii::$app->session['usuario-exito']);
+                            //$detallePedido->setAttribute('usuario_aprobador', Yii::$app->session['usuario-exito']);
                         }
 
                         $detallePedido->save();
@@ -3749,8 +3749,9 @@ class PedidoController extends Controller
         }
 
         $query = (new \yii\db\Query())
-        ->select('dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido')
-        ->from('prefactura_pedido');
+        ->select('id,dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido')
+        ->from('prefactura_pedido')
+        ->where('estado <> "A" AND estado <> "R"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -3782,8 +3783,8 @@ class PedidoController extends Controller
         $count = $query->count();
         // crea un objeto paginación con dicho total
         $pagination = new Pagination(['totalCount' => $count]);
-        
-        $command = $query->offset($pagination->offset)->limit(/*$pagination->limit*/30)->createCommand();
+        $limit=30;
+        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
 
         // Ejecutar el comando:
         $rows = $command->queryAll();
@@ -3799,4 +3800,196 @@ class PedidoController extends Controller
             'pagina'=>$pagina
         ]);
     }
+
+
+    public function actionAprobarPrefactura($id){//A= Aprobar
+        $model=DetallePedido::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_prefactura', 'A');
+        if($model->save()){
+            return $this->redirect(['prefactura-index']);
+        }else{
+            print_r($model->getErrors());
+        }
+
+    }
+
+
+    public function actionRechazarPrefactura($id){//R= Rechazar
+        $model=DetallePedido::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_prefactura', 'R');
+        $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
+        
+        if($model->save()){
+            return $this->redirect(['prefactura-index']);
+        }else{
+            print_r($model->getErrors());
+        }
+
+    }
+
+    public function actionPrefacturaAprobados(){
+
+        $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
+        $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+        $zonasUsuario = array();
+        $marcasUsuario = array();
+        
+        if($usuario != null){
+          $zonasUsuario = $usuario->zonas;      
+          $marcasUsuario = $usuario->marcas;
+        }
+        $data_marcas=array();
+        foreach($marcasUsuario as $marca){
+            
+            $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
+        }
+
+        $query = (new \yii\db\Query())
+        ->select('id,dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido')
+        ->from('prefactura_pedido')
+        ->where('estado="A"');
+        //FILTROS
+        if(isset($_GET['enviar'])){
+           
+            if(isset($_GET['dependencias']) && $_GET['dependencias']!=''){
+                $query->andWhere('dependencia="'.$_GET['dependencias'].'" ');
+            }
+            if(isset($_GET['marca']) && $_GET['marca']!=''){
+                $query->andWhere('marca="'.$_GET['marca'].'" ');
+            }
+            if(isset($_GET['buscar']) && $_GET['buscar']!=''){
+                $query->andWhere(" 
+                DEPENDENCIA like '%".$_GET['buscar']."%' OR 
+                marca like '%".$_GET['buscar']."%' OR 
+                ceco like '%".$_GET['buscar']."%' 
+                OR solicitante like '%".$_GET['buscar']."%' 
+                OR material like '%".trim($_GET['buscar'])."%' 
+                OR cebe like '%".$_GET['buscar']."%' 
+                ");
+            }
+        }
+
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"fecha_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        $count = $query->count();
+        // crea un objeto paginación con dicho total
+        $pagination = new Pagination(['totalCount' => $count]);
+        $limit=30;
+        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        $pagina=isset($_GET['page'])?$_GET['page']:1;
+
+        return $this->render('prefactura_aprobados', [
+            'rows'=>$rows,
+            'pagination'=>$pagination,
+            'count'=>$count,
+            'dependencias'=>$dependencias,
+            'marcas'=>$data_marcas,
+            'pagina'=>$pagina
+        ]);
+    }
+
+
+    public function actionPrefacturaRechazados(){
+
+        $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
+        $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+        $zonasUsuario = array();
+        $marcasUsuario = array();
+        
+        if($usuario != null){
+          $zonasUsuario = $usuario->zonas;      
+          $marcasUsuario = $usuario->marcas;
+        }
+        $data_marcas=array();
+        foreach($marcasUsuario as $marca){
+            
+            $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
+        }
+
+        $query = (new \yii\db\Query())
+        ->select('id,dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido,motivo')
+        ->from('prefactura_pedido')
+        ->where('estado="R"');
+        //FILTROS
+        if(isset($_GET['enviar'])){
+           
+            if(isset($_GET['dependencias']) && $_GET['dependencias']!=''){
+                $query->andWhere('dependencia="'.$_GET['dependencias'].'" ');
+            }
+            if(isset($_GET['marca']) && $_GET['marca']!=''){
+                $query->andWhere('marca="'.$_GET['marca'].'" ');
+            }
+            if(isset($_GET['buscar']) && $_GET['buscar']!=''){
+                $query->andWhere(" 
+                DEPENDENCIA like '%".$_GET['buscar']."%' OR 
+                marca like '%".$_GET['buscar']."%' OR 
+                ceco like '%".$_GET['buscar']."%' 
+                OR solicitante like '%".$_GET['buscar']."%' 
+                OR material like '%".trim($_GET['buscar'])."%' 
+                OR cebe like '%".$_GET['buscar']."%' 
+                ");
+            }
+        }
+
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"fecha_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        $count = $query->count();
+        // crea un objeto paginación con dicho total
+        $pagination = new Pagination(['totalCount' => $count]);
+        $limit=30;
+        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        $pagina=isset($_GET['page'])?$_GET['page']:1;
+
+        return $this->render('prefactura_rechazados', [
+            'rows'=>$rows,
+            'pagination'=>$pagination,
+            'count'=>$count,
+            'dependencias'=>$dependencias,
+            'marcas'=>$data_marcas,
+            'pagina'=>$pagina
+        ]);
+    }
+
+
+    public function actionAprobarRechazar(){
+        $count=count($_POST['seleccion']);
+        $checks=$_POST['seleccion'];
+
+        if(isset($_POST['aprobar'])){
+            foreach ($checks as $value) {
+                $model=DetallePedido::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_prefactura', 'A');
+                $model->save();
+            }
+        }else if(isset($_POST['rechazar'])){
+            foreach ($checks as $value) {
+                $model=DetallePedido::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_prefactura', 'R');
+                $model->save();
+            }
+        }
+
+        return $this->redirect(['prefactura-index']);
+
+    }
+
+
 }

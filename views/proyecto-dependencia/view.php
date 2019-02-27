@@ -149,7 +149,7 @@ echo "</pre>";*/
                     <td>
                         <?php 
                             if($cont_sistema==0){
-                                $promedio_total="0%";
+                                $promedio_total="0";
                             }else{
                                 //echo "acumulador=".$acumulador."- num=".$cont_sistema;
                                 $promedio_total=round(($acumulador/$cont_sistema),2, PHP_ROUND_HALF_DOWN);
@@ -819,6 +819,7 @@ echo "</pre>";*/
                     <div class="col-md-4">
                         
                         <?php
+                            $provedores['33']='N/A';
                             echo $form->field($model_seguimiento, 'id_provedor')->dropDownList($provedores,['prompt'=>'Select...']); 
                         ?>
                     </div>
