@@ -24,6 +24,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use yii\data\Pagination;
+use app\models\PrefacturaFija;
 
 /**
  * PedidoController implements the CRUD actions for Pedido model.
@@ -3749,9 +3750,9 @@ class PedidoController extends Controller
         }
 
         $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido')
-        ->from('prefactura_pedido')
-        ->where('estado <> "A" AND estado <> "R"');
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes')
+        ->from('prefactura_consolidado_pedido')
+        ->where('estado_pedido="S"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -3773,7 +3774,7 @@ class PedidoController extends Controller
             }
         }
 
-        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"fecha_pedido";
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
         $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
 
         $query->orderBy([
@@ -3803,8 +3804,8 @@ class PedidoController extends Controller
 
 
     public function actionAprobarPrefactura($id){//A= Aprobar
-        $model=DetallePedido::find()->where('id='.$id)->one();
-        $model->setAttribute('estado_prefactura', 'A');
+        $model=PrefacturaFija::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_pedido', 'A');
         if($model->save()){
             return $this->redirect(['prefactura-index']);
         }else{
@@ -3815,8 +3816,8 @@ class PedidoController extends Controller
 
 
     public function actionRechazarPrefactura($id){//R= Rechazar
-        $model=DetallePedido::find()->where('id='.$id)->one();
-        $model->setAttribute('estado_prefactura', 'R');
+        $model=PrefacturaFija::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_pedido', 'R');
         $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
         
         if($model->save()){
@@ -3844,10 +3845,10 @@ class PedidoController extends Controller
             $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
         }
 
-        $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido')
-        ->from('prefactura_pedido')
-        ->where('estado="A"');
+       $query = (new \yii\db\Query())
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes')
+        ->from('prefactura_consolidado_pedido')
+        ->where('estado_pedido="A"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -3869,7 +3870,7 @@ class PedidoController extends Controller
             }
         }
 
-        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"fecha_pedido";
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
         $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
 
         $query->orderBy([
@@ -3975,14 +3976,15 @@ class PedidoController extends Controller
 
         if(isset($_POST['aprobar'])){
             foreach ($checks as $value) {
-                $model=DetallePedido::find()->where('id='.$value)->one();
-                $model->setAttribute('estado_prefactura', 'A');
+                $model=PrefacturaFija::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_pedido', 'A');
                 $model->save();
             }
         }else if(isset($_POST['rechazar'])){
             foreach ($checks as $value) {
-                $model=DetallePedido::find()->where('id='.$value)->one();
-                $model->setAttribute('estado_prefactura', 'R');
+                $model=PrefacturaFija::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_pedido', 'R');
+                $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
                 $model->save();
             }
         }

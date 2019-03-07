@@ -126,7 +126,7 @@ date_default_timezone_set ( 'America/Bogota');
          $ftes_total=0;
          $valor_total=0;
          $horas_total=0;
-
+         $acumulado_total=0;
 
          foreach($admin_disp as $ad):
          ?>
@@ -180,7 +180,10 @@ date_default_timezone_set ( 'America/Bogota');
             <?='$ '.number_format($ad->precio_unitario, 0, '.', '.').' COP'?>    
           </td>
           <td <?=$styletd?>>
-            <?='$ '.number_format($ad->precio_total==0?0:$ad->precio_total, 0, '.', '.').' COP'?>      
+            <?php 
+              $acumulado_total+=$ad->precio_total;
+              echo '$ '.number_format($ad->precio_total==0?0:$ad->precio_total, 0, '.', '.').' COP';
+            ?>      
           </td>
           <td <?=$styletd?>>
             <?='$ '.number_format($ad->precio_dependencia==0?0:$ad->precio_dependencia, 0, '.', '.').' COP'?>      
@@ -200,7 +203,8 @@ date_default_timezone_set ( 'America/Bogota');
           <td <?=$styletd?>><b><?php //echo $horas_total ?></b></td>
           <td colspan="3" <?=$styletd?>></td>
           <td <?=$styletd?>><b><?= $ftes_total ?></b></td>
-          <td colspan="11" <?=$styletd?>></td>
+          <td colspan="10" <?=$styletd?>></td>
+          <td <?=$styletd?>><b><?= '$ '.number_format($acumulado_total, 0, '.', '.').' COP' ?></b></td>
           <td <?=$styletd?>><b><?= '$ '.number_format($valor_total, 0, '.', '.').' COP' ?></b></td>
           <td <?=$styletd?>></td>
         </tr>

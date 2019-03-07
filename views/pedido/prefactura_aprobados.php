@@ -13,7 +13,7 @@ $this->title = 'Prefactura Aprobados';
 <?php //echo Html::a('<i class="fas fa-ban"></i> Rechazados',Yii::$app->request->baseUrl.'/pedido/prefactura-rechazados',['class'=>'btn btn-primary']) ?>	
 <br>
 
-<div class="col-md-12">
+<!-- <div class="col-md-12">
   <div class="box box-primary collapsed-box box-solid">
     <div class="box-header with-border">
       <h3 class="box-title"><i class="fa fa-search fa-fw"></i> Filtro Avanzado</h3>
@@ -22,9 +22,9 @@ $this->title = 'Prefactura Aprobados';
         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
         </button>
       </div>
-      <!-- /.box-tools -->
+      
     </div>
-    <!-- /.box-header -->
+    
     <div class="box-body">
        <form id="form_excel" method="get" action="<?php echo Url::toRoute('prefactura-aprobados')?>">
             <div class="row">
@@ -82,7 +82,7 @@ $this->title = 'Prefactura Aprobados';
 
             </div>
     </div>
-    <!-- /.box-body -->
+    
     <div class="box-footer">
         <button type="button" class="btn btn-primary" onclick="excel()">
             <i class="fas fa-file-excel"></i> Descargar Busqueda en Excel
@@ -93,8 +93,8 @@ $this->title = 'Prefactura Aprobados';
         </form>
     </div>
   </div>
-  <!-- /.box -->
-</div>
+  
+</div> -->
 
 <?php
     echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
@@ -111,10 +111,13 @@ $this->title = 'Prefactura Aprobados';
                <th>Ceco</th>
                <th>Cebe</th>
                <th>Marca</th>
-               <th>Solicitante</th>
-               <th>Material</th>
-               <th>Fecha Pedido</th>
-               <th>Valor</th>
+               <th>Regional</th>
+               <th>Empresa</th>
+               <th>Mes</th>
+               <th>Ano</th>
+               <th>Total Fijo</th>
+               <th>Total Variable</th>
+               <th>Total Servicio</th>
             </tr>
         </thead>
         <tbody>
@@ -124,10 +127,13 @@ $this->title = 'Prefactura Aprobados';
                 <td><?= $rw['ceco']?></td>
                 <td><?= $rw['cebe']?></td>
                 <td><?= $rw['marca']?></td>
-                <td><?= $rw['solicitante']?></td>
-                <td><?= $rw['material']?></td>
-                <td><?= $rw['fecha_pedido']?></td>
-                <td><?= '$ '.number_format(($rw['valor']), 0, '.', '.').' COP'?></td>
+                <td><?= $rw['regional']?></td>
+                <td><?= $rw['empresa']?></td>
+                <td><?= $rw['mes']?></td>
+                <td><?= $rw['ano']?></td>
+                <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_varible']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
             </tr>
             
         <?php endforeach;?>

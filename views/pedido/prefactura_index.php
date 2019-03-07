@@ -8,7 +8,7 @@ $this->title = 'Prefactura Pedido';
 ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
 
-<div class="col-md-12">
+<!-- <div class="col-md-12">
   <div class="box box-primary collapsed-box box-solid">
     <div class="box-header with-border">
       <h3 class="box-title"><i class="fa fa-search fa-fw"></i> Filtro Avanzado</h3>
@@ -17,9 +17,9 @@ $this->title = 'Prefactura Pedido';
         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
         </button>
       </div>
-      <!-- /.box-tools -->
+     
     </div>
-    <!-- /.box-header -->
+    
     <div class="box-body">
        <form id="form_excel" method="get" action="<?php echo Url::toRoute('prefactura-index')?>">
             <div class="row">
@@ -77,7 +77,7 @@ $this->title = 'Prefactura Pedido';
 
             </div>
     </div>
-    <!-- /.box-body -->
+    
     <div class="box-footer">
         <button type="button" class="btn btn-primary" onclick="excel()">
             <i class="fas fa-file-excel"></i> Descargar Busqueda en Excel
@@ -88,8 +88,8 @@ $this->title = 'Prefactura Pedido';
         </form>
     </div>
   </div>
-  <!-- /.box -->
-</div>
+  
+</div> -->
 
 <?php
     echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
@@ -99,11 +99,11 @@ $this->title = 'Prefactura Pedido';
 ?> 
 <form action="<?php echo Url::toRoute('aprobar-rechazar')?>" method="post" id="form-aprobar-rechazar">
 
-<button class="btn btn-primary" type="submit" name="aprobar">
-    <i class="fas fa-clipboard-check"></i> Aprobar seleccionados
+<button class="btn btn-primary" type="submit" name="aprobar" title="Aprobar Todos">
+    <i class="fas fa-clipboard-check"></i> Aprobar
 </button>
-<button class="btn btn-danger" type="submit" name="rechazar">
-    <i class="fas fa-ban"></i> Rechazar seleccionados
+<button class="btn btn-danger" type="button"   title="Rechazar Todos" data-toggle="modal" data-target="#myModal1">
+    <i class="fas fa-ban"></i> Rechazar
 </button>
 <div class="col-md-12">
   <div class="table-responsive">
@@ -117,10 +117,13 @@ $this->title = 'Prefactura Pedido';
                <th>Ceco</th>
                <th>Cebe</th>
                <th>Marca</th>
-               <th>Solicitante</th>
-               <th>Material</th>
-               <th>Fecha Pedido</th>
-               <th>Valor</th>
+               <th>Regional</th>
+               <th>Empresa</th>
+               <th>Mes</th>
+               <th>Ano</th>
+               <th>Total Fijo</th>
+               <th>Total Variable</th>
+               <th>Total Servicio</th>
             </tr>
         </thead>
         <tbody>
@@ -131,9 +134,9 @@ $this->title = 'Prefactura Pedido';
                     <input type="checkbox" name="seleccion[]" class="check" value="<?= $rw['id']?>">
                 </td>
                 <td>
-                    <a class="btn btn-success btn-xs" href="<?php echo Url::toRoute(['aprobar-prefactura','id'=>$rw['id']])?>" data-confirm="Seguro desea aprobar este producto?" title="Aprobar">
+                    <button class="btn btn-success btn-xs"  title="Aprobar" onclick="Aprobar(<?= $rw['id']?>)" type="button">
                         <i class="fas fa-clipboard-check"></i>
-                    </a>
+                    </button>
                     <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#myModal" onclick="Rechazo(<?= $rw['id']?>);" title="Rechazar" type="button">
                         <i class="fas fa-ban"></i>
                     </button>
@@ -142,10 +145,13 @@ $this->title = 'Prefactura Pedido';
                 <td><?= $rw['ceco']?></td>
                 <td><?= $rw['cebe']?></td>
                 <td><?= $rw['marca']?></td>
-                <td><?= $rw['solicitante']?></td>
-                <td><?= $rw['material']?></td>
-                <td><?= $rw['fecha_pedido']?></td>
-                <td><?= '$ '.number_format(($rw['valor']), 0, '.', '.').' COP'?></td>
+                <td><?= $rw['regional']?></td>
+                <td><?= $rw['empresa']?></td>
+                <td><?= $rw['mes']?></td>
+                <td><?= $rw['ano']?></td>
+                <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_varible']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
             </tr>
             
         <?php endforeach;?>
@@ -153,7 +159,36 @@ $this->title = 'Prefactura Pedido';
       </table>
     
   </div>
-</div> 
+</div>
+
+
+
+
+<!-- Modal Rechazar todos-->
+<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Motivo Rechazo</h4>
+      </div>
+      <div class="modal-body">
+        
+
+         <label>Observacion:</label>
+         <textarea class="form-control" name="observacion" id="observacion-todos" rows="5"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary" name="rechazar" >Confirmar</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 </form>
 
 <!-- Modal -->
@@ -178,6 +213,8 @@ $this->title = 'Prefactura Pedido';
     </div>
   </div>
 </div>
+
+
 <script type="text/javascript">
     $(function(){
         $('#form-rechazo').submit(function(event) {
@@ -202,6 +239,7 @@ $this->title = 'Prefactura Pedido';
 
 
         $('#form-aprobar-rechazar').submit(function(event) {
+
             /* Act on the event */
             var contador=0;
             // Recorremos todos los checkbox para contar los que estan seleccionados
@@ -230,5 +268,15 @@ $this->title = 'Prefactura Pedido';
     });
     function Rechazo(id){
         $('#form-rechazo').attr('action', '<?php echo Url::toRoute('rechazar-prefactura')?>'+'?id='+id);
+    }
+
+    function Aprobar(id){
+        var confirmar=confirm('Seguro desea aprobar esta prefactura?');
+
+        if(confirmar){
+            location.href="<?php echo Url::toRoute('aprobar-prefactura')?>?id="+id;
+        }else{
+            return false;
+        }
     }
 </script>

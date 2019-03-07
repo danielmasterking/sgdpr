@@ -1,3 +1,5 @@
+ <script src="https://unpkg.com/gijgo@1.9.11/js/gijgo.min.js" type="text/javascript"></script>
+ <link href="https://unpkg.com/gijgo@1.9.11/css/gijgo.min.css" rel="stylesheet" type="text/css" />
 <?php
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -100,15 +102,8 @@ $tipo_servicio ['No Prestado'] = 'No Prestado';
      	?>
 	</div>
 	<div class="col-md-2" align="center">
-		<?=$form->field($model, 'hora_inicio')->widget(TimePicker::classname(), [
-		'readonly'=>true,
-		'pluginOptions' => [
-	        //'showSeconds' => true,
-	        'showMeridian' => false,
-	        'minuteStep' => 1,
-	        'secondStep' => 5,
-	        'defaultTime' => '00:00:00',
-	    ]])?>
+		
+	    <input id="prefacturadispositivo-hora_inicio" name="PrefacturaDispositivo[hora_inicio]" />
 	</div>
 	<div class="col-md-2" align="center">
 		<label>Hasta</label>
@@ -153,6 +148,11 @@ $tipo_servicio ['No Prestado'] = 'No Prestado';
 	var precio_servicio_nocturno=0;
 	var precio_servicio_minuto=0;
 	var precio_servicio_nocturno_minuto=0;
+
+	$('#prefacturadispositivo-hora_inicio').timepicker({
+            uiLibrary: 'bootstrap',
+            mode: '24hr' 
+        });
 	$("#prefacturadispositivo-tipo_servicio").val('Adicional')
 	//$('#prefacturadispositivo-tipo_servicio').change();
 	$("#prefacturadispositivo-cantidad_servicios").on('change paste keyup',function(){
@@ -353,14 +353,14 @@ $tipo_servicio ['No Prestado'] = 'No Prestado';
 	   		}
    		}
    		//rectificacion por reseteo de calculos hasta 24 horas
-   		if (jornada.isSame(hora00) && (hi.duration().asMinutes()-hf.duration().asMinutes())==0) {
+   		/*if (jornada.isSame(hora00) && (hi.duration().asMinutes()-hf.duration().asMinutes())==0) {
    			tiempo_nocturno=moment.utc('00:00', "hh-mm")
    			tiempo_diurna=moment.utc('00:00', "hh-mm")
    			tiempo_nocturno.add(8, 'hours')
 		   			.add(0, 'minutes');
 		   	tiempo_diurna.add(16, 'hours')
 		   			.add(0, 'minutes');
-   		}
+   		}*/
    		calcularFtes()
    		console.log("D= "+tiempo_diurna.format("HH:mm"))
 	   	console.log("N= "+tiempo_nocturno.format("HH:mm"))

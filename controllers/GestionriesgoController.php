@@ -432,7 +432,7 @@ class GestionriesgoController extends Controller
 
         if(isset($_POST['buscar'])){
             if($_POST['buscar']!='')
-            $query->andWhere('gs.id like "%'.$_POST['buscar'].'%" OR cc.nombre like "%'.$_POST['buscar'].'%" OR m.nombre like "%'.$_POST['buscar'].'%" OR YEAR(gs.fecha_visita)="'.$_POST['buscar'].'"');
+            $query->andWhere('gs.id like "%'.$_POST['buscar'].'%" OR cc.nombre like "%'.$_POST['buscar'].'%" OR m.nombre like "%'.$_POST['buscar'].'%" OR YEAR(gs.fecha_visita)="'.$_POST['buscar'].'" OR gs.usuario like "%'.$_POST['buscar'].'%"');
 
 
         }
@@ -544,7 +544,7 @@ class GestionriesgoController extends Controller
 
          if(isset($_POST['buscar'])){
             if($_POST['buscar']!='')
-            $query->andWhere('gs.id like "%'.$_POST['buscar'].'%" OR cc.nombre like "%'.$_POST['buscar'].'%" OR m.nombre like "%'.$_POST['buscar'].'%" OR YEAR(gs.fecha_visita)="'.$_POST['buscar'].'"');
+            $query->andWhere('gs.id like "%'.$_POST['buscar'].'%" OR cc.nombre like "%'.$_POST['buscar'].'%" OR m.nombre like "%'.$_POST['buscar'].'%" OR YEAR(gs.fecha_visita)="'.$_POST['buscar'].'" OR gs.usuario like "%'.$_POST['buscar'].'%"');
 
 
         }
