@@ -3806,6 +3806,8 @@ class PedidoController extends Controller
     public function actionAprobarPrefactura($id){//A= Aprobar
         $model=PrefacturaFija::find()->where('id='.$id)->one();
         $model->setAttribute('estado_pedido', 'A');
+        $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
+        $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
         if($model->save()){
             return $this->redirect(['prefactura-index']);
         }else{
@@ -3819,7 +3821,8 @@ class PedidoController extends Controller
         $model=PrefacturaFija::find()->where('id='.$id)->one();
         $model->setAttribute('estado_pedido', 'R');
         $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
-        
+        $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
+        $model->setAttribute('fecha_rechazo',date('Y-m-d'));
         if($model->save()){
             return $this->redirect(['prefactura-index']);
         }else{
@@ -3846,9 +3849,9 @@ class PedidoController extends Controller
         }
 
        $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes')
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido="A"');
+        ->where('estado_pedido IN("A","R")');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -3916,10 +3919,10 @@ class PedidoController extends Controller
             $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
         }
 
-        $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,solicitante,valor,material,fecha_pedido,motivo')
-        ->from('prefactura_pedido')
-        ->where('estado="R"');
+         $query = (new \yii\db\Query())
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario,motivo_rechazo_prefactura,usuario_rechaza,fecha_rechazo')
+        ->from('prefactura_consolidado_pedido')
+        ->where('estado_pedido="R"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -3941,7 +3944,7 @@ class PedidoController extends Controller
             }
         }
 
-        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"fecha_pedido";
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
         $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
 
         $query->orderBy([
@@ -3978,6 +3981,8 @@ class PedidoController extends Controller
             foreach ($checks as $value) {
                 $model=PrefacturaFija::find()->where('id='.$value)->one();
                 $model->setAttribute('estado_pedido', 'A');
+                $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
+                $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
                 $model->save();
             }
         }else if(isset($_POST['rechazar'])){
@@ -3985,6 +3990,8 @@ class PedidoController extends Controller
                 $model=PrefacturaFija::find()->where('id='.$value)->one();
                 $model->setAttribute('estado_pedido', 'R');
                 $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
+                $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
+                $model->setAttribute('fecha_rechazo',date('Y-m-d'));
                 $model->save();
             }
         }

@@ -247,39 +247,6 @@ class VisitaDiaController extends Controller
         }
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-
-            $image = UploadedFile::getInstances($model, 'image');
-
-            if ($image !== null) {
-                /*$model->foto = $image->name;
-                $ext         = end((explode(".", $image->name)));
-                $name        = date('Ymd') . rand(1, 10000) . '' . $model->foto;
-                $path        = Yii::$app->params['uploadPath'] . $name;
-                $model->foto = $shortPath . $name;
-                $model->save();
-                $image->saveAs($path);*/
-                foreach ($image as $img) {
-                   
-
-                    $archivo=new VisitaFotos();
-                    $name    = date('Ymd') . rand(1, 10000) . '' . $img->name;
-                    $path    = Yii::$app->params['uploadPath'] . $name;
-                    $archivo->setAttribute('archivo', $shortPath . $name);
-                    $archivo->setAttribute('id_visita', $model->id);
-                    $img->saveAs($path);
-                    $verifica_imagen=Yii::$app->verificar_imagen->esImagen($path);
-                    if ($verifica_imagen) {       
-                       Yii::$app->verificar_imagen->Redimenzionar($path,$img->type);
-                       //unlink($path);
-                    }
-                    $archivo->save();
-                    
-                }
-
-
-
-            }
-
             //Guardar Modelo relacionado
 
             /*obtener cantidad de novedades
@@ -367,6 +334,39 @@ class VisitaDiaController extends Controller
                 }
 
             }
+
+             $image = UploadedFile::getInstances($model, 'image');
+
+            if ($image !== null) {
+                /*$model->foto = $image->name;
+                $ext         = end((explode(".", $image->name)));
+                $name        = date('Ymd') . rand(1, 10000) . '' . $model->foto;
+                $path        = Yii::$app->params['uploadPath'] . $name;
+                $model->foto = $shortPath . $name;
+                $model->save();
+                $image->saveAs($path);*/
+                foreach ($image as $img) {
+                   
+
+                    $archivo=new VisitaFotos();
+                    $name    = date('Ymd') . rand(1, 10000) . '' . $img->name;
+                    $path    = Yii::$app->params['uploadPath'] . $name;
+                    $archivo->setAttribute('archivo', $shortPath . $name);
+                    $archivo->setAttribute('id_visita', $model->id);
+                    $img->saveAs($path);
+                    $verifica_imagen=Yii::$app->verificar_imagen->esImagen($path);
+                    if ($verifica_imagen) {       
+                       Yii::$app->verificar_imagen->Redimenzionar($path,$img->type);
+                       //unlink($path);
+                    }
+                    $archivo->save();
+                    
+                }
+
+
+
+            }
+
             /*foreach ($tamanoNovedades as $key => $value) {
                 $array=$_POST[$value];
                 $contador=0;

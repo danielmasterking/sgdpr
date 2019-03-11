@@ -4,11 +4,11 @@ use yii\helpers\Url;
 use kartik\widgets\Select2;
 use yii\helpers\Html;
 
-$this->title = 'Prefactura Rechazados';
+$this->title = 'Historico Rechazados';
 ?>
-<?= $this->render('_tabsConsolidado',['prefactura' => 'active']) ?>
+<?= $this->render('_tabsHistorico',['historico_prefactura' => 'active']) ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
-<?= Html::a('<i class="fas fa-clipboard-check"></i> Aprobados',Yii::$app->request->baseUrl.'/pedido/prefactura-aprobados',['class'=>'btn btn-primary']) ?>	
+
 <br>
 
 
@@ -28,11 +28,17 @@ $this->title = 'Prefactura Rechazados';
                <th>Ceco</th>
                <th>Cebe</th>
                <th>Marca</th>
+               <th>Regional</th>
+               <th>Proveedor</th>
+               <th>Mes</th>
+               <th>Ano</th>
+               <th>Total Fijo</th>
+               <th>Total Variable</th>
+               <th>Total Servicio</th>
                <th>Solicitante</th>
-               <th>Material</th>
-               <th>Fecha Pedido</th>
-               <th>Valor</th>
-               <th>Motivo</th>
+               <th>Usuario Rechazo</th>
+               <th>Fecha Rechazo</th>
+               <th>Motivo Rechazo</th>
             </tr>
         </thead>
         <tbody>
@@ -42,11 +48,17 @@ $this->title = 'Prefactura Rechazados';
                 <td><?= $rw['ceco']?></td>
                 <td><?= $rw['cebe']?></td>
                 <td><?= $rw['marca']?></td>
-                <td><?= $rw['solicitante']?></td>
-                <td><?= $rw['material']?></td>
-                <td><?= $rw['fecha_pedido']?></td>
-                <td><?= '$ '.number_format(($rw['valor']), 0, '.', '.').' COP'?></td>
-                <td><?= $rw['motivo']?></td>
+                <td><?= $rw['regional']?></td>
+                <td><?= $rw['empresa']?></td>
+                <td><?= $rw['mes']?></td>
+                <td><?= $rw['ano']?></td>
+                <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_varible']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
+                <td><?= $rw['usuario']?></td>
+                <td><?= $rw['usuario_rechaza']?></td>
+                <td><?= $rw['fecha_rechazo']?></td>
+                <td><?= $rw['motivo_rechazo_prefactura']?></td>
             </tr>
             
         <?php endforeach;?>
