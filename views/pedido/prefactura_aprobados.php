@@ -5,7 +5,7 @@ use kartik\widgets\Select2;
 use yii\helpers\Html;
 
 
-$this->title = 'Prefactura Aprobados';
+$this->title = 'Consolidado prefacturas';
 ?>
 <?= $this->render('_tabsConsolidado',['prefactura' => 'active']) ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
@@ -96,6 +96,11 @@ $this->title = 'Prefactura Aprobados';
   
 </div> -->
 
+<button class="btn btn-primary"><i class="fas fa-balance-scale"></i> Realizar equivalencia</button>
+<button class="btn btn-primary"><i class="fas fa-user-circle"></i> Cabecera</button>
+<button class="btn btn-primary"><i class="fas fa-clipboard-list"></i> Finalizar</button>
+
+<br>
 <?php
     echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
     echo LinkPager::widget([
@@ -107,55 +112,91 @@ $this->title = 'Prefactura Aprobados';
       <table class="table table-striped">
         <thead>
             <tr>
-               <th>Dependencia</th>
-               <th>Ceco</th>
-               <th>Cebe</th>
-               <th>Marca</th>
-               <th>Regional</th>
-               <th>Empresa</th>
-               <th>Mes</th>
-               <th>Ano</th>
-               <th>Total Fijo</th>
-               <th>Total Variable</th>
-               <th>Total Servicio</th>
-               <th>Solicitante</th>
-               <th>Usuario Aprueba</th>
-               <th>Fecha Aprobacion</th>
-               <th>Usuario Rechaza</th>
-               <th>Fecha Rechazo</th>
-               <th>Motivo Rechazo</th>
-               <th>Estado</th>
+              <th>ID_PEDIDO</th>
+              <th>Posición</th>
+              <th>Material</th>
+              <th>Texto Breve</th>
+              <th>Cantidad </th>
+              <th>unidad</th>
+              <th>ultima entrada</th>
+              <th>importe para bapis</th>
+              <th>Centro</th>
+              <th>Grupo</th>
+              <th>Almacen</th>
+              <th>Imputación</th>
+              <th>Solicitante</th>
+              <th>Indicador Iva</th>
+              <th>Fecha Entrega</th>
+              <th>Clase de condicion</th>
+              <th>Impte. Condición </th>
+              <th>Clave de moneda</th>
+              <th>Tipo de modificacion</th>
+              <th>Numero de cuenta mayor</th>
+              <th>Centro de Coste </th>
+              <th>Número de Orden</th>
+              <th>Contrato Asociado</th>
+              <th>Posición Contrato </th>
+              <th>Codigo activo Fijo</th>
+              <th>División</th>
+              <th>Cebe</th>
+              <th>Sublinea </th>
+              <th>Descripción por posición</th>
             </tr>
         </thead>
         <tbody>
         <?php foreach($rows as $rw):?>
             <tr>
-                <td><?= $rw['dependencia']?></td>
-                <td><?= $rw['ceco']?></td>
-                <td><?= $rw['cebe']?></td>
-                <td><?= $rw['marca']?></td>
-                <td><?= $rw['regional']?></td>
-                <td><?= $rw['empresa']?></td>
-                <td><?= $rw['mes']?></td>
-                <td><?= $rw['ano']?></td>
-                <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_varible']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
-                <td><?= $rw['usuario']?></td>
-                <td><?= $rw['usuario_aprueba']?></td>
-                <td><?= $rw['fecha_aprobacion']?></td>
-                <td><?= $rw['usuario_rechaza']?></td>
-                <td><?= $rw['fecha_rechazo']?></td>
-                <td><?= $rw['motivo_rechazo_prefactura']?></td>
-                <td>
-                    <?php 
-                        $estado=$rw['estado_pedido']=='A'?'<span class="label label-success">Aprobado</span>':'<span class="label label-danger">Rechazado</span>';
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>1</td>
+              <td>UN</td>
+              <td></td>
+              <td></td>
+              <td><?= $rw['cebe']?></td>
+              <td></td>
+              <td></td>
+              <td>F</td>
+              <td><?= $rw['usuario']?></td>
+              <td>PF</td>
+              <td>
+                <?php 
+                  $fecha=$rw['Fecha_creado'];
+                  echo date('Y-m-d', strtotime($fecha. ' + 30 days'));
+                ?>  
+              </td>
+              <td>MWVS</td>
+              <td>19</td>
+              <td>COP</td>
+              <td></td>
+              <td>
+                <?php
+                  $ceco=(string) $rw['ceco'];
+                  $resultado = substr($ceco, 0,1);
 
-                        echo $estado;
-                    ?>
+                  switch ($resultado) {
+                    case '3':
+
+                      echo 533505001 ;
+
+                      break;
                     
-                </td>
-
+                    default:
+                      echo 523505001;
+                      break;
+                  }
+                ?>
+              </td>
+              <td><?= $rw['ceco']?></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
             
         <?php endforeach;?>

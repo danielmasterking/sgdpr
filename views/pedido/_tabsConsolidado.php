@@ -19,7 +19,7 @@ $prefactura = isset($prefactura) ? $prefactura : '';
 	 
  	
      <li role="presentation" class="<?= $consolidado ?>"><?php echo Html::a('Consolidado',Yii::$app->request->baseUrl.'/pedido/consolidar'); ?></li>
-	 <li role="presentation" class="<?= $prefactura ?>"><?php echo Html::a('Prefactura',Yii::$app->request->baseUrl.'/pedido/prefactura-aprobados'); ?></li>
+	 <li role="presentation" class="<?= $prefactura ?>"><?php echo Html::a('Consolidado-Prefactura',Yii::$app->request->baseUrl.'/pedido/prefactura-aprobados'); ?></li>
 	 
       
    </ul>

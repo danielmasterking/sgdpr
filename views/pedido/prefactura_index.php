@@ -4,11 +4,11 @@ use yii\helpers\Url;
 use kartik\widgets\Select2;
 
 
-$this->title = 'Prefactura Pedido';
+$this->title = 'Aprobación Pedidos de prefactura';
 ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
 
-<!-- <div class="col-md-12">
+<div class="col-md-12">
   <div class="box box-primary collapsed-box box-solid">
     <div class="box-header with-border">
       <h3 class="box-title"><i class="fa fa-search fa-fw"></i> Filtro Avanzado</h3>
@@ -47,7 +47,11 @@ $this->title = 'Prefactura Pedido';
                             <option value="" <?= isset($_GET['ordenado']) && $_GET['ordenado']==''?'selected':''?>>[ORDENAR POR...]</option>
                             <option value="marca" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='marca'?'selected':''?>>Marca</option>
                             <option value="dependencia" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='dependencia'?'selected':''?>>Dependencia</option>
-                            <option value="solicitante" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='solicitante'?'selected':''?>>Solicitante</option>
+                            <option value="usuario" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='usuario'?'selected':''?>>Solicitante</option>
+
+                            <option value="mes" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='mes'?'selected':''?>>Mes</option>
+
+                            <option value="ano" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='ano'?'selected':''?>>Año</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -75,13 +79,28 @@ $this->title = 'Prefactura Pedido';
                     ?>
                 </div>
 
+                 <div class="col-md-3">
+                    <?php 
+                        echo Select2::widget([
+                            'id' => 'regional',
+                            'name' => 'regional',
+                            'value' => isset($_GET['regional']) && $_GET['regional']!=''?$_GET['regional']:'',
+                            'data' => $data_regional,
+                            'options' => ['multiple' => false, 'placeholder' => 'POR REGIONAL...'],
+                            'pluginOptions' => [
+                            'allowClear' => true
+                            ]
+                        ]);
+                    ?>
+                </div>
+
             </div>
     </div>
     
     <div class="box-footer">
-        <button type="button" class="btn btn-primary" onclick="excel()">
+        <!-- <button type="button" class="btn btn-primary" onclick="excel()">
             <i class="fas fa-file-excel"></i> Descargar Busqueda en Excel
-        </button>
+        </button> -->
         <button type="submit" class="btn btn-primary"  name="enviar">
             <i class="fa fa-search fa-fw"></i> Buscar
         </button>
@@ -89,7 +108,7 @@ $this->title = 'Prefactura Pedido';
     </div>
   </div>
   
-</div> -->
+</div> 
 
 <?php
     echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
@@ -113,6 +132,7 @@ $this->title = 'Prefactura Pedido';
             <tr>
                <th><input type="checkbox" id="todos"></th>
                <th>Acciones</th>
+               <th></th>
                <th>Dependencia</th>
                <th>Ceco</th>
                <th>Cebe</th>
@@ -141,6 +161,7 @@ $this->title = 'Prefactura Pedido';
                         <i class="fas fa-ban"></i>
                     </button>
                 </td>
+                <td><?= $rw['id']?></td>
                 <td><?= $rw['dependencia']?></td>
                 <td><?= $rw['ceco']?></td>
                 <td><?= $rw['cebe']?></td>
@@ -150,7 +171,7 @@ $this->title = 'Prefactura Pedido';
                 <td><?= $rw['mes']?></td>
                 <td><?= $rw['ano']?></td>
                 <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_varible']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_variable']), 0, '.', '.').' COP'?></td>
                 <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
             </tr>
             

@@ -3749,6 +3749,11 @@ class PedidoController extends Controller
             $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
         }
 
+        $data_regional=[];
+        foreach ($zonasUsuario as $reg){
+            $data_regional[$reg->zona->nombre]=$reg->zona->nombre;
+        }
+
         $query = (new \yii\db\Query())
         ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes')
         ->from('prefactura_consolidado_pedido')
@@ -3762,20 +3767,25 @@ class PedidoController extends Controller
             if(isset($_GET['marca']) && $_GET['marca']!=''){
                 $query->andWhere('marca="'.$_GET['marca'].'" ');
             }
+
+            if(isset($_GET['regional']) && $_GET['regional']!=''){
+                $query->andWhere('regional="'.$_GET['regional'].'" ');
+            }
             if(isset($_GET['buscar']) && $_GET['buscar']!=''){
                 $query->andWhere(" 
-                DEPENDENCIA like '%".$_GET['buscar']."%' OR 
+                dependencia like '%".$_GET['buscar']."%' OR 
                 marca like '%".$_GET['buscar']."%' OR 
                 ceco like '%".$_GET['buscar']."%' 
-                OR solicitante like '%".$_GET['buscar']."%' 
-                OR material like '%".trim($_GET['buscar'])."%' 
+                OR usuario like '%".$_GET['buscar']."%' 
                 OR cebe like '%".$_GET['buscar']."%' 
+                OR regional like '%".$_GET['buscar']."%' 
+                OR ano like '%".$_GET['buscar']."%' 
                 ");
             }
         }
 
         $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
-        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
 
         $query->orderBy([
             $ordenado => $forma
@@ -3798,7 +3808,8 @@ class PedidoController extends Controller
             'count'=>$count,
             'dependencias'=>$dependencias,
             'marcas'=>$data_marcas,
-            'pagina'=>$pagina
+            'pagina'=>$pagina,
+            'data_regional'=>$data_regional
         ]);
     }
 
@@ -3849,9 +3860,9 @@ class PedidoController extends Controller
         }
 
        $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura')
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido IN("A","R")');
+        ->where('estado_pedido IN("A")');
         //FILTROS
         if(isset($_GET['enviar'])){
            

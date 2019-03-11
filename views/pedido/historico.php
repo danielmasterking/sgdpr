@@ -37,7 +37,7 @@ foreach($dependencias as $value){
 	$data_dependencias[$value->nombre] =  $value->nombre;
 }
 ?>
-<?//= $this->render('_tabsHistorico',['historico' => 'active']) ?>
+<?= $this->render('_tabsHistorico',['historico' => 'active']) ?>
     <div class="page-header">
     <h1><small><i class="far fa-clock"></i></small> <?= Html::encode($this->title) ?></h1>
   </div>

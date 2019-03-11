@@ -225,7 +225,7 @@
         <?php }?>
 
         <?php if(in_array("administrador", $permisos)){ ?>
-        <li class="<?= $action=='ventana_inicio' && $controller=='prefactura-fija'?'active':'' ?>">
+        <li class="<?= $action=='prefactura-index' && $controller=='pedido'?'active':'' ?>">
           <a href="<?= Yii::$app->request->baseUrl.'/pedido/prefactura-index'?>">
             &nbsp;<i class="far fa-file-excel"></i> <span>&nbsp;&nbsp;&nbsp;Prefactura-pedido</span>
           </a>
