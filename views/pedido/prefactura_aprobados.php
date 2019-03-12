@@ -100,16 +100,16 @@ $this->title = 'Consolidado prefacturas';
 <button class="btn btn-primary"><i class="fas fa-user-circle"></i> Cabecera</button>
 <button class="btn btn-primary"><i class="fas fa-clipboard-list"></i> Finalizar</button>
 
-<br>
+<br><br>
 <?php
-    echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
+    /*echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
     echo LinkPager::widget([
         'pagination' => $pagination
-    ]);
+    ]);*/
 ?>
 <div class="col-md-12">
   <div class="table-responsive">
-      <table class="table table-striped">
+      <table class="table table-striped my-data-consolidado" data-page-length='30'>
         <thead>
             <tr>
               <th>ID_PEDIDO</th>
@@ -153,17 +153,17 @@ $this->title = 'Consolidado prefacturas';
               <td>1</td>
               <td>UN</td>
               <td></td>
-              <td></td>
+              <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
               <td><?= $rw['cebe']?></td>
               <td></td>
               <td></td>
-              <td>F</td>
+              <td>K</td>
               <td><?= $rw['usuario']?></td>
-              <td>PF</td>
+              <td>93</td>
               <td>
                 <?php 
-                  $fecha=$rw['Fecha_creado'];
-                  echo date('Y-m-d', strtotime($fecha. ' + 30 days'));
+                  $fecha=$rw['fecha_aprobacion'];
+                  echo date('Y-m-d', strtotime($fecha. ' + 1 days'));
                 ?>  
               </td>
               <td>MWVS</td>
@@ -189,8 +189,47 @@ $this->title = 'Consolidado prefacturas';
                 ?>
               </td>
               <td><?= $rw['ceco']?></td>
-              <td></td>
-              <td></td>
+              <td>102926</td>
+              <td>
+                <?php 
+                  $empresa=$rw['empresa'];
+
+                  switch ($empresa) {
+                    case 'NASER LTDA':
+                      echo "5500009152";   
+                    break;
+
+                    case 'PEGASO LTDA':
+                      echo "5500009151";   
+                    break;
+
+                    case 'MIRO SEGURIDAD':
+                      echo "5500009156";   
+                    break;
+
+                    case 'ANDINA SEGURIDAD DEL VALLE':
+                      echo "5500009157";   
+                    break;
+
+                    case 'SECANCOL LTDA':
+                      echo "5500009158";   
+                    break;
+
+                    case 'COLVISEG DEL CARIBE':
+                      echo "5500009159";   
+                    break;
+
+                    case 'SECURITAS':
+                      echo "5500009161";   
+                    break;
+                    
+                    default:
+                      echo "N/A";
+                    break;
+                  }
+
+                ?>
+              </td>
               <td></td>
               <td></td>
               <td></td>
@@ -204,3 +243,50 @@ $this->title = 'Consolidado prefacturas';
       </table>
   </div>
 </div> 
+
+<script type="text/javascript">
+  $(function(){
+      var table_consolidado = $('.my-data-consolidado').DataTable({
+        "columnDefs": [{
+            "className": "dt-center",
+            "targets": "_all"
+        }],
+        dom: 'Bfrtip',
+        buttons: [
+          {
+            extend:    'excelHtml5',
+            text:      '<i class="fas fa-file-excel"></i> Excel',
+            titleAttr: 'Excel'
+          }
+
+        ],
+        // "order": [[0,"desc"]],
+        language: {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+
+    table_consolidado.buttons().container().appendTo($('.col-sm-6:eq(0)', table.table().container()));
+  });
+</script>

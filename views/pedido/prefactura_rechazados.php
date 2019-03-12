@@ -4,7 +4,7 @@ use yii\helpers\Url;
 use kartik\widgets\Select2;
 use yii\helpers\Html;
 
-$this->title = 'Historico Rechazados';
+$this->title = 'Historico Prefactura';
 ?>
 <?= $this->render('_tabsHistorico',['historico_prefactura' => 'active']) ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
@@ -36,9 +36,12 @@ $this->title = 'Historico Rechazados';
                <th>Total Variable</th>
                <th>Total Servicio</th>
                <th>Solicitante</th>
+               <th>Usuario aprobo</th>
+               <th>Fecha Aprobacion</th>
                <th>Usuario Rechazo</th>
                <th>Fecha Rechazo</th>
                <th>Motivo Rechazo</th>
+               <th>Estado</th>
             </tr>
         </thead>
         <tbody>
@@ -53,12 +56,22 @@ $this->title = 'Historico Rechazados';
                 <td><?= $rw['mes']?></td>
                 <td><?= $rw['ano']?></td>
                 <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_varible']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_variable']), 0, '.', '.').' COP'?></td>
                 <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
                 <td><?= $rw['usuario']?></td>
+                <td><?= $rw['usuario_aprueba']?></td>
+                <td><?= $rw['fecha_aprobacion']?></td>
                 <td><?= $rw['usuario_rechaza']?></td>
                 <td><?= $rw['fecha_rechazo']?></td>
                 <td><?= $rw['motivo_rechazo_prefactura']?></td>
+                <td>
+                    <?php 
+                        $estado=$rw['estado_pedido']=='A'?'<span class="label label-success">Aprobado</span>':'<span class="label label-danger">Rechazado</span>';
+
+                        echo $estado;
+                    ?>
+                    
+                </td>
             </tr>
             
         <?php endforeach;?>

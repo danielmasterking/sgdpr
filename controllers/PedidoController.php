@@ -3931,9 +3931,9 @@ class PedidoController extends Controller
         }
 
          $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario,motivo_rechazo_prefactura,usuario_rechaza,fecha_rechazo')
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario,motivo_rechazo_prefactura,usuario_rechaza,fecha_rechazo,usuario_aprueba,fecha_aprobacion,estado_pedido')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido="R"');
+        ->where('estado_pedido IN("A","R")');
         //FILTROS
         if(isset($_GET['enviar'])){
            

@@ -6,6 +6,7 @@ use kartik\widgets\Select2;
 
 $this->title = 'Aprobación Pedidos de prefactura';
 ?>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
 
 <div class="col-md-12">
@@ -273,7 +274,7 @@ $this->title = 'Aprobación Pedidos de prefactura';
             });
 
             if(contador>0){
-
+              
                 var confirmar=confirm('Seguro desea realizar esta accion?');
 
                 if(!confirmar){
@@ -292,12 +293,21 @@ $this->title = 'Aprobación Pedidos de prefactura';
     }
 
     function Aprobar(id){
-        var confirmar=confirm('Seguro desea aprobar esta prefactura?');
-
-        if(confirmar){
+      swal({
+          title: "Seguro desea aprobar esta prefactura?",
+          text: "",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((confirm) => {
+          if (confirm) {
             location.href="<?php echo Url::toRoute('aprobar-prefactura')?>?id="+id;
-        }else{
+          } else {
             return false;
-        }
+          }
+        });
     }
+
+
 </script>
