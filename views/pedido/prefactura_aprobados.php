@@ -144,7 +144,12 @@ $this->title = 'Consolidado prefacturas';
             </tr>
         </thead>
         <tbody>
-        <?php foreach($rows as $rw):?>
+        <?php 
+          foreach($rows as $rw):
+            $total_mes=$rw['total_mes'];
+            $valor1=(($rw['total_mes']*90)/100);
+            $valor2=(($rw['total_mes']*10)/100);
+        ?>
             <tr>
               <td></td>
               <td></td>
@@ -153,7 +158,7 @@ $this->title = 'Consolidado prefacturas';
               <td>1</td>
               <td>UN</td>
               <td></td>
-              <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
+              <td><?= '$ '.number_format(($valor1), 0, '.', '.').' COP'?></td>
               <td><?= $rw['cebe']?></td>
               <td></td>
               <td></td>
@@ -230,6 +235,131 @@ $this->title = 'Consolidado prefacturas';
 
                 ?>
               </td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+
+              <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>1</td>
+              <td>UN</td>
+              <td></td>
+              <td><?= '$ '.number_format(($valor2), 0, '.', '.').' COP'?></td>
+              <td><?= $rw['cebe']?></td>
+              <td></td>
+              <td></td>
+              <td>K</td>
+              <td><?= $rw['usuario']?></td>
+              <td>SO</td>
+              <td>
+                <?php 
+                  $fecha=$rw['fecha_aprobacion'];
+                  echo date('Y-m-d', strtotime($fecha. ' + 1 days'));
+                ?>  
+              </td>
+              <td>MWVS</td>
+              <td>19</td>
+              <td>COP</td>
+              <td></td>
+              <td>
+                <?php
+                  $ceco=(string) $rw['ceco'];
+                  $resultado = substr($ceco, 0,1);
+
+                  switch ($resultado) {
+                    case '3':
+
+                      echo 533505001 ;
+
+                      break;
+                    
+                    default:
+                      echo 523505001;
+                      break;
+                  }
+                ?>
+              </td>
+              <td><?= $rw['ceco']?></td>
+              <td>102926</td>
+              <td>
+                <?php 
+                  $empresa=$rw['empresa'];
+
+                  switch ($empresa) {
+                    case 'NASER LTDA':
+                      echo "5500009152";   
+                    break;
+
+                    case 'PEGASO LTDA':
+                      echo "5500009151";   
+                    break;
+
+                    case 'MIRO SEGURIDAD':
+                      echo "5500009156";   
+                    break;
+
+                    case 'ANDINA SEGURIDAD DEL VALLE':
+                      echo "5500009157";   
+                    break;
+
+                    case 'SECANCOL LTDA':
+                      echo "5500009158";   
+                    break;
+
+                    case 'COLVISEG DEL CARIBE':
+                      echo "5500009159";   
+                    break;
+
+                    case 'SECURITAS':
+                      echo "5500009161";   
+                    break;
+                    
+                    default:
+                      echo "N/A";
+                    break;
+                  }
+
+                ?>
+              </td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+
+            <tr class="info">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td><b><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></b></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
