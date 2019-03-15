@@ -25,6 +25,8 @@ use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use yii\data\Pagination;
 use app\models\PrefacturaFija;
+use app\models\Empresa;
+use yii\helpers\ArrayHelper;
 
 /**
  * PedidoController implements the CRUD actions for Pedido model.
@@ -3754,6 +3756,9 @@ class PedidoController extends Controller
             $data_regional[$reg->zona->nombre]=$reg->zona->nombre;
         }
 
+        $empresas = Empresa::find()->orderBy(['nombre' => SORT_ASC])->all();
+        $list_empresas=ArrayHelper::map($empresas,'nombre','nombre');
+
         $query = (new \yii\db\Query())
         ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes')
         ->from('prefactura_consolidado_pedido')
@@ -3771,6 +3776,14 @@ class PedidoController extends Controller
             if(isset($_GET['regional']) && $_GET['regional']!=''){
                 $query->andWhere('regional="'.$_GET['regional'].'" ');
             }
+
+            if(isset($_GET['mes']) && $_GET['mes']!=''){
+                $query->andWhere('mes="'.$_GET['mes'].'" ');
+            }
+            if(isset($_GET['empresas']) && $_GET['empresas']!=''){
+                $query->andWhere('empresa="'.$_GET['empresas'].'" ');
+            }
+
             if(isset($_GET['buscar']) && $_GET['buscar']!=''){
                 $query->andWhere(" 
                 dependencia like '%".$_GET['buscar']."%' OR 
@@ -3809,7 +3822,8 @@ class PedidoController extends Controller
             'dependencias'=>$dependencias,
             'marcas'=>$data_marcas,
             'pagina'=>$pagina,
-            'data_regional'=>$data_regional
+            'data_regional'=>$data_regional,
+            'list_empresas'=>$list_empresas
         ]);
     }
 
@@ -4009,6 +4023,68 @@ class PedidoController extends Controller
 
         return $this->redirect(['prefactura-index']);
 
+    }
+
+    public function actionOrdenCompraPrefactura(){
+
+        $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
+        $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+        $zonasUsuario = array();
+        $marcasUsuario = array();
+        
+        if($usuario != null){
+          $zonasUsuario = $usuario->zonas;      
+          $marcasUsuario = $usuario->marcas;
+        }
+        $data_marcas=array();
+        foreach($marcasUsuario as $marca){
+            
+            $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
+        }
+
+       $query = (new \yii\db\Query())
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado,orden_compra')
+        ->from('prefactura_consolidado_pedido')
+        ->where('estado_pedido IN("F")');
+
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        return $this->render('orden_prefactura', [
+         'result'=>$rows
+        ]);
+    }
+
+
+    public function actionFinalizarPrefacturas(){
+        PrefacturaFija::updateAll(['estado_pedido' => "F"], ['=', 'estado_pedido', 'A']);
+        return $this->redirect(['prefactura-aprobados']);
+    }
+
+    public function actionPrefacturaAgregarOrden(){
+
+        PrefacturaFija::updateAll(['orden_compra' => $_POST['orden']], ['=', 'id', $_POST['id_pref']]);
+        return $this->redirect(['orden-compra-prefactura']);
+    }
+
+
+    public function actionPrefacturaAgregarOrdenTodos(){
+
+        $prefacturas=$_POST['seleccion'];
+        $orden=$_POST['orden'];
+        foreach ($prefacturas as $key => $value) {
+            PrefacturaFija::updateAll(['orden_compra' => $orden], ['=', 'id', $value]);
+        }
+       
+        return $this->redirect(['orden-compra-prefactura']);
     }
 
 

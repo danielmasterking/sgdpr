@@ -7,6 +7,7 @@ use yii\helpers\Html;
 
 $this->title = 'Consolidado prefacturas';
 ?>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <?= $this->render('_tabsConsolidado',['prefactura' => 'active']) ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
 
@@ -98,7 +99,7 @@ $this->title = 'Consolidado prefacturas';
 
 <button class="btn btn-primary"><i class="fas fa-balance-scale"></i> Realizar equivalencia</button>
 <button class="btn btn-primary"><i class="fas fa-user-circle"></i> Cabecera</button>
-<button class="btn btn-primary"><i class="fas fa-clipboard-list"></i> Finalizar</button>
+<button class="btn btn-primary" id="finalizar_pref" onclick="finalizar();"><i class="fas fa-clipboard-list"></i> Finalizar</button>
 
 <br><br>
 <?php
@@ -377,6 +378,7 @@ $this->title = 'Consolidado prefacturas';
 <script type="text/javascript">
   $(function(){
       var table_consolidado = $('.my-data-consolidado').DataTable({
+        "ordering": false,
         "columnDefs": [{
             "className": "dt-center",
             "targets": "_all"
@@ -418,5 +420,23 @@ $this->title = 'Consolidado prefacturas';
     });
 
     table_consolidado.buttons().container().appendTo($('.col-sm-6:eq(0)', table.table().container()));
+
   });
+
+  function finalizar(){
+    swal({
+          title: "Seguro desea finalizar estas prefacturas?",
+          text: "",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((confirm) => {
+          if (confirm) {
+            location.href="<?php echo Url::toRoute('finalizar-prefacturas')?>";
+          } else {
+            return false;
+          }
+        });
+  }
 </script>

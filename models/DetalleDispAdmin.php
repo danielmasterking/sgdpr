@@ -45,4 +45,9 @@ class DetalleDispAdmin extends \yii\db\ActiveRecord
             'cod_dependencia' => 'Cod Dependencia',
         ];
     }
+
+    public function getDependencia()
+    {
+        return $this->hasOne(CentroCosto::className(), ['codigo' => 'cod_dependencia']);
+    }
 }

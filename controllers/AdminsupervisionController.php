@@ -335,13 +335,15 @@ class AdminsupervisionController extends Controller
                 $model->save();
                 $detalle_disp=DetalleDispAdmin::find()->where('id_disp_admin='.$_POST['dispositivo'])->all();
                 foreach ($detalle_disp as $key => $value) {
-                    $model_dep=new AdminDependencia();
+                    if($value->dependencia->estado!='C'){
+                        $model_dep=new AdminDependencia();
                         $model_dep->setAttribute('centro_costos_codigo', $value->cod_dependencia);
                         //$model_dep->setAttribute('precio', $_POST['precio_dep']);
                         $model_dep->setAttribute('id_admin', $model->id);
                         //$model_dep->setAttribute('horas',$horas_dep);
                         //$model_dep->setAttribute('ftes', $_POST['ftes_dep']);
                         $model_dep->save();
+                    }
                 }
 
             }else{

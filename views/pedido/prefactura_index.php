@@ -95,6 +95,41 @@ $this->title = 'Aprobación Pedidos de prefactura';
                     ?>
                 </div>
 
+                <div class="col-md-3" >
+                  <select class="form-control"  name="mes">
+                      <option value="" <?= isset($_GET['mes']) && $_GET['mes']==''?'selected':''?>>Por Mes</option>
+                      <option value="01" <?= isset($_GET['mes']) && $_GET['mes']=='01'?'selected':''?>>Enero</option>
+                      <option value="02" <?= isset($_GET['mes']) && $_GET['mes']=='02'?'selected':''?>>Febrero</option>
+                      <option value="03" <?= isset($_GET['mes']) && $_GET['mes']=='03'?'selected':''?>>Marzo</option>
+                      <option value="04" <?= isset($_GET['mes']) && $_GET['mes']=='04'?'selected':''?>>Abril</option>
+                      <option value="05" <?= isset($_GET['mes']) && $_GET['mes']=='05'?'selected':''?>>Mayo</option>
+                      <option value="06" <?= isset($_GET['mes']) && $_GET['mes']=='06'?'selected':''?>>Junio</option>
+                      <option value="07" <?= isset($_GET['mes']) && $_GET['mes']=='07'?'selected':''?>>Julio</option>
+                      <option value="08" <?= isset($_GET['mes']) && $_GET['mes']=='08'?'selected':''?>>Agosto</option>
+                      <option value="09" <?= isset($_GET['mes']) && $_GET['mes']=='09'?'selected':''?>>Septiembre</option>
+                      <option value="10" <?= isset($_GET['mes']) && $_GET['mes']=='10'?'selected':''?>>Octubre</option>
+                      <option value="11" <?= isset($_GET['mes']) && $_GET['mes']=='11'?'selected':''?>>Noviembre</option>
+                      <option value="12" <?= isset($_GET['mes']) && $_GET['mes']=='12'?'selected':''?>>Diciembre</option>
+
+                  </select>
+                </div>
+
+
+              <div class="col-md-3">
+                    <?php 
+                      echo Select2::widget([
+                          'name' => 'empresas',
+                          'value' => isset($_GET['empresas']) && $_GET['empresas']!=''?$_GET['empresas']:'',
+                          'data' => $list_empresas,
+                          //'size' => Select2::SMALL,
+                          'options' => ['placeholder' => 'Por Empresa ...', 'id'=>'empresas'],
+                          'pluginOptions' => [
+                              'allowClear' => true
+                          ],
+                      ]);
+                    ?>
+              </div>
+
             </div>
     </div>
     

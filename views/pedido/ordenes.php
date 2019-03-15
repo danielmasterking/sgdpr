@@ -19,6 +19,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 }
 
 ?>
+<?= $this->render('_tabs_oc',['ocpedido' => 'active']) ?>
     <div class="page-header">
 	  <h1><small><i class="fa fa-file fa-fw"></i></small> <?= Html::encode($this->title) ?></h1>
 	</div>
