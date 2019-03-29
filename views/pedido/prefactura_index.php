@@ -173,6 +173,7 @@ $this->title = 'Aprobación Pedidos de prefactura';
                <th>Ceco</th>
                <th>Cebe</th>
                <th>Marca</th>
+               <th>Ciudad</th>
                <th>Regional</th>
                <th>Empresa</th>
                <th>Mes</th>
@@ -202,6 +203,7 @@ $this->title = 'Aprobación Pedidos de prefactura';
                 <td><?= $rw['ceco']?></td>
                 <td><?= $rw['cebe']?></td>
                 <td><?= $rw['marca']?></td>
+                <td><?= $rw['ciudad']?></td>
                 <td><?= $rw['regional']?></td>
                 <td><?= $rw['empresa']?></td>
                 <td><?= $rw['mes']?></td>

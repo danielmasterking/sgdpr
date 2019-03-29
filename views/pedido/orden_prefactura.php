@@ -3,6 +3,11 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;
 $this->title = 'Agregar Orden de Compra Prefactura';
+
+$permisos = array();
+if( isset(Yii::$app->session['permisos-exito']) ){
+  $permisos = Yii::$app->session['permisos-exito'];
+}
 ?>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <?= $this->render('_tabs_oc',['ocprefactura' => 'active']) ?>
@@ -11,6 +16,12 @@ $this->title = 'Agregar Orden de Compra Prefactura';
 </div>
 
 <form id="form-orden-all" method="post" action="<?php echo Url::toRoute('prefactura-agregar-orden-todos')?>">
+
+<button class="btn btn-primary" onclick="ConfirmarPrefacturas();" ><i class="fa fa-check"></i> Confirmar Prefacturas</button>
+<?php if(in_array("administrador", $permisos)){ ?>
+<button class="btn btn-primary"  onclick="devolver();"><i class="fa fa-reply"></i> Devolver a consolidado</button>
+<?php }?>
+<br><br>
 <div class="col-md-12">
 	<div class="table-responsive">
 		<table class="table table-striped my-data-consolidado" data-page-length='30'>
@@ -36,8 +47,8 @@ $this->title = 'Agregar Orden de Compra Prefactura';
 				<?php foreach($result as $row): ?>
 				  <tr>
 				  	<td><input type="checkbox" name="seleccion[]" class="check" value="<?= $row['id']?>"></td>
-				  	<td></td>
-				  	<td></td>
+				  	<td><?= $row['id_pedido'] ?></td>
+				  	<td><?= $row['posicion'] ?></td>
 				  	<td><?= $row['cebe'] ?></td>
 				  	<td><?= $row['dependencia']?></td>
 				  	<td></td>
@@ -65,7 +76,7 @@ $this->title = 'Agregar Orden de Compra Prefactura';
       </div>
       <div class="modal-body">
         
-        	<label>#Orden</label>
+        	<!-- <label>#Orden</label> -->
         	<input type="text" name="orden" class="form-control" id="orden-all" required="">
       </div>
       <div class="modal-footer">
@@ -179,7 +190,10 @@ function agregarorden(){
 }
 
 function agregarordenTodos(){
-
+	$('#form-orden-all').attr({
+		action: '<?php echo Url::toRoute('prefactura-agregar-orden-todos')?>'
+		
+	});
 	swal({
 	  title: "Seguro desea agregar esta orden de compra?",
       text: "",
@@ -212,4 +226,44 @@ function agregarordenTodos(){
       }
     });
 }
+
+function ConfirmarPrefacturas(){
+	$('#form-orden-all').attr({
+		action: '<?php echo Url::toRoute('orden-compra-prefactura')?>'
+		
+	});
+	swal({
+	  title: "Seguro desea realizar esta accion?",
+      text: "",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((confirm) => {
+        
+      if (confirm) {
+      	$('#form-orden-all').submit();
+      }else {
+        return false;
+      }
+    });
+}
+
+function devolver(){
+
+     swal({
+          title: "Seguro desea devolver estas prefacturas?",
+          text: "",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((confirm) => {
+          if (confirm) {
+            location.href="<?php echo Url::toRoute('devolver-consolidado')?>";
+          } else {
+            return false;
+          }
+        });
+  }
 </script>

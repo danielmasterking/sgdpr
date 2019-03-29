@@ -26,6 +26,7 @@ use yii\web\UploadedFile;
 use yii\data\Pagination;
 use app\models\PrefacturaFija;
 use app\models\Empresa;
+use app\models\PrefacturaConsolidadoPedido;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -3760,9 +3761,9 @@ class PedidoController extends Controller
         $list_empresas=ArrayHelper::map($empresas,'nombre','nombre');
 
         $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes')
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,ciudad')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido="S"');
+        ->where('estado_pedido="S" AND estado="cerrado"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -3874,7 +3875,7 @@ class PedidoController extends Controller
         }
 
        $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado')
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado,id_pedido,posicion,ciudad,Factura_numero')
         ->from('prefactura_consolidado_pedido')
         ->where('estado_pedido IN("A")');
         //FILTROS
@@ -3898,8 +3899,8 @@ class PedidoController extends Controller
             }
         }
 
-        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
-        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
 
         $query->orderBy([
             $ordenado => $forma
@@ -3947,7 +3948,7 @@ class PedidoController extends Controller
          $query = (new \yii\db\Query())
         ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario,motivo_rechazo_prefactura,usuario_rechaza,fecha_rechazo,usuario_aprueba,fecha_aprobacion,estado_pedido')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido IN("A","R")');
+        ->where('estado_pedido IN("H","R")');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -4027,6 +4028,20 @@ class PedidoController extends Controller
 
     public function actionOrdenCompraPrefactura(){
 
+        $prefacturas=$_POST['seleccion'];
+
+        if(count($prefacturas)>0){
+            foreach ($prefacturas as $pref) {
+                $query=PrefacturaFija::find()->where('id='.$pref)->one();
+                if($query->orden_compra!=null && $query->orden_compra!=''){
+                    $query->setAttribute('estado_pedido', 'H');
+                    $query->save();
+                }
+            }
+            return $this->redirect(['orden-compra-prefactura']);
+
+        }
+
         $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
         $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
         $zonasUsuario = array();
@@ -4043,12 +4058,12 @@ class PedidoController extends Controller
         }
 
        $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado,orden_compra')
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado,orden_compra,id_pedido,posicion')
         ->from('prefactura_consolidado_pedido')
         ->where('estado_pedido IN("F")');
 
-        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
-        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_DESC";
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
 
         $query->orderBy([
             $ordenado => $forma
@@ -4087,5 +4102,77 @@ class PedidoController extends Controller
         return $this->redirect(['orden-compra-prefactura']);
     }
 
+
+    public function actionEquivalenciaPrefactura(){
+        $id_pedido=1;
+        $posicion=1;
+        $empresa_anterior=null;
+        $ciudad_anterior=null;
+        //$posicion_anterior=0;
+
+        $query=PrefacturaConsolidadoPedido::find()->where('estado_pedido="A"')->orderby('ciudad,empresa')->all();
+
+        foreach ($query as $ped) {
+            if($empresa_anterior==null && $ciudad_anterior==null){
+                PrefacturaFija::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped->id]);
+
+                $empresa_anterior=$ped->empresa;
+                $ciudad_anterior=$ped->ciudad;
+                //$posicion_anterior=$posicion;
+            }elseif($empresa_anterior==$ped->empresa && $ciudad_anterior==$ped->ciudad){
+                $posicion++;
+                PrefacturaFija::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped->id]);
+                $empresa_anterior=$ped->empresa;
+                $ciudad_anterior=$ped->ciudad;
+                //$posicion_anterior=$posicion_anterior+1;
+            }else{
+                $id_pedido++;
+                $posicion=1;
+                PrefacturaFija::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped->id]);
+                $empresa_anterior=$ped->empresa;
+                $ciudad_anterior=$ped->ciudad;
+            }
+            //echo $ped->id."-".$ped->ciudad."-".$ped->empresa."<br>";
+        }
+
+        return $this->redirect(['prefactura-aprobados']);
+    }
+
+
+    public function actionCabeceraPrefactura(){
+
+        $query = (new \yii\db\Query())
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado,id_pedido,posicion,ciudad')
+        ->from('prefactura_consolidado_pedido')
+        ->where('estado_pedido IN("A") AND id_pedido<>""')
+        ->groupby('id_pedido,ciudad,empresa ');
+
+          $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        return $this->render('cabecera_prefactura', [
+         'result'=>$rows
+        ]);
+    }
+
+
+    public function actionDevolverAprobacion(){
+        PrefacturaFija::updateAll(['estado_pedido' => 'S'], ['=', 'estado_pedido', 'A']);
+        return $this->redirect(['prefactura-aprobados']);
+    }
+
+    public function actionDevolverConsolidado(){
+        PrefacturaFija::updateAll(['estado_pedido' => 'A'], ['=', 'estado_pedido', 'F']);
+        return $this->redirect(['orden-compra-prefactura']);
+    }
 
 }

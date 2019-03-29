@@ -224,10 +224,10 @@
         </li>
         <?php }?>
 
-        <?php if(in_array("administrador", $permisos)){ ?>
+        <?php if(in_array("administrador", $permisos) || in_array("ver-aprobacion-prefactura", $permisos)){ ?>
         <li class="<?= $action=='prefactura-index' && $controller=='pedido'?'active':'' ?>">
           <a href="<?= Yii::$app->request->baseUrl.'/pedido/prefactura-index'?>">
-            &nbsp;<i class="far fa-file-excel"></i> <span>&nbsp;&nbsp;&nbsp;Prefactura-pedido</span>
+            &nbsp;<i class="far fa-file-excel"></i> <span>&nbsp;&nbsp;&nbsp;Aprobacion Prefactura-pedido</span>
           </a>
         </li>
         <?php }?>

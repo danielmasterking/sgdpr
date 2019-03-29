@@ -20,6 +20,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
  	<table  class="table table-hover" width="100%">
        	<thead>
        		<tr>
+       			<th style="text-align: center;"><input type="checkbox" id="todos"></th>
        			<th style="text-align: center;">Ver</th>
        			<th style="text-align: center;">Numero factura</th>
        			<th style="text-align: center;">Fecha factura</th>
@@ -50,6 +51,11 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 		   		foreach($prefacturas as $pref):
 		   	?>
 		   	<tr style="text-align: center;">
+		   		<td>
+		   			<?php if($pref['estado']=='cerrado'){?>
+		   				<input type="checkbox" name="seleccion[]" class="check" value="<?= $pref['id']?>">
+		   			<?php }?>
+		   		</td>
 		   		<td>
 		   			<?php if($pref['estado']=='abierto'){?>
 			   		<a href="<?php echo Url::toRoute('prefactura-fija/view?id='.$pref['id'])?>" class="btn btn-primary btn-xs">

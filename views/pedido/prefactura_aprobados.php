@@ -6,6 +6,11 @@ use yii\helpers\Html;
 
 
 $this->title = 'Consolidado prefacturas';
+
+$permisos = array();
+if( isset(Yii::$app->session['permisos-exito']) ){
+  $permisos = Yii::$app->session['permisos-exito'];
+}
 ?>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <?= $this->render('_tabsConsolidado',['prefactura' => 'active']) ?>
@@ -97,10 +102,12 @@ $this->title = 'Consolidado prefacturas';
   
 </div> -->
 
-<button class="btn btn-primary"><i class="fas fa-balance-scale"></i> Realizar equivalencia</button>
-<button class="btn btn-primary"><i class="fas fa-user-circle"></i> Cabecera</button>
+<button class="btn btn-primary" onclick="equivalencia();"><i class="fas fa-balance-scale"></i> Realizar equivalencia</button>
+<a class="btn btn-primary" href="<?php echo Url::toRoute('cabecera-prefactura')?>"><i class="fas fa-user-circle"></i> Cabecera</a>
 <button class="btn btn-primary" id="finalizar_pref" onclick="finalizar();"><i class="fas fa-clipboard-list"></i> Finalizar</button>
-
+<?php if(in_array("administrador", $permisos)){ ?>
+<button class="btn btn-primary"  onclick="devolver();"><i class="fa fa-reply"></i> Devolver a aprobacion</button>
+<?php }?>
 <br><br>
 <?php
     /*echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
@@ -113,8 +120,11 @@ $this->title = 'Consolidado prefacturas';
       <table class="table table-striped my-data-consolidado" data-page-length='30'>
         <thead>
             <tr>
+              <th>Empresa</th>
+              <th>Ciudad</th>
               <th>ID_PEDIDO</th>
               <th>Posición</th>
+              
               <th>Material</th>
               <th>Texto Breve</th>
               <th>Cantidad </th>
@@ -146,16 +156,49 @@ $this->title = 'Consolidado prefacturas';
         </thead>
         <tbody>
         <?php 
+          $ciudad_anterior=null;
+          $empresa_anterior=null;
+          $posicion=1;
           foreach($rows as $rw):
             $total_mes=$rw['total_mes'];
             $valor1=(($rw['total_mes']*90)/100);
             $valor2=(($rw['total_mes']*10)/100);
+
+            if($ciudad_anterior==null && $empresa_anterior==null){
+              $posicion_uno=$posicion;
+              $posicion++;
+              $posicion_dos=$posicion;
+              $ciudad_anterior=$rw['ciudad'];
+              $empresa_anterior=$rw['empresa'];
+            }elseif($ciudad_anterior==$rw['ciudad'] && $empresa_anterior==$rw['empresa']){
+              $posicion++;
+              $posicion_uno=$posicion;
+              $posicion++;
+              $posicion_dos=$posicion;
+            }else{
+              $posicion=1;
+              $posicion_uno=$posicion;
+              $posicion++;
+              $posicion_dos=$posicion;
+              $ciudad_anterior=$rw['ciudad'];
+              $empresa_anterior=$rw['empresa'];
+            }
+             
         ?>
             <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td><?= $rw['empresa']?></td>
+              <td><?= $rw['ciudad']?></td>
+              <td><?= $rw['id_pedido']?></td>
+              <td>
+                <?php
+                  if($rw['id_pedido']!=0 && $rw['id_pedido']!=NULL) 
+                   echo $posicion_uno
+                ?>
+                
+              </td>
+              
+              <td>2007970</td>
+              <td>SERVICIO SEGURIDAD FIJA Y VARIABLE</td>
               <td>1</td>
               <td>UN</td>
               <td></td>
@@ -198,7 +241,7 @@ $this->title = 'Consolidado prefacturas';
               <td>102926</td>
               <td>
                 <?php 
-                  $empresa=$rw['empresa'];
+                  $empresa=trim((string)$rw['empresa']);
 
                   switch ($empresa) {
                     case 'NASER LTDA':
@@ -236,19 +279,89 @@ $this->title = 'Consolidado prefacturas';
 
                 ?>
               </td>
+              <td>
+                <?php 
+                  $empresa=trim((string)$rw['empresa']);
+                  $aiu_material="";
+                  $aiu_texto="";
+                  $aiu_posicion=null;
+                  switch ($empresa) {
+                    case 'NASER LTDA':
+                      $aiu_material="2007974";
+                      $aiu_texto="AIU SERVICIO SEGURIDAD";
+                      $aiu_posicion=5;
+                      echo 6;   
+                    break;
+
+                    case 'PEGASO LTDA':
+                      $aiu_material="2007974";
+                      $aiu_texto="AIU SERVICIO SEGURIDAD";
+                      $aiu_posicion=7;
+                      echo 5;   
+                    break;
+
+                    case 'MIRO SEGURIDAD':
+                      $aiu_material="2007974";
+                      $aiu_texto="AIU SERVICIO SEGURIDAD";
+                      $aiu_posicion=4;
+                      echo 6;   
+                    break;
+
+                    case 'ANDINA SEGURIDAD DEL VALLE':
+                      $aiu_material="2007974";
+                      $aiu_texto="AIU SERVICIO SEGURIDAD";
+                      $aiu_posicion=4;
+                      echo 6;   
+                    break;
+
+                    case 'SECANCOL LTDA':
+                      $aiu_material="2007974";
+                      $aiu_texto="AIU SERVICIO SEGURIDAD";
+                      $aiu_posicion=4;
+                      echo 6;   
+                    break;
+
+                    case 'COLVISEG DEL CARIBE':
+                      $aiu_material="2007974";
+                      $aiu_texto="AIU SERVICIO SEGURIDAD";
+                      $aiu_posicion=4;
+                      echo 6;   
+                    break;
+
+                    case 'SECURITAS':
+                      $aiu_material="2007974";
+                      $aiu_texto="AIU SERVICIO SEGURIDAD";
+                      $aiu_posicion=4;
+                      echo 7;   
+                    break;
+                    
+                    default:
+                      echo "N/A";
+                    break;
+                  }
+
+                ?>
+              </td>
               <td></td>
               <td></td>
               <td></td>
               <td></td>
-              <td></td>
-              <td></td>
+              <td><?= $rw['Factura_numero']?></td>
             </tr>
 
               <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td><?= $rw['empresa']?></td>
+              <td><?= $rw['ciudad']?></td>
+              <td><?= $rw['id_pedido']?></td>
+              <td>
+                <?php
+                  if($rw['id_pedido']!=0 && $rw['id_pedido']!=NULL) 
+                    echo $posicion_dos;
+                ?>
+                
+              </td>
+              <td><?= $aiu_material ?></td>
+              <td><?= $aiu_texto ?></td>
               <td>1</td>
               <td>UN</td>
               <td></td>
@@ -291,7 +404,7 @@ $this->title = 'Consolidado prefacturas';
               <td>102926</td>
               <td>
                 <?php 
-                  $empresa=$rw['empresa'];
+                  $empresa=trim((string)$rw['empresa']);
 
                   switch ($empresa) {
                     case 'NASER LTDA':
@@ -329,15 +442,19 @@ $this->title = 'Consolidado prefacturas';
 
                 ?>
               </td>
+              <td>
+                <?= $aiu_posicion?>
+              </td>
               <td></td>
               <td></td>
               <td></td>
               <td></td>
-              <td></td>
-              <td></td>
+              <td><?= $rw['Factura_numero']?></td>
             </tr>
 
             <tr class="info">
+              <td></td>
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -367,6 +484,7 @@ $this->title = 'Consolidado prefacturas';
               <td></td>
               <td></td>
               <td></td>
+
             </tr>
             
         <?php endforeach;?>
@@ -392,7 +510,7 @@ $this->title = 'Consolidado prefacturas';
           }
 
         ],
-        // "order": [[0,"desc"]],
+        //"order": [[0,"asc"]],
         language: {
             "sProcessing": "Procesando...",
             "sLengthMenu": "Mostrar _MENU_ registros",
@@ -434,6 +552,43 @@ $this->title = 'Consolidado prefacturas';
         .then((confirm) => {
           if (confirm) {
             location.href="<?php echo Url::toRoute('finalizar-prefacturas')?>";
+          } else {
+            return false;
+          }
+        });
+  }
+
+
+  function devolver(){
+
+     swal({
+          title: "Seguro desea devolver estas prefacturas?",
+          text: "",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((confirm) => {
+          if (confirm) {
+            location.href="<?php echo Url::toRoute('devolver-aprobacion')?>";
+          } else {
+            return false;
+          }
+        });
+  }
+
+
+  function equivalencia(){
+    swal({
+          title: "Seguro desea realizar esta accion?",
+          text: "",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((confirm) => {
+          if (confirm) {
+            location.href="<?php echo Url::toRoute('equivalencia-prefactura')?>";
           } else {
             return false;
           }

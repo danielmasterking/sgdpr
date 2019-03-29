@@ -127,7 +127,7 @@ $arr_tipos=['fijo'=>'Fijo','variable'=>'Variable','admin'=>'Admin y sup'];
         <div class="row">
             <!--<div class="navbar-form navbar-right" role="search">-->
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <?php 
                         echo Select2::widget([
                             'id' => 'marcas2',
@@ -144,7 +144,7 @@ $arr_tipos=['fijo'=>'Fijo','variable'=>'Variable','admin'=>'Admin y sup'];
 
 
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <?= 
                         DatePicker::widget([
                             'id' => 'desde',
@@ -157,7 +157,7 @@ $arr_tipos=['fijo'=>'Fijo','variable'=>'Variable','admin'=>'Admin y sup'];
                         ]);
                     ?>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <?= 
                         DatePicker::widget([
                             'id' => 'hasta',
@@ -170,12 +170,8 @@ $arr_tipos=['fijo'=>'Fijo','variable'=>'Variable','admin'=>'Admin y sup'];
                         ]);
                     ?>
                 </div>
-            <!--</div>-->
-        </div>
 
-        <br>
-        <div class="row">
-            <div class="col-md-4" >
+                <div class="col-md-3" >
                 
                 <select class="form-control" id="mes" name="mes">
                     <option value="">Por Mes</option>
@@ -192,6 +188,20 @@ $arr_tipos=['fijo'=>'Fijo','variable'=>'Variable','admin'=>'Admin y sup'];
                     <option value="11">Noviembre</option>
                     <option value="12">Diciembre</option>
 
+                </select>
+            </div>
+            <!--</div>-->
+        </div>
+
+        <br>
+        <div class="row">
+            <div class="col-md-4" >
+                
+                <select class="form-control" id="ano" name="ano">
+                    <option value="">Por año</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
                 </select>
             </div>
 
@@ -298,6 +308,7 @@ $(document).on( "click", "#registros .pagination li", function() {
         var empresa=$('#empresas option:selected').val();
         var zona=$('#zonas option:selected').val();
         var tipo=$('#tipo option:selected').val();
+        var ano=$('#ano option:selected').val();
 
         if( $('#tipo_fijo').is(':checked') ) {
 
@@ -341,7 +352,8 @@ $(document).on( "click", "#registros .pagination li", function() {
                 tipo:tipo,
                 tipo_fijo:tipo_fijo,
                 tipo_variable:tipo_variable,
-                tipo_admin:tipo_admin
+                tipo_admin:tipo_admin,
+                ano:ano
             },
             beforeSend:  function() {
                 $('#info').html('Cargando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');

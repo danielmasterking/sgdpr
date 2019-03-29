@@ -225,6 +225,18 @@ $this->title = 'Visita Quincenal ';
 
 			  		foreach($fotos as $ft):
 			  	?>
+			  	<?php if( (strpos($ft->archivo, 'pdf') !== false || strpos($ft->archivo, 'xls') !== false || strpos($ft->archivo, 'xlsx') !== false ) ){ 
+
+			  		$nombre=str_replace('/uploads/visita_fotos/', '', $ft->archivo);
+			  	?>
+			  		 <div class="col-lg-3 col-md-4 col-xs-6 thumb">
+		                <a href="<?php echo Yii::$app->request->baseUrl.$ft->archivo?>" title="<?php echo $nombre ?>" download>
+						 <i class="fas fa-file fa-3x"></i><br>
+						 <?php echo $nombre ?>
+						</a>
+		            </div>
+
+			  	<?php }else{ ?>
 			  	    <div class="col-lg-3 col-md-4 col-xs-6 thumb">
 		                <a class="thumbnail" href="#" data-image-id="" data-toggle="modal" data-title=""
 		                   data-image="<?php echo Yii::$app->request->baseUrl.$ft->archivo?>"
@@ -234,7 +246,7 @@ $this->title = 'Visita Quincenal ';
 		                         alt="Foto">
 		                </a>
 		            </div>
-			  	
+			  	<?php } ?>
 			  	<?php 
 
 			  		endforeach;

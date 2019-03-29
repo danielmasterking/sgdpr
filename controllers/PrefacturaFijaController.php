@@ -494,6 +494,10 @@ class PrefacturaFijaController extends Controller
             $rows->andWhere("dp.mes like '%".$_POST['mes']."%'");
         }
 
+        if (trim($_POST['ano'])!='') {
+            $rows->andWhere("dp.ano ='".$_POST['ano']."'");
+        }
+
 
         ////////////////////
 
@@ -851,7 +855,7 @@ class PrefacturaFijaController extends Controller
                     )valor_serv_nocturno
 
                     ','pd.tipo',
-            'dp.regional'/*,'pd.tipo_servicio'*/,'pd.id as id_disp','CONCAT(serv.nombre,"-", ds.descripcion) as servicio_disp'/*,"CAST(null AS CHAR) as num_dep"*/
+            'dp.regional'/*,'pd.tipo_servicio'*/,'pd.id as id_disp','CONCAT(serv.nombre,"-", ds.descripcion) as servicio_disp','CAST(null AS CHAR) as id_admin_dep'/*,"CAST(null AS CHAR) as num_dep"*/
         ])
         ->from('prefactura_dispositivo pd')
         ->innerJoin('prefactura_fija  dp', 'pd.id_prefactura_fija=dp.id')
@@ -879,12 +883,12 @@ class PrefacturaFijaController extends Controller
              "da.ftes_diurno_dep /*ROUND(((da.ftes_diurno/(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ))*da.cantidad),3)*/ as ftes_diurno",
              "da.ftes_nocturno_dep as ftes_nocturno",
              "CAST(null AS CHAR) as explicacion",
-             "/*CAST(null AS CHAR)*/((da.ftes_diurno_dep*da.precio_dependencia)/da.ftes) as valor_serv_diurno","/*CAST(null AS CHAR)*/((da.ftes_nocturno*da.precio_dependencia)/da.ftes) as valor_serv_nocturno",'CAST("Administracion y supervision" AS CHAR) as tipo','(
+             "/*CAST(null AS CHAR)*/((da.ftes_diurno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_diurno","/*CAST(null AS CHAR)*/((da.ftes_nocturno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_nocturno",'CAST("Administracion y supervision" AS CHAR) as tipo','(
             select zona.nombre  from centro_costo cc
             inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
             inner join zona on  cz.zona_id=zona.id
             WHERE cc.codigo=ad.centro_costos_codigo limit 1
-            ) regional','da.id as id_disp','CAST(null AS CHAR) as servicio_disp'])
+            ) regional','da.id as id_disp','CAST(null AS CHAR) as servicio_disp','ad.id id_admin_dep'])
             ->from('admin_supervision  as'/*'admin_dependencia ad','admin_dispositivo da'*/)
             //->innerJoin('admin_supervision  as', 'ad.id_admin=as.id')
             ->innerJoin('admin_dependencia ad', 'as.id=ad.id_admin')
@@ -912,10 +916,10 @@ class PrefacturaFijaController extends Controller
                     $dependencia=trim($_POST['dependencias2']);
                 }*/
 
-                $rows->andWhere("dp.mes like '%".$buscar."%' OR dp.ano like '%".$_POST['buscar']."%' OR em.nombre like '%".$buscar."%' OR dp.usuario like '%".$buscar."%' OR dp.numero_factura like '%".$buscar."%' OR dp.fecha_factura = '".$buscar."' OR pd.tipo like '%".$buscar."%'  ");
+                $rows->andWhere("dp.mes like '%".$buscar."%' OR dp.ano like '%".$_POST['buscar']."%' OR em.nombre like '%".$buscar."%' OR dp.usuario like '%".$buscar."%' OR dp.numero_factura = '".$buscar."' OR dp.fecha_factura = '".$buscar."' OR pd.tipo like '%".$buscar."%'  ");
 
 
-                $rows1->andWhere("as.mes like '%".$buscar."%' OR as.ano like '%".$buscar."%' OR em.nombre like '%".$buscar."%' OR as.usuario like '%".$buscar."%' OR as.numero_factura like '%".$buscar."%' OR fecha_factura = '%".$buscar."%' OR 
+                $rows1->andWhere("as.mes like '%".$buscar."%' OR as.ano like '%".$buscar."%' OR em.nombre like '%".$buscar."%' OR as.usuario like '%".$buscar."%' OR as.numero_factura = '".$buscar."' OR fecha_factura = '%".$buscar."%' OR 
                     (SELECT CAST('Administracion y supervision' AS CHAR) as tipo)like '%".$buscar."%'
 
                     ");
@@ -984,6 +988,11 @@ class PrefacturaFijaController extends Controller
             //$rows1->andWhere("m.nombre like '%".$_POST['marca']."%'");
         }
 
+        if (trim($_POST['ano'])!='' && isset($_POST['ano']) ) {
+            $rows->andWhere("dp.ano like '%".trim($_POST['ano'])."%'");
+            $rows1->andWhere("as.ano like '%".trim($_POST['ano'])."%'");
+        }
+
         $ordenado='dp.numero_factura';
         $ordenado1='as.id';
         if(isset($_POST['ordenado'])){
@@ -1044,12 +1053,13 @@ class PrefacturaFijaController extends Controller
         ///DESCARAGA DE EXCEL
         if(isset($_POST['excel'])){
             // set_time_limit(5000);
-            ini_set('memory_limit', '2024M');
+            //ini_set('memory_limit', '2024M');
             \moonland\phpexcel\Excel::widget([
                 'models' => $dispositivos,
                 'mode' => 'export',
                 'fileName' => 'Informe dispositivos', 
                 'columns' => [
+                    'id_disp',
                     'tipo',
                     'mes',
                     'ano',
@@ -1090,6 +1100,7 @@ class PrefacturaFijaController extends Controller
                     
                 ],
                 'headers' => [
+                    'id_disp'=>'id',
                     'tipo'=>'Tipo',
                     'mes' => 'Mes',
                     'ano' => 'Año',
@@ -1696,6 +1707,18 @@ class PrefacturaFijaController extends Controller
         $model = $this->findModel($id);
         $model->setAttribute('estado','abierto');
         $model->save();
+        return $this->redirect(['index']);
+    }
+
+    public function actionAbrir_pref_todas(){
+        $seleccionadas=$_POST['seleccion'];
+
+        foreach ($seleccionadas as $key => $value) {
+            $model = $this->findModel($value);
+            $model->setAttribute('estado','abierto');
+            $model->save();
+        }
+
         return $this->redirect(['index']);
     }
 

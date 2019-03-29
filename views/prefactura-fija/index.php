@@ -161,7 +161,7 @@ foreach($dependencias as $dependencia){
 
         <br>
         <div class="row">
-            <div class="col-md-6" >
+            <div class="col-md-4" >
                 
                 <select class="form-control" id="mes" name="mes">
                     <option value="">Por Mes</option>
@@ -180,8 +180,20 @@ foreach($dependencias as $dependencia){
 
                 </select>
             </div>
+
+            <div class="col-md-4" >
+                
+                <select class="form-control" id="ano" name="ano">
+                    <option value="">Por año</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                </select>
+            </div>
+
         </div>
     </form>
+    
     <div class="row">
         <div class="navbar-form navbar-right" role="search">
             <button type="submit" class="btn btn-primary" onclick="excel()">
@@ -192,14 +204,20 @@ foreach($dependencias as $dependencia){
             </button>
         </div>
     </div>
+<form method="post" action="<?php echo Url::toRoute('prefactura-fija/abrir_pref_todas')?>">
     <div class="row">
         <hr>
         <div id="info"></div>
+        <button class="btn btn-primary" type="submit" data-confirm="Seguro desea habilitar?"><i class="fa fa-check"></i> Habilitar selecionados</button>
         <div id="partial"><?=$partial?></div>
     </div>
 </div>
-
+</form>
 <script>
+    $("#todos").change(function () {
+        $("input:checkbox").prop('checked', $(this).prop("checked"));
+    });
+
     function eliminar(id){
         var url="<?php echo Url::toRoute('prefactura-fija/delete')?>";
         var r = confirm('¿Desea eliminar la Pre-factura?');
@@ -226,6 +244,7 @@ foreach($dependencias as $dependencia){
         var marca=$("#marcas2").val();
         var empresa=$("#empresas option:selected").val();
         var mes=$("#mes").val();
+        var ano=$('#ano option:selected').val();
         $.ajax({
             url:"<?php echo Url::toRoute('prefactura-fija/index')?>",
             type:'POST',
@@ -241,7 +260,8 @@ foreach($dependencias as $dependencia){
                 page: page,
                 marca:marca,
                 empresa:empresa,
-                mes:mes
+                mes:mes,
+                ano:ano
             },
             beforeSend:  function() {
                 $('#info').html('Cargando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');
