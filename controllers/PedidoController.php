@@ -3763,7 +3763,7 @@ class PedidoController extends Controller
         $query = (new \yii\db\Query())
         ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,ciudad')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido="S" AND estado="cerrado"');
+        ->where('estado_pedido="S" AND estado="cerrado" AND DATE(created) >= "2019-03-29"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
