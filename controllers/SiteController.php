@@ -119,6 +119,37 @@ class SiteController extends Controller
 
          }
     }
+
+  public function actionReestablecerClave(){
+
+    $array_post = Yii::$app->request->post();
+
+
+    $nueva_clave = isset($array_post['clave']) ? $array_post['clave'] : 'X';
+    $hash = Yii::$app->getSecurity()->generatePasswordHash($nueva_clave);
+    //$confirmacion_clave = isset($array_post['confirmacion_clave']) ? $array_post['confirmacion_clave'] : 'Y';
+
+    $model = null;
+
+    //if($confirmacion_clave == $nueva_clave){
+    if(isset($array_post['clave'])){
+
+        $usuario = Usuario::find()->where(['usuario' => $array_post['usuario'] ])->one();
+
+        $model = $usuario;
+
+        $model->SetAttribute('password',$hash);
+        $model->SetAttribute('update_contrasena','S');
+
+        if($model->save()){
+          Yii::$app->session->setFlash('success','Tu clave fue reestablecida correctamente');
+          $this->redirect(['login']);
+
+        }
+
+      
+    }
+  }
 	
 	public function actionInicio(){
 	    $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
@@ -214,6 +245,27 @@ class SiteController extends Controller
                 'usuario'=>$usuario
             ]);	
 		}
+    }
+
+
+    public function actionVerificarUsuario(){
+
+      $usuario=$_POST['user'];
+
+     $modelUsuario = Usuario::find()->where('usuario="'.$usuario.'" OR email="'.$usuario.'" ')->count();
+      //echo "el usuario:".$usuario;
+      //echo $modelUsuario;
+      if($modelUsuario==1){
+
+        $arreglo_resp=['respuesta'=>1];
+        //echo "entro en el if";
+      }else{
+        $arreglo_resp=['respuesta'=>0];
+        //echo "entro en el else";
+      }
+
+
+      return json_encode($arreglo_resp);
     }
 
     public function actionLogout()
