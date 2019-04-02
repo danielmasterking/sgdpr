@@ -4,7 +4,7 @@ use yii\helpers\Url;
 use kartik\widgets\Select2;
 
 
-$this->title = 'Aprobación Pedidos de prefactura';
+$this->title = 'Aprobación Pedidos de Administracion y supervision';
 ?>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
@@ -22,32 +22,19 @@ $this->title = 'Aprobación Pedidos de prefactura';
     </div>
     
     <div class="box-body">
-       <form id="form_excel" method="get" action="<?php echo Url::toRoute('prefactura-index')?>">
+       <form id="form_excel" method="get" action="<?php echo Url::toRoute('aprobacion')?>">
             <div class="row">
                 
                 <div class="col-md-3">
                     <input type="text" id="buscar" name="buscar" class="form-control" placeholder="Buscar Coincidencias" value="<?=isset($_GET['buscar']) && $_GET['buscar']!=''?$_GET['buscar']:''?>">
                 </div>
-                <div class="col-md-3">
-                    <?php 
-                        echo Select2::widget([
-                            'id' => 'dependencias',
-                            'name' => 'dependencias',
-                            'value' => isset($_GET['dependencias']) && $_GET['dependencias']!=''?$_GET['dependencias']:'',
-                            'data' => $dependencias,
-                            'options' => ['multiple' => false, 'placeholder' => 'POR DEPENDENCIA...'],
-                            'pluginOptions' => [
-                            'allowClear' => true
-                            ]
-                        ]);
-                    ?>
-                </div>
+               
 
                 <div class="col-md-3">
                         <select id="ordenado" name="ordenado" class="form-control">
                             <option value="" <?= isset($_GET['ordenado']) && $_GET['ordenado']==''?'selected':''?>>[ORDENAR POR...]</option>
-                            <option value="marca" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='marca'?'selected':''?>>Marca</option>
-                            <option value="dependencia" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='dependencia'?'selected':''?>>Dependencia</option>
+                            <option value="empresa" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='empresa'?'selected':''?>>Empresa</option>
+                           
                             <option value="usuario" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='usuario'?'selected':''?>>Solicitante</option>
 
                             <option value="mes" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='mes'?'selected':''?>>Mes</option>
@@ -62,38 +49,6 @@ $this->title = 'Aprobación Pedidos de prefactura';
                             <option value="SORT_DESC" <?= isset($_GET['forma']) && $_GET['forma']=='SORT_DESC'?'selected':''?>>Descendente</option>
                         </select>
                     </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-md-3">
-                    <?php 
-                        echo Select2::widget([
-                            'id' => 'marcas',
-                            'name' => 'marca',
-                            'value' => isset($_GET['marca']) && $_GET['marca']!=''?$_GET['marca']:'',
-                            'data' => $marcas,
-                            'options' => ['multiple' => false, 'placeholder' => 'POR MARCA...'],
-                            'pluginOptions' => [
-                            'allowClear' => true
-                            ]
-                        ]);
-                    ?>
-                </div>
-
-                 <div class="col-md-3">
-                    <?php 
-                        echo Select2::widget([
-                            'id' => 'regional',
-                            'name' => 'regional',
-                            'value' => isset($_GET['regional']) && $_GET['regional']!=''?$_GET['regional']:'',
-                            'data' => $data_regional,
-                            'options' => ['multiple' => false, 'placeholder' => 'POR REGIONAL...'],
-                            'pluginOptions' => [
-                            'allowClear' => true
-                            ]
-                        ]);
-                    ?>
-                </div>
 
                 <div class="col-md-3" >
                   <select class="form-control"  name="mes">
@@ -113,6 +68,19 @@ $this->title = 'Aprobación Pedidos de prefactura';
 
                   </select>
                 </div>
+            </div>
+            <br>
+            <div class="row">
+               
+                <div class="col-md-3" >
+                  <select class="form-control"  name="ano">
+                      <option value="" <?= isset($_GET['ano']) && $_GET['ano']==''?'selected':''?>>Por Año</option>
+                      <option value="2017" <?= isset($_GET['ano']) && $_GET['ano']=='2017'?'selected':''?>>2017</option>
+                      <option value="2018" <?= isset($_GET['ano']) && $_GET['ano']=='2018'?'selected':''?>>2018</option>
+                   	  <option value="2019" <?= isset($_GET['ano']) && $_GET['ano']=='2019'?'selected':''?>>2019</option>
+                  </select>
+                </div>
+                
 
 
               <div class="col-md-3">
@@ -152,6 +120,8 @@ $this->title = 'Aprobación Pedidos de prefactura';
         'pagination' => $pagination
     ]);
 ?> 
+
+
 <form action="<?php echo Url::toRoute('aprobar-rechazar')?>" method="post" id="form-aprobar-rechazar">
 
 <button class="btn btn-primary" type="submit" name="aprobar" title="Aprobar Todos">
@@ -160,7 +130,8 @@ $this->title = 'Aprobación Pedidos de prefactura';
 <button class="btn btn-danger" type="button"   title="Rechazar Todos" data-toggle="modal" data-target="#myModal1">
     <i class="fas fa-ban"></i> Rechazar
 </button>
-<a href="<?php echo Url::toRoute('adminsupervision/aprobacion')?>" class="btn btn-primary">Admin y supervision</a>
+<a href="<?php echo Url::toRoute('pedido/prefactura-index')?>" class="btn btn-primary">Prefactura-fija</a>
+
 <div class="col-md-12">
   <div class="table-responsive">
    
@@ -169,18 +140,10 @@ $this->title = 'Aprobación Pedidos de prefactura';
             <tr>
                <th><input type="checkbox" id="todos"></th>
                <th>Acciones</th>
-               <th></th>
-               <th>Dependencia</th>
-               <th>Ceco</th>
-               <th>Cebe</th>
-               <th>Marca</th>
-               <th>Ciudad</th>
-               <th>Regional</th>
+               <th>Id</th>
                <th>Empresa</th>
                <th>Mes</th>
                <th>Ano</th>
-               <th>Total Fijo</th>
-               <th>Total Variable</th>
                <th>Total Servicio</th>
             </tr>
         </thead>
@@ -200,18 +163,10 @@ $this->title = 'Aprobación Pedidos de prefactura';
                     </button>
                 </td>
                 <td><?= $rw['id']?></td>
-                <td><?= $rw['dependencia']?></td>
-                <td><?= $rw['ceco']?></td>
-                <td><?= $rw['cebe']?></td>
-                <td><?= $rw['marca']?></td>
-                <td><?= $rw['ciudad']?></td>
-                <td><?= $rw['regional']?></td>
                 <td><?= $rw['empresa']?></td>
                 <td><?= $rw['mes']?></td>
                 <td><?= $rw['ano']?></td>
-                <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_variable']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_factura']), 0, '.', '.').' COP'?></td>
             </tr>
             
         <?php endforeach;?>
@@ -220,9 +175,6 @@ $this->title = 'Aprobación Pedidos de prefactura';
     
   </div>
 </div>
-
-
-
 
 <!-- Modal Rechazar todos-->
 <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

@@ -19,6 +19,7 @@ use yii\helpers\ArrayHelper;
 use kartik\mpdf\Pdf;
 use yii\filters\AccessControl;
 use app\models\Empresa;
+use yii\data\Pagination;
 
 /**
  * AdminsupervisionController implements the CRUD actions for AdminSupervision model.
@@ -926,6 +927,129 @@ class AdminsupervisionController extends Controller
               'accion'=>$accion,
               'cont'=>$cont
         ]);
+
+    }
+
+
+    public function actionAprobacion(){
+
+        $empresas = Empresa::find()->orderBy(['nombre' => SORT_ASC])->all();
+        $list_empresas=ArrayHelper::map($empresas,'nombre','nombre');
+
+       $query = (new \yii\db\Query())
+        ->select(['id','mes','ano','usuario','created','estado','numero_factura','fecha_factura','empresa.nombre as empresa',
+            '(SELECT SUM((ftes*cantidad)) FROM admin_dispositivo WHERE id_admin=admin_supervision.id) ftes_totales',
+            '(SELECT SUM(precio_total) FROM admin_dispositivo WHERE id_admin=admin_supervision.id) total_factura'])
+        ->from('admin_supervision')
+        ->innerJoin('empresa', 'admin_supervision.empresa=empresa.nit')
+        ->where('estado="cerrado" AND estado_pedido="S"'); 
+
+        //FILTROS
+        if(isset($_GET['enviar'])){
+            if(isset($_GET['mes']) && $_GET['mes']!=''){
+                $query->andWhere('admin_supervision.mes="'.$_GET['mes'].'" ');
+            }
+
+            if(isset($_GET['ano']) && $_GET['ano']!=''){
+                $query->andWhere('admin_supervision.ano="'.$_GET['ano'].'" ');
+            }
+
+            if(isset($_GET['empresas']) && $_GET['empresas']!=''){
+                $query->andWhere('empresa.nombre="'.$_GET['empresas'].'" ');
+            }
+
+            if(isset($_GET['buscar']) && $_GET['buscar']!=''){
+                $query->andWhere(" 
+               
+                empresa.nombre like '%".$_GET['buscar']."%'
+                OR usuario like '%".$_GET['buscar']."%' 
+                OR mes like '%".$_GET['buscar']."%' 
+                OR ano like '%".$_GET['buscar']."%' 
+                ");
+            }
+        }
+
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        $count = $query->count();
+        $pagination = new Pagination(['totalCount' => $count]);
+        $limit=30;
+        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        $pagina=isset($_GET['page'])?$_GET['page']:1;
+
+        return $this->render('aprobacion', [
+              'rows'=>$rows,
+              'list_empresas'=>$list_empresas,
+              'pagina'=>$pagina,
+              'pagination'=>$pagination,
+              'count'=>$count,
+              
+        ]);
+    }
+
+
+    public function actionAprobarRechazar(){
+        $count=count($_POST['seleccion']);
+        $checks=$_POST['seleccion'];
+
+        if(isset($_POST['aprobar'])){
+            foreach ($checks as $value) {
+                $model=AdminSupervision::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_pedido', 'A');
+                $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
+                $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
+                $model->save();
+            }
+        }else if(isset($_POST['rechazar'])){
+            foreach ($checks as $value) {
+                $model=AdminSupervision::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_pedido', 'R');
+                $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
+                $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
+                $model->setAttribute('fecha_rechazo',date('Y-m-d'));
+                $model->save();
+            }
+        }
+
+        return $this->redirect(['aprobacion']);
+
+    }
+
+
+    public function actionAprobarPrefactura($id){//A= Aprobar
+        $model=AdminSupervision::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_pedido', 'A');
+        $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
+        $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
+        if($model->save()){
+            return $this->redirect(['aprobacion']);
+        }else{
+            print_r($model->getErrors());
+        }
+
+    }
+
+
+    public function actionRechazarPrefactura($id){//R= Rechazar
+        $model=AdminSupervision::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_pedido', 'R');
+        $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
+        $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
+        $model->setAttribute('fecha_rechazo',date('Y-m-d'));
+        if($model->save()){
+            return $this->redirect(['aprobacion']);
+        }else{
+            print_r($model->getErrors());
+        }
 
     }
 }
