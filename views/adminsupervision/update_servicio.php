@@ -472,11 +472,13 @@ $checked_no=$model->ftes==0?'checked':'';
             var cant_diurno=arr_diurno[1].length;
 
             if(cant_diurno>3){
-                ftes_diurno=Number(Math.round(ftes_diurno+'e3')+'e-3')
+                //ftes_diurno=Number(Math.round(ftes_diurno+'e3')+'e-3')
+                ftes_diurno=ftes_diurno;
+                ftes_diurno=myRound(ftes_diurno,3);
             }
 
 
-         console.log('str_diurno:'+cant_diurno);
+        // console.log('str_diurno:'+cant_diurno);
         }
 
         var str_nocturno=ftes_nocturno.toString();
@@ -485,23 +487,26 @@ $checked_no=$model->ftes==0?'checked':'';
             var cant_nocturno=arr_nocturno[1].length;
 
             if(cant_nocturno>3){
-                ftes_nocturno=Number(Math.round(ftes_nocturno+'e3')+'e-3')
+                //ftes_nocturno=Number(Math.round(ftes_nocturno+'e3')+'e-3')
+                ftes_nocturno=ftes_nocturno;
+                ftes_nocturno=myRound(ftes_nocturno,3);
             }
 
 
-         console.log('str_diurno:'+cant_nocturno);
+         //console.log('str_diurno:'+cant_nocturno);
         }
 
         
 
-        console.log("ftes_diurno= "+ftes_diurno)
+        /*console.log("ftes_diurno= "+ftes_diurno)
         console.log("ftes_nocturno= "+ftes_nocturno)
-        console.log("*******************************")
+        console.log("*******************************")*/
         
         // ftes_diurno=Number(Math.round(ftes_diurno+'e2')+'e-2')
         // ftes_nocturno=Number(Math.round(ftes_nocturno+'e2')+'e-2')
 
         var total_ftes=(ftes_diurno + ftes_nocturno);
+        total_ftes=myRound(total_ftes,3)
         //alert("Diurno:"+ftes_diurno+" -  Nocturno:"+ftes_nocturno);
         //alert(total_ftes);
         //total_ftes=Number(Math.round(total_ftes+'e3')+'e-3')
@@ -510,9 +515,9 @@ $checked_no=$model->ftes==0?'checked':'';
             total_ftes=0;
         }
         $('#ftes_total').val(total_ftes)
-        console.log("ftes_diurno= "+ftes_diurno)
+        /*console.log("ftes_diurno= "+ftes_diurno)
         console.log("ftes_nocturno= "+ftes_nocturno)
-        console.log("total_ftes= "+total_ftes)
+        console.log("total_ftes= "+total_ftes)*/
         //calcularPrecio();
 
         calcular_ftes(total_ftes,ftes_diurno,ftes_nocturno);
@@ -525,25 +530,39 @@ $checked_no=$model->ftes==0?'checked':'';
     });*/
 
     function calcular_ftes(ftes,ftes_diurnos,ftes_nocturno){
+        console.log("ftes:"+ftes);
+        console.log("ftes_diurnos:"+ftes_diurnos);
+        console.log("ftes_nocturnos:"+ftes_nocturno);
 
         var count = <?= $num_dep ?>//$("#deps :selected").length;
 
-        var calculo=Number(Math.round(((ftes/count)*parseInt($('#cantidad_serv').val()))+'e3')+'e-3');
-
+        //var calculo=Number(Math.round(((ftes/count)*parseInt($('#cantidad_serv').val()))+'e3')+'e-3');
+        /*var calculo=((ftes/count)*parseInt($('#cantidad_serv').val()));
+            calculo=myRound(calculo,3)*/
         //var ftes_dep=Number(Math.round(calculo+'e3')+'e-3');
 
-        $('#ftes_dep').val(calculo);
+        //$('#ftes_dep').val(calculo);
         //$('#ftes_dep').val(ftes_dep);
 
-        var ftes_diurno_dep=Number(Math.round(((ftes_diurnos/count)*parseInt($('#cantidad_serv').val()))+'e3')+'e-3');
+        //var ftes_diurno_dep=Number(Math.round(((ftes_diurnos/count)*parseInt($('#cantidad_serv').val()))+'e3')+'e-3');
+        var ftes_diurno_dep=((ftes_diurnos/count)*parseInt($('#cantidad_serv').val()));
+            ftes_diurno_dep=myRound(ftes_diurno_dep,3);
+        //var ftes_nocturno_dep=Number(Math.round(((ftes_nocturno/count)*parseInt($('#cantidad_serv').val()))+'e3')+'e-3');
 
-        var ftes_nocturno_dep=Number(Math.round(((ftes_nocturno/count)*parseInt($('#cantidad_serv').val()))+'e3')+'e-3');
+        var ftes_nocturno_dep=((ftes_nocturno/count)*parseInt($('#cantidad_serv').val()));
+            ftes_nocturno_dep=myRound(ftes_nocturno_dep,3);
 
+        var calculo=(ftes_diurno_dep+ftes_nocturno_dep);
+        calculo=myRound(calculo,3);
+
+        $('#ftes_dep').val(calculo);
         $('#ftes_diurno_dep').val(ftes_diurno_dep);
 
         $('#ftes_nocturno_dep').val(ftes_nocturno_dep);
 
-
+         console.log("ftes_dep:"+calculo);
+        console.log("ftes_diurnos_dep:"+ftes_diurno_dep);
+        console.log("ftes_nocturnos_dep:"+ftes_nocturno_dep);
 
     }
 

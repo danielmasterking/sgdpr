@@ -42,6 +42,11 @@ foreach($dependencias as $dependencia){
         }
     }
 }
+
+$permisos = array();
+if( isset(Yii::$app->session['permisos-exito']) ){
+    $permisos = Yii::$app->session['permisos-exito'];
+}
 ?>
 <div class="prefactura-fija-index">
 
@@ -208,7 +213,9 @@ foreach($dependencias as $dependencia){
     <div class="row">
         <hr>
         <div id="info"></div>
+        <?php if (in_array("administrador", $permisos) or in_array("habilitar-prefactura", $permisos)): ?>
         <button class="btn btn-primary" type="submit" data-confirm="Seguro desea habilitar?"><i class="fa fa-check"></i> Habilitar selecionados</button>
+        <?php endif; ?>
         <div id="partial"><?=$partial?></div>
     </div>
 </div>

@@ -5,7 +5,7 @@ use kartik\widgets\Select2;
 use yii\helpers\Html;
 
 
-$this->title = 'Consolidado prefacturas';
+$this->title = 'Consolidado Administracion y supervision';
 
 $permisos = array();
 if( isset(Yii::$app->session['permisos-exito']) ){
@@ -13,94 +13,8 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 }
 ?>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-<?= $this->render('_tabsConsolidado',['prefactura' => 'active']) ?>
+<?= $this->render('/pedido/_tabsConsolidado',['prefactura' => 'active']) ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
-
-<?php //echo Html::a('<i class="fas fa-ban"></i> Rechazados',Yii::$app->request->baseUrl.'/pedido/prefactura-rechazados',['class'=>'btn btn-primary']) ?>	
-<br>
-
-<!-- <div class="col-md-12">
-  <div class="box box-primary collapsed-box box-solid">
-    <div class="box-header with-border">
-      <h3 class="box-title"><i class="fa fa-search fa-fw"></i> Filtro Avanzado</h3>
-
-      <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
-        </button>
-      </div>
-      
-    </div>
-    
-    <div class="box-body">
-       <form id="form_excel" method="get" action="<?php echo Url::toRoute('prefactura-aprobados')?>">
-            <div class="row">
-                
-                <div class="col-md-3">
-                    <input type="text" id="buscar" name="buscar" class="form-control" placeholder="Buscar Coincidencias" value="<?=isset($_GET['buscar']) && $_GET['buscar']!=''?$_GET['buscar']:''?>">
-                </div>
-                <div class="col-md-3">
-                    <?php 
-                        echo Select2::widget([
-                            'id' => 'dependencias',
-                            'name' => 'dependencias',
-                            'value' => isset($_GET['dependencias']) && $_GET['dependencias']!=''?$_GET['dependencias']:'',
-                            'data' => $dependencias,
-                            'options' => ['multiple' => false, 'placeholder' => 'POR DEPENDENCIA...'],
-                            'pluginOptions' => [
-                            'allowClear' => true
-                            ]
-                        ]);
-                    ?>
-                </div>
-
-                <div class="col-md-3">
-                        <select id="ordenado" name="ordenado" class="form-control">
-                            <option value="" <?= isset($_GET['ordenado']) && $_GET['ordenado']==''?'selected':''?>>[ORDENAR POR...]</option>
-                            <option value="marca" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='marca'?'selected':''?>>Marca</option>
-                            <option value="dependencia" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='dependencia'?'selected':''?>>Dependencia</option>
-                            <option value="solicitante" <?= isset($_GET['ordenado']) && $_GET['ordenado']=='solicitante'?'selected':''?>>Solicitante</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select id="forma" name="forma" class="form-control">
-                            <option value="" <?= isset($_GET['forma']) && $_GET['forma']==''?'selected':''?>>[FORMA...]</option>
-                            <option value="SORT_ASC" <?= isset($_GET['forma']) && $_GET['forma']=='SORT_ASC'?'selected':''?>>Ascendente</option>
-                            <option value="SORT_DESC" <?= isset($_GET['forma']) && $_GET['forma']=='SORT_DESC'?'selected':''?>>Descendente</option>
-                        </select>
-                    </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-md-3">
-                    <?php 
-                        echo Select2::widget([
-                            'id' => 'marcas',
-                            'name' => 'marca',
-                            'value' => isset($_GET['marca']) && $_GET['marca']!=''?$_GET['marca']:'',
-                            'data' => $marcas,
-                            'options' => ['multiple' => false, 'placeholder' => 'POR MARCA...'],
-                            'pluginOptions' => [
-                            'allowClear' => true
-                            ]
-                        ]);
-                    ?>
-                </div>
-
-            </div>
-    </div>
-    
-    <div class="box-footer">
-        <button type="button" class="btn btn-primary" onclick="excel()">
-            <i class="fas fa-file-excel"></i> Descargar Busqueda en Excel
-        </button>
-        <button type="submit" class="btn btn-primary"  name="enviar">
-            <i class="fa fa-search fa-fw"></i> Buscar
-        </button>
-        </form>
-    </div>
-  </div>
-  
-</div> -->
 
 <button class="btn btn-primary" onclick="equivalencia();"><i class="fas fa-balance-scale"></i> Realizar equivalencia</button>
 <a class="btn btn-primary" href="<?php echo Url::toRoute('cabecera-prefactura')?>"><i class="fas fa-user-circle"></i> Cabecera</a>
@@ -108,14 +22,9 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 <?php if(in_array("administrador", $permisos)){ ?>
 <button class="btn btn-primary"  onclick="devolver();"><i class="fa fa-reply"></i> Devolver a aprobacion</button>
 <?php }?>
-<a href="<?php echo Url::toRoute('adminsupervision/consolidado')?>" class="btn btn-primary">Admin y supervision</a>
+<a href="<?php echo Url::toRoute('pedido/prefactura-aprobados')?>" class="btn btn-primary">Prefactura-fija</a>
 <br><br>
-<?php
-    /*echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
-    echo LinkPager::widget([
-        'pagination' => $pagination
-    ]);*/
-?>
+
 <div class="col-md-12">
   <div class="table-responsive">
       <table class="table table-striped my-data-consolidado" data-page-length='30'>
@@ -161,17 +70,17 @@ if( isset(Yii::$app->session['permisos-exito']) ){
           $empresa_anterior=null;
           $posicion=1;
           foreach($rows as $rw):
-            $total_mes=$rw['total_mes'];
-            $valor1=(($rw['total_mes']*90)/100);
-            $valor2=(($rw['total_mes']*10)/100);
+            $total_mes=$rw['total_factura'];
+            $valor1=(($rw['total_factura']*90)/100);
+            $valor2=(($rw['total_factura']*10)/100);
 
             if($ciudad_anterior==null && $empresa_anterior==null){
               $posicion_uno=$posicion;
               $posicion++;
               $posicion_dos=$posicion;
               $ciudad_anterior=$rw['ciudad'];
-              $empresa_anterior=$rw['empresa'];
-            }elseif($ciudad_anterior==$rw['ciudad'] && $empresa_anterior==$rw['empresa']){
+              $empresa_anterior=$rw['empresa_seg'];
+            }elseif($ciudad_anterior==$rw['ciudad'] && $empresa_anterior==$rw['empresa_seg']){
               $posicion++;
               $posicion_uno=$posicion;
               $posicion++;
@@ -182,12 +91,12 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               $posicion++;
               $posicion_dos=$posicion;
               $ciudad_anterior=$rw['ciudad'];
-              $empresa_anterior=$rw['empresa'];
+              $empresa_anterior=$rw['empresa_seg'];
             }
              
         ?>
             <tr>
-              <td><?= $rw['empresa']?></td>
+              <td><?= $rw['empresa_seg']?></td>
               <td><?= $rw['ciudad']?></td>
               <td><?= $rw['id_pedido']?></td>
               <td>
@@ -198,8 +107,8 @@ if( isset(Yii::$app->session['permisos-exito']) ){
                 
               </td>
               
-              <td>2007970</td>
-              <td>SERVICIO SEGURIDAD FIJA Y VARIABLE</td>
+              <td>2008056</td>
+              <td>SERVICIO SEGURIDAD ADMINISTRACION Y SUPERVICION</td>
               <td>1</td>
               <td>UN</td>
               <td></td>
@@ -242,7 +151,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               <td>102926</td>
               <td>
                 <?php 
-                  $empresa=trim((string)$rw['empresa']);
+                  $empresa=trim((string)$rw['empresa_seg']);
 
                   switch ($empresa) {
                     case 'NASER LTDA':
@@ -282,7 +191,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               </td>
               <td>
                 <?php 
-                  $empresa=trim((string)$rw['empresa']);
+                  $empresa=trim((string)$rw['empresa_seg']);
                   $aiu_material="";
                   $aiu_texto="";
                   $aiu_posicion=null;
@@ -347,17 +256,17 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               <td></td>
               <td></td>
               <td></td>
-              <td><?= $rw['Factura_numero']?></td>
+              <td><?= $rw['numero_factura']?></td>
             </tr>
 
               <tr>
-              <td><?= $rw['empresa']?></td>
+              <td><?= $rw['empresa_seg']?></td>
               <td><?= $rw['ciudad']?></td>
               <td><?= $rw['id_pedido']?></td>
               <td>
                 <?php
                   if($rw['id_pedido']!=0 && $rw['id_pedido']!=NULL) 
-                    echo $posicion_dos;
+                   echo $posicion_dos;
                 ?>
                 
               </td>
@@ -405,7 +314,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               <td>102926</td>
               <td>
                 <?php 
-                  $empresa=trim((string)$rw['empresa']);
+                  $empresa=trim((string)$rw['empresa_seg']);
 
                   switch ($empresa) {
                     case 'NASER LTDA':
@@ -450,7 +359,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               <td></td>
               <td></td>
               <td></td>
-              <td><?= $rw['Factura_numero']?></td>
+              <td><?= $rw['numero_factura']?></td>
             </tr>
 
             <tr class="info">
@@ -463,7 +372,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               <td></td>
               <td></td>
               <td></td>
-              <td><b><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></b></td>
+              <td><b><?= '$ '.number_format(($rw['total_factura']), 0, '.', '.').' COP'?></b></td>
               <td></td>
               <td></td>
               <td></td>
@@ -495,7 +404,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 </div> 
 
 <script type="text/javascript">
-  $(function(){
+   $(function(){
       var table_consolidado = $('.my-data-consolidado').DataTable({
         "ordering": false,
         "columnDefs": [{
@@ -542,6 +451,24 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 
   });
 
+   function equivalencia(){
+    swal({
+          title: "Seguro desea realizar esta accion?",
+          text: "",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((confirm) => {
+          if (confirm) {
+            location.href="<?php echo Url::toRoute('equivalencia-prefactura')?>";
+          } else {
+            return false;
+          }
+        });
+  }
+
+
   function finalizar(){
     swal({
           title: "Seguro desea finalizar estas prefacturas?",
@@ -558,7 +485,6 @@ if( isset(Yii::$app->session['permisos-exito']) ){
           }
         });
   }
-
 
   function devolver(){
 
@@ -578,21 +504,4 @@ if( isset(Yii::$app->session['permisos-exito']) ){
         });
   }
 
-
-  function equivalencia(){
-    swal({
-          title: "Seguro desea realizar esta accion?",
-          text: "",
-          icon: "warning",
-          buttons: true,
-          dangerMode: true,
-        })
-        .then((confirm) => {
-          if (confirm) {
-            location.href="<?php echo Url::toRoute('equivalencia-prefactura')?>";
-          } else {
-            return false;
-          }
-        });
-  }
 </script>

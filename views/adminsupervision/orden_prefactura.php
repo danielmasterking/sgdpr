@@ -2,7 +2,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;
-$this->title = 'Agregar Orden de Compra Prefactura';
+$this->title = 'Agregar Orden de Compra Admin y Supervision';
 
 $permisos = array();
 if( isset(Yii::$app->session['permisos-exito']) ){
@@ -10,7 +10,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 }
 ?>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-<?= $this->render('_tabs_oc',['ocprefactura' => 'active']) ?>
+<?= $this->render('/pedido/_tabs_oc',['ocprefactura' => 'active']) ?>
 <div class="page-header">
 	<h1><small><i class="fa fa-file fa-fw"></i></small> <?= Html::encode($this->title) ?></h1>
 </div>
@@ -21,7 +21,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 <?php if(in_array("administrador", $permisos)){ ?>
 <button class="btn btn-primary"  onclick="devolver();"><i class="fa fa-reply"></i> Devolver a consolidado</button>
 <?php }?>
-<a href="<?php echo Url::toRoute('adminsupervision/orden-compra-prefactura')?>" class="btn btn-primary">Admin y sup</a>
+<a href="<?php echo Url::toRoute('pedido/orden-compra-prefactura')?>" class="btn btn-primary">Prefactura-fija</a>
 <br><br>
 <div class="col-md-12">
 	<div class="table-responsive">
@@ -47,7 +47,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 			<tbody>
 				<?php foreach($result as $row): ?>
 				  <tr>
-				  	<td><input type="checkbox" name="seleccion[]" class="check" value="<?= $row['id']?>"></td>
+				  	<td><input type="checkbox" name="seleccion[]" class="check" value="<?= $row['id_disp']?>"></td>
 				  	<td><?= $row['id_pedido'] ?></td>
 				  	<td><?= $row['posicion'] ?></td>
 				  	<td><?= $row['cebe'] ?></td>
@@ -57,7 +57,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 				  	<td><?= $row['orden_compra']?></td>
 				  	<td><?= $row['Fecha_creado']?></td>
 				  	<td>
-				  		<button class="btn btn-primary" title="Agregar orden de compra" data-toggle="modal" data-target="#myModal" onclick="agregar_id(<?=$row['id']?>);" type="button">
+				  		<button class="btn btn-primary" title="Agregar orden de compra" data-toggle="modal" data-target="#myModal" onclick="agregar_id(<?=$row['id_disp']?>);" type="button">
 				  			<i class="fab fa-angellist"></i>
 				  		</button>
 				  	</td>

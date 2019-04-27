@@ -131,6 +131,23 @@ $this->title = 'Aprobación Pedidos de prefactura';
               </div>
 
             </div>
+            <br>
+          <div class="row"> 
+             <div class="col-md-3">
+                    <?php 
+                      echo Select2::widget([
+                          'name' => 'ciudad',
+                          'value' => isset($_GET['ciudad']) && $_GET['ciudad']!=''?$_GET['ciudad']:'',
+                          'data' => $list_ciudad,
+                          //'size' => Select2::SMALL,
+                          'options' => ['placeholder' => 'Por Ciudad ...', 'id'=>'ciudad'],
+                          'pluginOptions' => [
+                              'allowClear' => true
+                          ],
+                      ]);
+                    ?>
+              </div>
+          </div>
     </div>
     
     <div class="box-footer">

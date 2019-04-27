@@ -101,7 +101,7 @@ class AdminsupervisionController extends Controller
         if(in_array("administrador", $permisos) or in_array("prefactura-analista", $permisos)){
            $rows = (new \yii\db\Query())
             ->select(['id','mes','ano','usuario','created','estado','numero_factura','fecha_factura','empresa.nombre as empresa',
-                '(SELECT SUM((ftes*cantidad)) FROM admin_dispositivo WHERE id_admin=admin_supervision.id) ftes_totales',
+                '((SELECT SUM(ftes_dependencia) FROM admin_dispositivo WHERE id_admin=admin_supervision.id) * (SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=admin_supervision.id limit 1))ftes_totales',
                 '(SELECT SUM(precio_total) FROM admin_dispositivo WHERE id_admin=admin_supervision.id) total_factura'])
             ->from('admin_supervision')
             ->innerJoin('empresa', 'admin_supervision.empresa=empresa.nit')
@@ -110,7 +110,7 @@ class AdminsupervisionController extends Controller
 
             $rows = (new \yii\db\Query())
             ->select(['id','mes','ano','usuario','created','estado','numero_factura','fecha_factura','empresa.nombre as empresa',
-                '(SELECT SUM((ftes*cantidad)) FROM admin_dispositivo WHERE id_admin=admin_supervision.id) ftes_totales',
+                '((SELECT SUM(ftes_dependencia) FROM admin_dispositivo WHERE id_admin=admin_supervision.id) * (SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=admin_supervision.id limit 1))ftes_totales',
                 '(SELECT SUM(precio_total) FROM admin_dispositivo WHERE id_admin=admin_supervision.id) total_factura'])
             ->from('admin_supervision')
             ->innerJoin('empresa', 'admin_supervision.empresa=empresa.nit')
@@ -1050,6 +1050,290 @@ class AdminsupervisionController extends Controller
         }else{
             print_r($model->getErrors());
         }
+
+    }
+
+    public function actionConsolidado(){
+
+        $query=(new \yii\db\Query())
+        ->select(["CAST(null AS CHAR) as nombre_factura",'as.mes','as.ano','cc.nombre dependencia','as.empresa nit','em.nombre empresa_seg','as.estado',"/*ROUND((da.ftes_dependencia* da.cantidad),3)*/ da.ftes_dependencia as ftes/*da.ftes*/",'da.precio_dependencia as total_factura','as.numero_factura','as.fecha_factura',
+            '(
+                CASE
+                WHEN SUBSTRING(cc.ceco,1,1) =3 THEN 533505001 
+                
+
+                ELSE  523505001
+                END
+
+             )cuenta_contable','cc.ceco','c.nombre as ciudad','m.nombre as marca',"da.descripcion as puesto","da.cantidad as cantidad_servicios","da.horas","da.lunes","da.martes","da.miercoles","da.jueves","da.viernes","da.sabado","da.domingo","da.festivo","CAST(null AS CHAR) as tipo_servicio","da.hora_inicio","da.hora_fin","da.dias as total_dias",
+             /*"(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ) as  num_dep",*/
+             "da.ftes_diurno_dep /*ROUND(((da.ftes_diurno/(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ))*da.cantidad),3)*/ as ftes_diurno",
+             "da.ftes_nocturno_dep as ftes_nocturno",
+             "CAST(null AS CHAR) as explicacion",
+             "/*CAST(null AS CHAR)*/((da.ftes_diurno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_diurno","/*CAST(null AS CHAR)*/((da.ftes_nocturno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_nocturno",'CAST("Administracion y supervision" AS CHAR) as tipo','(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=ad.centro_costos_codigo limit 1
+            ) regional','da.id as id_disp','CAST(null AS CHAR) as servicio_disp','ad.id id_admin_dep','cc.cebe','ad.id_pedido'])
+            ->from('admin_supervision  as'/*'admin_dependencia ad','admin_dispositivo da'*/)
+            //->innerJoin('admin_supervision  as', 'ad.id_admin=as.id')
+            ->innerJoin('admin_dependencia ad', 'as.id=ad.id_admin')
+            ->innerJoin('admin_dispositivo da', 'as.id=da.id_admin')
+            ->leftJoin('centro_costo  cc', 'ad.centro_costos_codigo=cc.codigo')
+            ->leftJoin('marca  m', 'cc.marca_id=m.id')
+            ->leftJoin('ciudad  c', 'cc.ciudad_codigo_dane=c.codigo_dane')
+            ->leftJoin('empresa  em', 'as.empresa=em.nit')
+            ->where('as.estado="cerrado" AND as.estado_pedido="A"')
+            ->orderby('c.nombre,em.nombre');
+
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+        return $this->render('consolidado', [
+            'rows'=>$rows
+        ]);
+    }
+
+    public function actionEquivalenciaPrefactura(){
+        $id_pedido=1;
+        $posicion=1;
+        $empresa_anterior=null;
+        $ciudad_anterior=null;
+        //$posicion_anterior=0;
+
+        //$query=PrefacturaConsolidadoPedido::find()->where('estado_pedido="A"')->orderby('ciudad,empresa')->all();
+
+        $query=(new \yii\db\Query())
+        ->select(['cc.nombre dependencia','asu.empresa nit','em.nombre empresa_seg','asu.estado',
+            'cc.ceco','c.nombre as ciudad','m.nombre as marca',
+            '(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=ad.centro_costos_codigo limit 1
+            ) regional','ad.id as id_disp','ad.id id_admin_dep','cc.cebe','ad.id_pedido'])
+            ->from('admin_supervision  asu'/*'admin_dependencia ad','admin_dispositivo da'*/)
+            //->innerJoin('admin_supervision  as', 'ad.id_admin=as.id')
+            ->innerJoin('admin_dependencia ad', 'asu.id=ad.id_admin')
+            ->innerJoin('admin_dispositivo da', 'asu.id=da.id_admin')
+            ->leftJoin('centro_costo  cc', 'ad.centro_costos_codigo=cc.codigo')
+            ->leftJoin('marca  m', 'cc.marca_id=m.id')
+            ->leftJoin('ciudad  c', 'cc.ciudad_codigo_dane=c.codigo_dane')
+            ->leftJoin('empresa  em', 'asu.empresa=em.nit')
+            ->where('asu.estado="cerrado" AND asu.estado_pedido="A"')
+            ->orderby('c.nombre,em.nombre');
+
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+
+        foreach ($rows as $ped) {
+            if($empresa_anterior==null && $ciudad_anterior==null){
+                AdminDependencia::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped['id_disp']]);
+
+                $empresa_anterior=$ped['empresa_seg'];
+                $ciudad_anterior=$ped['ciudad'];
+                //$posicion_anterior=$posicion;
+            }elseif($empresa_anterior==$ped['empresa_seg'] && $ciudad_anterior==$ped['ciudad']){
+                $posicion++;
+                AdminDependencia::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped['id_disp']]);
+                $empresa_anterior=$ped['empresa_seg'];
+                $ciudad_anterior=$ped['ciudad'];
+                //$posicion_anterior=$posicion_anterior+1;
+            }else{
+                $id_pedido++;
+                $posicion=1;
+                AdminDependencia::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped['id_disp']]);
+                $empresa_anterior=$ped['empresa_seg'];
+                $ciudad_anterior=$ped['ciudad'];
+            }
+            //echo $ped['id_disp']."-".$ped['ciudad']."-".$ped['empresa_seg']."<br>";
+        }
+
+        return $this->redirect(['consolidado']);
+    }
+
+
+    public function actionCabeceraPrefactura(){
+
+        $query=(new \yii\db\Query())
+        ->select(["CAST(null AS CHAR) as nombre_factura",'as.mes','as.ano','cc.nombre dependencia','as.empresa nit','em.nombre empresa_seg','as.estado',"/*ROUND((da.ftes_dependencia* da.cantidad),3)*/ da.ftes_dependencia as ftes/*da.ftes*/",'da.precio_dependencia as total_factura','as.numero_factura','as.fecha_factura',
+            '(
+                CASE
+                WHEN SUBSTRING(cc.ceco,1,1) =3 THEN 533505001 
+                
+
+                ELSE  523505001
+                END
+
+             )cuenta_contable','cc.ceco','c.nombre as ciudad','m.nombre as marca',"da.descripcion as puesto","da.cantidad as cantidad_servicios","da.horas","da.lunes","da.martes","da.miercoles","da.jueves","da.viernes","da.sabado","da.domingo","da.festivo","CAST(null AS CHAR) as tipo_servicio","da.hora_inicio","da.hora_fin","da.dias as total_dias",
+             /*"(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ) as  num_dep",*/
+             "da.ftes_diurno_dep /*ROUND(((da.ftes_diurno/(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ))*da.cantidad),3)*/ as ftes_diurno",
+             "da.ftes_nocturno_dep as ftes_nocturno",
+             "CAST(null AS CHAR) as explicacion",
+             "/*CAST(null AS CHAR)*/((da.ftes_diurno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_diurno","/*CAST(null AS CHAR)*/((da.ftes_nocturno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_nocturno",'CAST("Administracion y supervision" AS CHAR) as tipo','(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=ad.centro_costos_codigo limit 1
+            ) regional','da.id as id_disp','CAST(null AS CHAR) as servicio_disp','ad.id id_admin_dep','cc.cebe','ad.id_pedido','as.usuario'])
+            ->from('admin_supervision  as'/*'admin_dependencia ad','admin_dispositivo da'*/)
+            //->innerJoin('admin_supervision  as', 'ad.id_admin=as.id')
+            ->innerJoin('admin_dependencia ad', 'as.id=ad.id_admin')
+            ->innerJoin('admin_dispositivo da', 'as.id=da.id_admin')
+            ->leftJoin('centro_costo  cc', 'ad.centro_costos_codigo=cc.codigo')
+            ->leftJoin('marca  m', 'cc.marca_id=m.id')
+            ->leftJoin('ciudad  c', 'cc.ciudad_codigo_dane=c.codigo_dane')
+            ->leftJoin('empresa  em', 'as.empresa=em.nit')
+            ->where('as.estado="cerrado" AND as.estado_pedido="A"  AND ad.id_pedido <> "" ')
+            ->orderby('c.nombre,em.nombre');
+
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+         return $this->render('cabecera_prefactura', [
+         'result'=>$rows
+        ]);
+    }
+
+
+    public function actionFinalizarPrefacturas(){
+        AdminSupervision::updateAll(['estado_pedido' => "F"], ['=', 'estado_pedido', 'A']);
+        return $this->redirect(['consolidado']);
+    }
+
+    public function actionDevolverAprobacion(){
+        AdminSupervision::updateAll(['estado_pedido' => 'S'], ['=', 'estado_pedido', 'A']);
+        return $this->redirect(['consolidado']);
+    }
+
+    public function actionOrdenCompraPrefactura(){
+
+        $prefacturas=$_POST['seleccion'];
+
+        if(count($prefacturas)>0){
+            foreach ($prefacturas as $pref) {
+                $query=AdminDependencia::find()->where('id='.$pref)->one();
+                if($query->orden_compra!=null && $query->orden_compra!=''){
+                    $query->setAttribute('estado', 'H');
+                    $query->save();
+                }
+            }
+            return $this->redirect(['orden-compra-prefactura']);
+
+        }
+
+        $query=(new \yii\db\Query())
+        ->select(["CAST(null AS CHAR) as nombre_factura",'as.mes','as.ano','cc.nombre dependencia','as.empresa nit','em.nombre empresa_seg','as.estado',"/*ROUND((da.ftes_dependencia* da.cantidad),3)*/ da.ftes_dependencia as ftes/*da.ftes*/",'da.precio_dependencia as total_factura','as.numero_factura','as.fecha_factura',
+            '(
+                CASE
+                WHEN SUBSTRING(cc.ceco,1,1) =3 THEN 533505001 
+                
+
+                ELSE  523505001
+                END
+
+             )cuenta_contable','cc.ceco','c.nombre as ciudad','m.nombre as marca',"da.descripcion as puesto","da.cantidad as cantidad_servicios","da.horas","da.lunes","da.martes","da.miercoles","da.jueves","da.viernes","da.sabado","da.domingo","da.festivo","CAST(null AS CHAR) as tipo_servicio","da.hora_inicio","da.hora_fin","da.dias as total_dias",
+             /*"(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ) as  num_dep",*/
+             "da.ftes_diurno_dep /*ROUND(((da.ftes_diurno/(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ))*da.cantidad),3)*/ as ftes_diurno",
+             "da.ftes_nocturno_dep as ftes_nocturno",
+             "CAST(null AS CHAR) as explicacion",
+             "/*CAST(null AS CHAR)*/((da.ftes_diurno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_diurno","/*CAST(null AS CHAR)*/((da.ftes_nocturno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_nocturno",'CAST("Administracion y supervision" AS CHAR) as tipo','(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=ad.centro_costos_codigo limit 1
+            ) regional','ad.id as id_disp','CAST(null AS CHAR) as servicio_disp','ad.id id_admin_dep','cc.cebe','ad.id_pedido','as.usuario','ad.posicion','ad.orden_compra'])
+            ->from('admin_supervision  as'/*'admin_dependencia ad'/*,'admin_dispositivo da'*/)
+            //->innerJoin('admin_supervision  as', 'ad.id_admin=as.id')
+             ->innerJoin('admin_dependencia ad', 'as.id=ad.id_admin')
+            ->innerJoin('admin_dispositivo da', 'as.id=da.id_admin')
+            ->leftJoin('centro_costo  cc', 'ad.centro_costos_codigo=cc.codigo')
+            ->leftJoin('marca  m', 'cc.marca_id=m.id')
+            ->leftJoin('ciudad  c', 'cc.ciudad_codigo_dane=c.codigo_dane')
+            ->leftJoin('empresa  em', 'as.empresa=em.nit')
+            ->where('as.estado_pedido="F"  AND ad.estado="S" ');
+            //->orderby('c.nombre,em.nombre');
+
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+
+        return $this->render('orden_prefactura', [
+         'result'=>$rows
+        ]);
+    }
+
+    public function actionPrefacturaAgregarOrden(){
+
+        AdminDependencia::updateAll(['orden_compra' => $_POST['orden']], ['=', 'id', $_POST['id_pref']]);
+        return $this->redirect(['orden-compra-prefactura']);
+    }
+
+
+    public function actionPrefacturaAgregarOrdenTodos(){
+
+        $prefacturas=$_POST['seleccion'];
+        $orden=$_POST['orden'];
+        foreach ($prefacturas as $key => $value) {
+            AdminDependencia::updateAll(['orden_compra' => $orden], ['=', 'id', $value]);
+        }
+       
+        return $this->redirect(['orden-compra-prefactura']);
+    }
+
+    public function actionDevolverConsolidado(){
+        AdminSupervision::updateAll(['estado_pedido' => 'A'], ['=', 'estado_pedido', 'F']);
+        return $this->redirect(['orden-compra-prefactura']);
+    }
+
+    public function actionHistoricoPrefactura(){
+          $query=(new \yii\db\Query())
+        ->select(["CAST(null AS CHAR) as nombre_factura",'as.mes','as.ano','cc.nombre dependencia','as.empresa nit','em.nombre empresa_seg','as.estado',"/*ROUND((da.ftes_dependencia* da.cantidad),3)*/ da.ftes_dependencia as ftes/*da.ftes*/",'da.precio_dependencia as total_factura','as.numero_factura','as.fecha_factura',
+            '(
+                CASE
+                WHEN SUBSTRING(cc.ceco,1,1) =3 THEN 533505001 
+                
+
+                ELSE  523505001
+                END
+
+             )cuenta_contable','cc.ceco','c.nombre as ciudad','m.nombre as marca',"da.descripcion as puesto","da.cantidad as cantidad_servicios","da.horas","da.lunes","da.martes","da.miercoles","da.jueves","da.viernes","da.sabado","da.domingo","da.festivo","CAST(null AS CHAR) as tipo_servicio","da.hora_inicio","da.hora_fin","da.dias as total_dias",
+             /*"(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ) as  num_dep",*/
+             "da.ftes_diurno_dep /*ROUND(((da.ftes_diurno/(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ))*da.cantidad),3)*/ as ftes_diurno",
+             "da.ftes_nocturno_dep as ftes_nocturno",
+             "CAST(null AS CHAR) as explicacion",
+             "/*CAST(null AS CHAR)*/((da.ftes_diurno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_diurno","/*CAST(null AS CHAR)*/((da.ftes_nocturno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_nocturno",'CAST("Administracion y supervision" AS CHAR) as tipo','(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=ad.centro_costos_codigo limit 1
+            ) regional','da.id as id_disp','CAST(null AS CHAR) as servicio_disp','ad.id id_admin_dep', 'cc.cebe','ad.id_pedido','as.usuario','as.usuario_aprueba','as.fecha_aprobacion','as.usuario_rechaza','as.fecha_rechazo','as.motivo_rechazo_prefactura','ad.estado'])
+            ->from('admin_supervision  as'/*'admin_dependencia ad','admin_dispositivo da'*/)
+            //->innerJoin('admin_supervision  as', 'ad.id_admin=as.id')
+            ->innerJoin('admin_dependencia ad', 'as.id=ad.id_admin')
+            ->innerJoin('admin_dispositivo da', 'as.id=da.id_admin')
+            ->leftJoin('centro_costo  cc', 'ad.centro_costos_codigo=cc.codigo')
+            ->leftJoin('marca  m', 'cc.marca_id=m.id')
+            ->leftJoin('ciudad  c', 'cc.ciudad_codigo_dane=c.codigo_dane')
+            ->leftJoin('empresa  em', 'as.empresa=em.nit')
+            ->where('as.estado_pedido IN("H","R") OR ad.estado="H"')
+            ->orderby('c.nombre,em.nombre');
+
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+        return $this->render('historico', [
+            'rows'=>$rows
+        ]);
 
     }
 }

@@ -222,7 +222,7 @@ $arr_tipos=['fijo'=>'Fijo','variable'=>'Variable','admin'=>'Admin y sup'];
              <div class="col-md-4">
                     <?php 
                     echo Select2::widget([
-                        'name' => 'zonas',
+                        'name' => 'regional',
                         'data' => $list_zonas,
                         //'size' => Select2::SMALL,
                         'options' => ['placeholder' => 'Por zona ...', 'id'=>'zonas'],

@@ -82,7 +82,12 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 						 if(in_array("administrador", $permisos) ){
 						   
 						  echo Html::a('<i class="fas fa-edit"></i>',Yii::$app->request->baseUrl.'/puesto/update?id='.$key->id,['class'=>'btn btn-primary btn-xs']);
-						  echo Html::a('<i class="fa fa-trash"></i>',Yii::$app->request->baseUrl.'/puesto/delete?id='.$key->id,['data-method'=>'post','data-confirm' => 'Está seguro de eliminar elemento','class'=>'btn btn-danger btn-xs']);
+						  /*echo Html::a('<i class="fa fa-trash"></i>',Yii::$app->request->baseUrl.'/puesto/delete?id='.$key->id,['data-method'=>'post','data-confirm' => 'Está seguro de eliminar elemento','class'=>'btn btn-danger btn-xs']);*/
+						  if($key->estado=="A"){
+						  	echo Html::a('<i class="fas fa-thumbs-down"></i>',Yii::$app->request->baseUrl.'/puesto/desactivar?id='.$key->id,['data-method'=>'post','data-confirm' => 'Está seguro de desactivar elemento','class'=>'btn btn-danger btn-xs','title'=>"Desactivar"]);
+						  }else{
+						  	echo Html::a('<i class="fas fa-thumbs-up"></i>',Yii::$app->request->baseUrl.'/puesto/activar?id='.$key->id,['data-method'=>'post','data-confirm' => 'Está seguro de Activar elemento','class'=>'btn btn-success btn-xs','title'=>"Activar"]);
+						  }
 		  
 						 }
 						  

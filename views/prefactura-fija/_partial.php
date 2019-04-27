@@ -20,7 +20,11 @@ if( isset(Yii::$app->session['permisos-exito']) ){
  	<table  class="table table-hover" width="100%">
        	<thead>
        		<tr>
-       			<th style="text-align: center;"><input type="checkbox" id="todos"></th>
+       			<th style="text-align: center;">
+       				<?php if (in_array("administrador", $permisos) or in_array("habilitar-prefactura", $permisos)): ?>
+       				<input type="checkbox" id="todos">
+       				<?php endif ?>
+       			</th>
        			<th style="text-align: center;">Ver</th>
        			<th style="text-align: center;">Numero factura</th>
        			<th style="text-align: center;">Fecha factura</th>
@@ -53,7 +57,9 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 		   	<tr style="text-align: center;">
 		   		<td>
 		   			<?php if($pref['estado']=='cerrado'){?>
+		   				<?php if (in_array("administrador", $permisos) or in_array("habilitar-prefactura", $permisos)): ?>
 		   				<input type="checkbox" name="seleccion[]" class="check" value="<?= $pref['id']?>">
+		   				<?php endif ?>
 		   			<?php }?>
 		   		</td>
 		   		<td>

@@ -116,6 +116,20 @@ class PuestoController extends Controller
         }
     }
 
+    public function actionDesactivar($id){
+        $model = $this->findModel($id);
+        $model->setAttribute('estado',"I");
+        $model->save();
+        return $this->redirect('create');
+    }
+
+
+    public function actionActivar($id){
+        $model = $this->findModel($id);
+        $model->setAttribute('estado',"A");
+        $model->save();
+        return $this->redirect('create');
+    }
     /**
      * Deletes an existing Puesto model.
      * If deletion is successful, the browser will be redirected to the 'index' page.

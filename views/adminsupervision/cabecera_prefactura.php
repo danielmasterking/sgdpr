@@ -2,13 +2,13 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;
-$this->title = 'Cabecera Prefactura';
+$this->title = 'Cabecera Administracion y supervision';
 ?>
 <div class="page-header">
 	<h1><small><i class="fa fa-file fa-fw"></i></small> <?= Html::encode($this->title) ?></h1>
 </div>
 
-<a class="btn btn-primary" href="<?php echo Url::toRoute('prefactura-aprobados')?>"><i class="fas fa-receipt"></i> Items</a>
+<a class="btn btn-primary" href="<?php echo Url::toRoute('consolidado')?>"><i class="fas fa-receipt"></i> Items</a>
 <br><br>
 
 <div class="col-md-12">
@@ -42,7 +42,7 @@ $this->title = 'Cabecera Prefactura';
 						</td>
 						<td>
 							<?php 
-				                  $empresa=trim((string)$rw['empresa']);
+				                  $empresa=trim((string)$rw['empresa_seg']);
 				                  //echo $empresa;
 				                  switch ($empresa) {
 				                    case 'NASER LTDA':

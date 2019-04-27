@@ -6,10 +6,11 @@ use yii\helpers\Html;
 
 $this->title = 'Historico Prefactura';
 ?>
-<?= $this->render('_tabsHistorico',['historico_prefactura' => 'active']) ?>
+<?= $this->render('/pedido/_tabsHistorico',['historico_prefactura' => 'active']) ?>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
 
-<a href="<?php echo Url::toRoute('adminsupervision/historico-prefactura')?>" class="btn btn-primary">Admin y sup</a>
+
+<a href="<?php echo Url::toRoute('pedido/prefactura-rechazados')?>" class="btn btn-primary">Prefactura-fija</a>
 <br><br>
 
 
@@ -33,8 +34,6 @@ $this->title = 'Historico Prefactura';
                <th>Proveedor</th>
                <th>Mes</th>
                <th>Ano</th>
-               <th>Total Fijo</th>
-               <th>Total Variable</th>
                <th>Total Servicio</th>
                <th>Solicitante</th>
                <th>Usuario aprobo</th>
@@ -53,12 +52,10 @@ $this->title = 'Historico Prefactura';
                 <td><?= $rw['cebe']?></td>
                 <td><?= $rw['marca']?></td>
                 <td><?= $rw['regional']?></td>
-                <td><?= $rw['empresa']?></td>
+                <td><?= $rw['empresa_seg']?></td>
                 <td><?= $rw['mes']?></td>
                 <td><?= $rw['ano']?></td>
-                <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_variable']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['total_factura']), 0, '.', '.').' COP'?></td>
                 <td><?= $rw['usuario']?></td>
                 <td><?= $rw['usuario_aprueba']?></td>
                 <td><?= $rw['fecha_aprobacion']?></td>
@@ -68,6 +65,8 @@ $this->title = 'Historico Prefactura';
                 <td>
                     <?php 
                         $estado=$rw['estado_pedido']=='H'?'<span class="label label-success">Aprobado</span>':'<span class="label label-danger">Rechazado</span>';
+
+                        $estado=$rw['estado']=='H'?'<span class="label label-success">Aprobado</span>':'<span class="label label-danger">Rechazado</span>';
 
                         echo $estado;
                     ?>

@@ -1164,7 +1164,7 @@ class CentroCostoController extends Controller
         //$year = date('Y',time());
         $year ='2019';
         $servicios  = DetalleServicio::find()->where("ano='".$year."'")->orderBy(['codigo' => SORT_ASC])->all();
-        $puesto  = Puesto::find()->all();
+        $puesto  = Puesto::find()->where('estado="A"')->all();
         $jornada  = Jornada::find()->all();
 
         if (isset($array_post) && array_key_exists('hora_fin2', $array_post)) {

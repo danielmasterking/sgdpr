@@ -27,6 +27,7 @@ use yii\data\Pagination;
 use app\models\PrefacturaFija;
 use app\models\Empresa;
 use app\models\PrefacturaConsolidadoPedido;
+use app\models\Ciudad;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -3760,10 +3761,13 @@ class PedidoController extends Controller
         $empresas = Empresa::find()->orderBy(['nombre' => SORT_ASC])->all();
         $list_empresas=ArrayHelper::map($empresas,'nombre','nombre');
 
+        $ciudad=Ciudad::find()->orderBy(['nombre' => SORT_ASC])->all();
+        $list_ciudad=ArrayHelper::map($ciudad,'nombre','nombre');        
+
         $query = (new \yii\db\Query())
         ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,ciudad')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido="S" AND estado="cerrado" AND DATE(created) >= "2019-03-29"');
+        ->where('estado_pedido="S" AND estado="cerrado" AND /*DATE(created) >= "2019-03-01"*/ mes > 3 AND ano="2019"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -3785,6 +3789,10 @@ class PedidoController extends Controller
                 $query->andWhere('empresa="'.$_GET['empresas'].'" ');
             }
 
+            if(isset($_GET['ciudad']) && $_GET['ciudad']!=''){
+                $query->andWhere('ciudad="'.$_GET['ciudad'].'" ');
+            }
+
             if(isset($_GET['buscar']) && $_GET['buscar']!=''){
                 $query->andWhere(" 
                 dependencia like '%".$_GET['buscar']."%' OR 
@@ -3793,7 +3801,8 @@ class PedidoController extends Controller
                 OR usuario like '%".$_GET['buscar']."%' 
                 OR cebe like '%".$_GET['buscar']."%' 
                 OR regional like '%".$_GET['buscar']."%' 
-                OR ano like '%".$_GET['buscar']."%' 
+                OR ano like '%".$_GET['buscar']."%'
+                OR ciudad like '%".$_GET['buscar']."%' 
                 ");
             }
         }
@@ -3824,7 +3833,8 @@ class PedidoController extends Controller
             'marcas'=>$data_marcas,
             'pagina'=>$pagina,
             'data_regional'=>$data_regional,
-            'list_empresas'=>$list_empresas
+            'list_empresas'=>$list_empresas,
+            'list_ciudad'=>$list_ciudad
         ]);
     }
 
