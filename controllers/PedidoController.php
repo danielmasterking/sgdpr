@@ -29,6 +29,7 @@ use app\models\Empresa;
 use app\models\PrefacturaConsolidadoPedido;
 use app\models\Ciudad;
 use yii\helpers\ArrayHelper;
+use app\models\Notificacion;
 
 /**
  * PedidoController implements the CRUD actions for Pedido model.
@@ -1968,8 +1969,50 @@ class PedidoController extends Controller
                             //$detallePedido->setAttribute('estado','E');//E item colocado como pendiente por coordinador
                             $detallePedido->setAttribute('usuario_aprobador_revision', Yii::$app->session['usuario-exito']);
                             $detallePedido->save();
+
+                            $titulo="<span class='label label-danger'>Rechazo</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito'];
+                            $descripcion="
+                                <table class='table table-bordered'>
+                                    <thead>
+                                        <tr>
+                                          <th>Fecha Pedido</th>
+                                          <th>Dependencia</th>
+                                          <th>Proveedor</th>
+                                          <th>Material</th>
+                                          <th>Texto breve</th>
+                                          <th>Cantidad</th>
+                                          <th>Observaciones</th>
+                                          <th>Ordinario</th>
+                                          <th>Solicitante</th>
+                                          <th>Motivo rechazo</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>".$detallePedido->pedido->fecha."</td>
+                                            <td>".$detallePedido->pedido->dependencia->nombre."</td>
+                                            <td>".$detallePedido->producto->maestra->proveedor->nombre."</td>
+                                            <td>".$detallePedido->producto->material."</td>
+                                            <td>".$detallePedido->producto->texto_breve."</td>
+                                            <td>".$detallePedido->cantidad."</td>
+                                            <td>".$detallePedido->observaciones."</td>
+                                            <td>".$detallePedido->ordinario."</td>
+                                            <td>".strtoupper($detallePedido->pedido->solicitante)."</td>
+                                            <td>".$mensaje."</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+
+                            ";
+
+                            Notificacion::CrearNotificacion($titulo,$descripcion);
+                            Yii::$app->session['notificacion']=1;
                             return $this->redirect(['rechazar-producto', 'id_detalle_producto' => $detallePedido->id]);
                         }
+
+
 
                     }
 
@@ -3283,6 +3326,44 @@ class PedidoController extends Controller
             $pendiente->setAttribute('fecha_revision_coordinador', $fecha); 
             $pendiente->setAttribute('usuario_aprobador_revision', Yii::$app->session['usuario-exito']);        
             $pendiente->save();
+
+            $titulo="<span class='label label-success'>Aprobacion</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito'];
+            $descripcion="
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                          <th>Fecha Pedido</th>
+                          <th>Dependencia</th>
+                          <th>Proveedor</th>
+                          <th>Material</th>
+                          <th>Texto breve</th>
+                          <th>Cantidad</th>
+                          <th>Observaciones</th>
+                          <th>Ordinario</th>
+                          <th>Solicitante</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>".$pendiente->pedido->fecha."</td>
+                            <td>".$pendiente->pedido->dependencia->nombre."</td>
+                            <td>".$pendiente->producto->maestra->proveedor->nombre."</td>
+                            <td>".$pendiente->producto->material."</td>
+                            <td>".$pendiente->producto->texto_breve."</td>
+                            <td>".$pendiente->cantidad."</td>
+                            <td>".$pendiente->observaciones."</td>
+                            <td>".$pendiente->ordinario."</td>
+                            <td>".strtoupper($pendiente->pedido->solicitante)."</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+            ";
+
+            Notificacion::CrearNotificacion($titulo,$descripcion);
+            Yii::$app->session['notificacion']=1;
         }
 
         return $this->redirect('revision');

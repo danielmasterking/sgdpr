@@ -33,7 +33,8 @@ class AppAsset extends AssetBundle
        'js/moment-duration-format.js',
        'js/main.js',
        'js/fullcalendar/fullcalendar.min.js',
-       'js/fullcalendar/locale/es.js'
+       'js/fullcalendar/locale/es.js',
+       'js/push.js'
     ];
     public $depends = [
         'yii\web\YiiAsset',

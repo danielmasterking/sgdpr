@@ -280,3 +280,10 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 	 
 	 </table>
 	</div>
+<script type="text/javascript">
+	$(function(){
+		Push.create('Hello World!')	
+	})
+	
+
+</script>

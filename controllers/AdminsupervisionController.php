@@ -700,9 +700,15 @@ class AdminsupervisionController extends Controller
                 $model_disp->setAttribute('precio_dependencia',$precio_dep_final);
 
                 if ($row->ftes!=0) {
+                        
+                    $ftes_diurno_dep=bcdiv((($row->ftes_diurno/$num_dep)*$row->cantidad), '1', 3);
                     
+                    $ftes_nocturno_dep=bcdiv((($row->ftes_nocturno/$num_dep)*$row->cantidad), '1', 3);
+
+
                     $ftes_dep=($row->ftes/$cantidad);
                     $ftes_dep_final=round($ftes_dep,3, PHP_ROUND_HALF_DOWN);
+
                     $model_disp->setAttribute('ftes_dependencia',$ftes_dep_final);
                 }
 
