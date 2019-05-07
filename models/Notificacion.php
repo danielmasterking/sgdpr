@@ -48,7 +48,7 @@ class Notificacion extends \yii\db\ActiveRecord
     }
 
 
-    public static function CrearNotificacion($titulo,$descripcion){
+    public static function CrearNotificacion($titulo,$descripcion,$solicitantes){
         $fecha_inicial = date('Y-m-d');
         $fecha_final=strtotime ( '+29 day' , strtotime ( $fecha_inicial ) ) ;
         $fecha_final = date ( 'Y-m-d' , $fecha_final );
@@ -58,10 +58,13 @@ class Notificacion extends \yii\db\ActiveRecord
         $model->setAttribute('fecha_inicio', $fecha_inicial);
         $model->setAttribute('fecha_final', $fecha_final);
         $model->setAttribute('titulo', $titulo);
+        $model->setAttribute('tipo', "C");
         $model->save();
 
         $usuarios=Usuario::find()->all();
 
+
+        //insertamos los usuarios con rol de administrador y coordinador regional
         foreach ($usuarios as $us) {
             
             $rol=RolUsuario::find()->where('usuario="'.$us->usuario.'" AND rol_id IN(1,2) ')->one();
@@ -74,7 +77,14 @@ class Notificacion extends \yii\db\ActiveRecord
             }
         }
 
-
+        $solicitantes = array_unique($solicitantes);
+        //insertamos los usuarios solicitantes del pedido
+        foreach ($solicitantes as $sl) {
+            $model3=new NotificacionUsuario;
+            $model3->setAttribute('id_notificacion', $model->id);
+            $model3->setAttribute('usuario', $sl);
+            $model3->save();
+        }
 
     }
 }

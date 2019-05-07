@@ -90,6 +90,8 @@ class PedidoController extends Controller
         ];
     }
 
+
+
     public function actionCabecera()
     {
 
@@ -1969,9 +1971,10 @@ class PedidoController extends Controller
                             //$detallePedido->setAttribute('estado','E');//E item colocado como pendiente por coordinador
                             $detallePedido->setAttribute('usuario_aprobador_revision', Yii::$app->session['usuario-exito']);
                             $detallePedido->save();
-
-                            $titulo="<span class='label label-danger'>Rechazo</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito'];
+                            date_default_timezone_set ( 'America/Bogota');
+                            $titulo="<span class='label label-danger'>Rechazo</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
                             $descripcion="
+                              <div class='table-responsive'>
                                 <table class='table table-bordered'>
                                     <thead>
                                         <tr>
@@ -2003,11 +2006,11 @@ class PedidoController extends Controller
                                         </tr>
                                     </tbody>
                                 </table>
-
+                              </div>
 
                             ";
-
-                            Notificacion::CrearNotificacion($titulo,$descripcion);
+                            $solicitantes=[$detallePedido->pedido->solicitante];
+                            Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
                             Yii::$app->session['notificacion']=1;
                             return $this->redirect(['rechazar-producto', 'id_detalle_producto' => $detallePedido->id]);
                         }
@@ -2668,7 +2671,8 @@ class PedidoController extends Controller
         $seleccionados = array_key_exists('pedidos', $array_post) ? $array_post['pedidos'] : array();
         $tamano        = count($seleccionados);
         $index         = 0;
-
+        $tr="";
+        $solicitantes=[];
         while ($index < $tamano) {
             $ped = DetallePedido::find()->where(['id' => $seleccionados[$index]])->one();
             if ($ped != null) {
@@ -2677,9 +2681,53 @@ class PedidoController extends Controller
                 $ped->setAttribute('fecha_revision_coordinador', $fecha);
                 $ped->setAttribute('motivo_rechazo', $array_post['mensaje-rechazo-todos']);
                 $ped->save();
+
+                $tr.="<tr>
+                        <td>".$ped->pedido->fecha."</td>
+                        <td>".$ped->pedido->dependencia->nombre."</td>
+                        <td>".$ped->producto->maestra->proveedor->nombre."</td>
+                        <td>".$ped->producto->material."</td>
+                        <td>".$ped->producto->texto_breve."</td>
+                        <td>".$ped->cantidad."</td>
+                        <td>".$ped->observaciones."</td>
+                        <td>".$ped->ordinario."</td>
+                        <td>".strtoupper($ped->pedido->solicitante)."</td>
+                        <td>".$array_post['mensaje-rechazo-todos']."</td>
+                    </tr>";
             }
+            $solicitantes[]=$ped->pedido->solicitante;
             $index++;
         }
+        date_default_timezone_set ( 'America/Bogota');
+        $titulo="<span class='label label-danger'>Rechazo</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
+        $descripcion="
+          <div class='table-responsive'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                      <th>Fecha Pedido</th>
+                      <th>Dependencia</th>
+                      <th>Proveedor</th>
+                      <th>Material</th>
+                      <th>Texto breve</th>
+                      <th>Cantidad</th>
+                      <th>Observaciones</th>
+                      <th>Ordinario</th>
+                      <th>Solicitante</th>
+                      <th>Motivo rechazo</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    ".$tr."
+                </tbody>
+            </table>
+           </div>
+
+        ";
+
+        Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
+        Yii::$app->session['notificacion']=1;
         return $this->redirect('revision');
     }
     public function actionRechazarProductoEspecialCoordinadorTodos()
@@ -2789,7 +2837,8 @@ class PedidoController extends Controller
         $seleccionados = array_key_exists('pedidos', $array_post) ? $array_post['pedidos'] : array();
         $tamano        = count($seleccionados);
         $index         = 0;
-
+        $tr="";
+        $solicitantes=[];
         while ($index < $tamano) {
 
             $ped = DetallePedido::find()->where(['id' => $seleccionados[$index]])->one();
@@ -2872,11 +2921,55 @@ class PedidoController extends Controller
                     
                 }
 
-
+                $solicitantes[]=$ped->pedido->solicitante;
+                $tr.=" <tr>
+                        <td>".$ped->pedido->fecha."</td>
+                        <td>".$ped->pedido->dependencia->nombre."</td>
+                        <td>".$ped->producto->maestra->proveedor->nombre."</td>
+                        <td>".$ped->producto->material."</td>
+                        <td>".$ped->producto->texto_breve."</td>
+                        <td>".$ped->cantidad."</td>
+                        <td>".$ped->observaciones."</td>
+                        <td>".$ped->ordinario."</td>
+                        <td>".strtoupper($ped->pedido->solicitante)."</td>
+                       
+                    </tr>";
             }
 
             $index++;
         }
+        date_default_timezone_set ( 'America/Bogota');
+        $titulo="<span class='label label-success'>Aprobacion</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
+        $descripcion="
+            <div class='table-responsive'>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                          <th>Fecha Pedido</th>
+                          <th>Dependencia</th>
+                          <th>Proveedor</th>
+                          <th>Material</th>
+                          <th>Texto breve</th>
+                          <th>Cantidad</th>
+                          <th>Observaciones</th>
+                          <th>Ordinario</th>
+                          <th>Solicitante</th>
+                         
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                       ".$tr."
+                    </tbody>
+                </table>
+            </div>
+
+
+        ";
+
+        Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
+        Yii::$app->session['notificacion']=1;
+
 
         return $this->redirect('revision');
 
@@ -3326,8 +3419,8 @@ class PedidoController extends Controller
             $pendiente->setAttribute('fecha_revision_coordinador', $fecha); 
             $pendiente->setAttribute('usuario_aprobador_revision', Yii::$app->session['usuario-exito']);        
             $pendiente->save();
-
-            $titulo="<span class='label label-success'>Aprobacion</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito'];
+            date_default_timezone_set ( 'America/Bogota');
+            $titulo="<span class='label label-success'>Aprobacion</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
             $descripcion="
                 <table class='table table-bordered'>
                     <thead>
@@ -3361,8 +3454,8 @@ class PedidoController extends Controller
 
 
             ";
-
-            Notificacion::CrearNotificacion($titulo,$descripcion);
+            $solicitantes=[$pendiente->pedido->solicitante];
+            Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
             Yii::$app->session['notificacion']=1;
         }
 

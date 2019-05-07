@@ -44,25 +44,67 @@ $count=Notificacion::find()
       </div>
       <div class="modal-body">
           
-
-        <?php $cantidad=0; foreach($notificacion as $not): ?>
-
-          <div class="panel panel-primary">
-            <div class="panel-heading"><i class="fas fa-info-circle" style="color: #Ffe701 "></i> <?= $not->titulo ?></div>
-            <div class="panel-body">
-
-              <p><?php echo $not->descripcion  ?></p>
-            </div>
-          </div>
         
-        <?php $cantidad++; endforeach;?>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+               <i class="fas fa-envelope text-aqua"></i> <span class="badge badge-info" style="background-color:blue;"><?= $count1?></span> Mensajes - <?= $date?>
+            </a>
+          </li>
+          <li role="presentation">
+            <a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">
+              <i class="fas fa-shopping-cart text-warning"></i> <span class="badge badge-info" style="background-color:blue;"><?= $count2?></span> Pedidos - <?= $date?>
+            </a>
+          </li>
+        </ul>
 
-        <?php 
-        if ($cantidad==0) {
-          echo "<h3 class='text-center'><i class='fas fa-bell-slash'></i> No hay notificaciones</h3>";
-        }
+        <br>
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" id="home">
+            <?php $cantidad=0; foreach($notificacion1 as $not): ?>
 
-        ?>
+              <div class="panel panel-warning">
+                <div class="panel-heading"><i class="fas fa-info-circle" style="color: #Ffe701 "></i> <?= $not->titulo ?></div>
+                <div class="panel-body">
+
+                  <p><?php echo $not->descripcion  ?></p>
+                </div>
+              </div>
+            
+            <?php $cantidad++; endforeach;?>
+
+            <?php 
+            if ($cantidad==0) {
+              echo "<h3 class='text-center'><i class='fas fa-bell-slash'></i> No hay notificaciones</h3>";
+            }
+
+            ?>
+          </div>
+          <div role="tabpanel" class="tab-pane" id="profile">
+            <?php $cantidad=0; foreach($notificacion2 as $not): ?>
+
+              <div class="panel panel-warning">
+                <div class="panel-heading"><i class="fas fa-info-circle" style="color: #Ffe701 "></i> <?= $not->titulo ?></div>
+                <div class="panel-body">
+
+                  <p><?php echo $not->descripcion  ?></p>
+                </div>
+              </div>
+            
+            <?php $cantidad++; endforeach;?>
+
+            <?php 
+            if ($cantidad==0) {
+              echo "<h3 class='text-center'><i class='fas fa-bell-slash'></i> No hay notificaciones</h3>";
+            }
+
+            ?>
+          </div>
+          </div>
+         
+        </div>
+        
       </div>
       
     </div>

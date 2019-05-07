@@ -17,6 +17,7 @@ use app\assets\AppAsset;
 use app\models\Notificacion;
 use app\models\Usuario;
 use app\models\ManualApp;
+
 /////////////////////////////////////////////////////
 if(isset(Yii::$app->session['usuario-exito'])):
   $date=date('Y-m-d');
@@ -40,16 +41,26 @@ if(isset(Yii::$app->session['usuario-exito'])):
   $notificacion=Notificacion::find()
 ->leftJoin('notificacion_zona', ' notificacion_zona.id_notificacion= notificacion.id')
 ->leftJoin('notificacion_usuario', ' notificacion_usuario.id_notificacion= notificacion.id')
-->where(' ( notificacion.fecha_final >= "'.$date.'" ) and (notificacion_zona.id_zona '.$in_final.' or notificacion_usuario.usuario IN("'.Yii::$app->session['usuario-exito'].'") )')
-->orderBy('id DESC')
-->all();
+->where(' ( notificacion.fecha_final >= "'.$date.'" ) and (notificacion_zona.id_zona '.$in_final.' or notificacion_usuario.usuario IN("'.Yii::$app->session['usuario-exito'].'") )');
+//->orderBy('id DESC')
+//->all();
+$rows_not= clone $notificacion;
+$notificacion2=$rows_not->andwhere('tipo="C"')->orderBy('id DESC')->all();
+$notificacion1=$notificacion->andwhere('tipo="M"')->orderBy('id DESC')->all();
 
-  $count=Notificacion::find()
-  ->leftJoin('notificacion_zona', ' notificacion_zona.id_notificacion= notificacion.id')
-  ->leftJoin('notificacion_usuario', ' notificacion_usuario.id_notificacion= notificacion.id')
-  ->where(' (notificacion.fecha_final > "'.$date.'" OR notificacion.fecha_final = "'.$date.'" ) AND (notificacion_zona.id_zona '.$in_final.' OR notificacion_usuario.usuario IN("'.Yii::$app->session['usuario-exito'].'") )')
-  ->groupBy('notificacion.id')
-  ->count();
+
+$count=Notificacion::find()
+->leftJoin('notificacion_zona', ' notificacion_zona.id_notificacion= notificacion.id')
+->leftJoin('notificacion_usuario', ' notificacion_usuario.id_notificacion= notificacion.id')
+->where(' (notificacion.fecha_final > "'.$date.'" OR notificacion.fecha_final = "'.$date.'" ) AND (notificacion_zona.id_zona '.$in_final.' OR notificacion_usuario.usuario IN("'.Yii::$app->session['usuario-exito'].'") )');
+
+$count1=$count->andwhere('tipo="M"')->groupBy('notificacion.id')->count();
+$count2=$rows_not->andwhere('tipo="C"')->groupBy('notificacion.id')->count();
+
+$count_total=($count1+$count2);
+
+  //->groupBy('notificacion.id')
+  //->count();
 
   $manuales=ManualApp::find()->count();
 endif;
@@ -141,19 +152,27 @@ AppAsset::register($this);
           </li> 
           <!-- Notifications: style can be found in dropdown.less -->
           <li class="dropdown notifications-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: black;" title="Tienes <?= $count?> Notificaciones">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: black;" title="Tienes <?=$count_total?> Notificaciones">
               <i class="fas fa-bell"></i>
-              <span class="label label-warning"><?= $count?></span>
+              <span class="label label-warning"><?= $count_total?></span>
             </a>
             <ul class="dropdown-menu">
-              <li class="header">Tienes <?= $count?> notificaciones</li>
+              <li class="header">Tienes <?= $count_total?> notificaciones</li>
               <li>
                 
                 <ul class="menu">
-                  <?php foreach($notificacion as $noti): ?>
+                  <?php foreach($notificacion2 as $noti): ?>
                   <li>
                     <a href="#">
                       <i class="fas fa-info-circle" style="color: #Ffe701 "></i> <?= $noti->titulo?>
+                    </a>
+                  </li>
+                <?php endforeach;?>
+
+                 <?php foreach($notificacion1 as $noti): ?>
+                  <li>
+                    <a href="#">
+                      <i class="fas fa-info-circle" style="color: #Ffe701 "></i> <span class="label label-info"><i class="fas fa-envelope "></i> Mensaje</span> <?= $noti->titulo?>
                     </a>
                   </li>
                 <?php endforeach;?>
@@ -287,7 +306,14 @@ AppAsset::register($this);
   </footer>
   <?php 
     if(isset(Yii::$app->session['usuario-exito']))
-      echo  $this->render('_modal',['count'=>$count,'notificacion'=>$notificacion]);
+      echo  $this->render('_modal',[
+        'count'=>$count_total,
+        'count1'=>$count1,
+        'count2'=>$count2,
+        'notificacion'=>$notificacion,
+        'notificacion1'=>$notificacion1,
+        'notificacion2'=>$notificacion2,
+      ]);
   ?>
   <div class="control-sidebar-bg"></div>
 </div>
@@ -318,6 +344,7 @@ $(window).load(function() {
 
 </script>
 <script type="text/javascript">
+    //setInterval(function(){alert('prueba')},1000);
     <?php if(Yii::$app->session['notificacion']==1 and $count>0): ?>
     $(function(){
         $('#myModal-notificacion').modal('show');
