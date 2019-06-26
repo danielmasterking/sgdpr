@@ -2,7 +2,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\Url;
-$this->title = 'Cabecera Administracion y supervision';
+$this->title = 'Cabecera Prefactura';
 ?>
 <div class="page-header">
 	<h1><small><i class="fa fa-file fa-fw"></i></small> <?= Html::encode($this->title) ?></h1>
@@ -42,7 +42,7 @@ $this->title = 'Cabecera Administracion y supervision';
 						</td>
 						<td>
 							<?php 
-				                  $empresa=trim((string)$rw['empresa_seg']);
+				                  $empresa=trim((string)$rw['empresa']);
 				                  //echo $empresa;
 				                  switch ($empresa) {
 				                    case 'NASER LTDA':

@@ -125,7 +125,7 @@ $this->title = 'Historico Prefactura';
         }
     });
 
-    table_consolidado.buttons().container().appendTo($('.col-sm-6:eq(0)', table.table().container()));
+    table_consolidado.buttons().container().appendTo($('.col-sm-6:eq(0)', table_consolidado.table().container()));
 
   });
 </script>

@@ -35,8 +35,9 @@ $marcas_permitidas = array();
 
 foreach($marcasUsuario as $marca){
 	
-		
+	if($marca->marca->nombre!='VIVA' && $marca->marca->nombre!='INDUSTRIA'){
 		$marcas_permitidas [] = $marca->marca_id;
+	}
 
 }
 

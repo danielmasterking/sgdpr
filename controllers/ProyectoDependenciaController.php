@@ -24,7 +24,10 @@ use app\models\DetallePedido;
 use app\models\SistemaProyectos;
 use app\models\ProyectoSistema;
 use app\models\ProyectosHistoricoPorcentaje;
+use app\models\LogFechaProyectos;
 use app\models\CronogramaProyecto;
+use app\models\Empresa;
+use app\models\ProyectosPresupuestoAdicional;
 use yii\web\UploadedFile;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
@@ -64,9 +67,9 @@ class ProyectoDependenciaController extends Controller
      * Lists all ProyectoDependencia models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($estado="A")
     {
-        
+       
        $model=new Proyectos;
         //////////DEPENDENCIAS DEL USUARIO
         $dependencias_user=$this->dependencias_usuario(Yii::$app->session['usuario-exito']);
@@ -77,7 +80,7 @@ class ProyectoDependenciaController extends Controller
         }
 
         if(in_array("administrador", $permisos)){
-            $rows=$model->find()->orderBy('id DESC')->all();
+            $rows=$model->find()->where('estado_proyecto IN("'.$estado.'")')->orderBy('id DESC')->all();
         }else{
             $numdep=count($dependencias_user);
 
@@ -95,14 +98,15 @@ class ProyectoDependenciaController extends Controller
 
             $usuarios_asignados=ProyectoUsuarios::UsuariosAsignados(Yii::$app->session['usuario-exito']);
 
-            $rows=$model->find()->where(' '.$in_final.' '.$usuarios_asignados.' (solicitante="'.Yii::$app->session['usuario-exito'].'")')/*->orderBy('id DESC')*/->all();
+            $rows=$model->find()->where(' '.$usuarios_asignados.' (solicitante="'.Yii::$app->session['usuario-exito'].'") AND (estado_proyecto IN("'.$estado.'")) ')->all();
             
         }
 
         return $this->render('index', [
             'rows' => $rows,
             'model'=>$model,
-            'permisos'=>$permisos
+            'permisos'=>$permisos,
+            'estado'=>$estado
             
         ]);
     }
@@ -114,8 +118,39 @@ class ProyectoDependenciaController extends Controller
      */
     public function actionView($id)
     {   
+        $model= $this->findModel($id);
+        $model_adicional_proyecto=new ProyectosPresupuestoAdicional();
+        $model_adicional_proyecto->id_proyecto=$id;
+        $query_saldo_adicional=$model_adicional_proyecto->find()->where('id_proyecto='.$id)->orderby('fecha DESC')->all();
+
+        if ($model_adicional_proyecto->load(Yii::$app->request->post()) ) {
+            $suma_adicional_activo=($model->suma_adicional_activo+$model_adicional_proyecto->activo);
+            $suma_adicional_gasto=($model->suma_adicional_gasto+$model_adicional_proyecto->gasto);
+            date_default_timezone_set('America/Bogota');
+            $fecha = date('Y-m-d H:i:s',time());
+            $model->setAttribute('suma_adicional_activo',$suma_adicional_activo);
+            $model->setAttribute('suma_adicional_gasto',$suma_adicional_gasto);
+            $model_adicional_proyecto->setAttribute('fecha',$fecha);
+            $model->save();
+            $model_adicional_proyecto->save();
+            return $this->redirect(['view', 'id' => $id ]);
+        }else{
+            $model_adicional_proyecto->activo=0;
+            $model_adicional_proyecto->gasto=0;
+        }
+
+        if (isset($_POST['fecha_cambio'])) {
+            $model_log=new LogFechaProyectos;
+            $model_log->setAttribute('fecha',$_POST['fecha_fin']);
+            $model_log->setAttribute('descripcion',$_POST['motivo']);
+            $model_log->setAttribute('id_proyecto',$id);
+            $model_log->save();
+            return $this->redirect(['view','id'=>$id]);
+        }
         $detalle=ProyectoSeguimiento::find()->where('id_proyecto='.$id)->orderby('fecha DESC')->all();
         $presupuestos = ProyectosPresupuesto::find()->where('fk_proyectos='.$id)->orderby('id DESC')->all();
+
+        $log_fechas=LogFechaProyectos::find()->where('id_proyecto='.$id)->orderby('id Desc')->all();
         /*$porcentaje_total = (new \yii\db\Query())
         ->select('(SUM(avance)/COUNT(id)) as TOTAL')
         ->from('proyecto_seguimiento')
@@ -181,7 +216,7 @@ class ProyectoDependenciaController extends Controller
         $usuarios=Usuario::find()->where('estado="A"')->all();
         $list_usuarios=ArrayHelper::map($usuarios, 'usuario', 'usuario');
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' =>$model,
             'detalle'=>$detalle,
             'id'=>$id,
             'permisos'=>$permisos,
@@ -198,7 +233,10 @@ class ProyectoDependenciaController extends Controller
             'model_cronograma'=>$model_cronograma,
             'cronograma'=>$cronograma,
             'json_crono'=>$json_crono,
-            'list_usuarios'=>$list_usuarios
+            'list_usuarios'=>$list_usuarios,
+            'log_fechas'=>$log_fechas,
+            'model_adicional_proyecto'=>$model_adicional_proyecto,
+            'query_saldo_adicional'=>$query_saldo_adicional
         ]);
     }
 
@@ -210,7 +248,8 @@ class ProyectoDependenciaController extends Controller
     public function actionCreate()
     {
         $model = new Proyectos();
-        
+        $empresas=Empresa::find()->all();
+        $array_empresas=ArrayHelper::map($empresas, 'nit', 'nombre');
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->setAttribute('fecha_apertura',$_POST['Proyectos']['fecha_apertura']);
@@ -240,11 +279,20 @@ class ProyectoDependenciaController extends Controller
             $sistemas=$_POST['sistemas'];
 
             if(count($sistemas)>0){
+                $i=0;
                 foreach ($sistemas as $st) {
                     $proyecto_sistema=new ProyectoSistema();
                     $proyecto_sistema->setAttribute('id_proyecto',$model->id);
                     $proyecto_sistema->setAttribute('id_sistema',$st);
+                    if(isset($_POST['check_otro'][$i])){
+                        $proyecto_sistema->setAttribute('otro',(string)$_POST['otro'][$i]);
+                        $proyecto_sistema->setAttribute('encargado','');
+                    }else{
+                        $proyecto_sistema->setAttribute('encargado',(string)$_POST['encargado'][$i]);
+                        //echo $_POST['encargado'][$i]."<br>";
+                    }
                     $proyecto_sistema->save();
+                    $i++;
                 }
             }
 
@@ -272,7 +320,8 @@ class ProyectoDependenciaController extends Controller
                 'dependencias'     => $dependencias,
                 'distritosUsuario' => $distritosUsuario,
                 'marcasUsuario'    => $marcasUsuario,
-                'zonasUsuario'     => $zonasUsuario
+                'zonasUsuario'     => $zonasUsuario,
+                'array_empresas'   => $array_empresas
             ]);
         }
     }
@@ -463,6 +512,10 @@ class ProyectoDependenciaController extends Controller
             $arraySistema[]=$ps->id_sistema;
         }
 
+        $empresas=Empresa::find()->all();
+        $array_empresas=ArrayHelper::map($empresas, 'nit', 'nombre');
+
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->setAttribute('fecha_apertura',$_POST['Proyectos']['fecha_apertura']);
             $model->save();
@@ -492,12 +545,22 @@ class ProyectoDependenciaController extends Controller
             ProyectoSistema::deleteAll('id_proyecto = :id ', [':id' =>$id]);
 
             $sistemas=$_POST['sistemas'];
+
             if(count($sistemas)>0){
+                $i=0;
                 foreach ($sistemas as $st) {
                     $proyecto_sistema=new ProyectoSistema();
                     $proyecto_sistema->setAttribute('id_proyecto',$model->id);
                     $proyecto_sistema->setAttribute('id_sistema',$st);
+                    if(isset($_POST['check_otro'][$i])){
+                        $proyecto_sistema->setAttribute('otro',(string)$_POST['otro'][$i]);
+                        $proyecto_sistema->setAttribute('encargado','');
+                    }else{
+                        $proyecto_sistema->setAttribute('encargado',(string)$_POST['encargado'][$i]);
+                        //echo $_POST['encargado'][$i]."<br>";
+                    }
                     $proyecto_sistema->save();
+                    $i++;
                 }
             }
 
@@ -516,7 +579,9 @@ class ProyectoDependenciaController extends Controller
                 'zonasUsuario'     => $zonasUsuario,
                 'arrayProvedor'    =>$arrayProvedor,
                 'arrayUsuarios'    =>$arrayUsuarios,
-                'arraySistema'     =>$arraySistema
+                'arraySistema'     =>$arraySistema,
+                'array_empresas'   =>$array_empresas,
+                'proyectoSistema'  =>$proyectoSistema
             ]);
         }
     }
@@ -1062,7 +1127,7 @@ class ProyectoDependenciaController extends Controller
             }
         }
         $rows = (new \yii\db\Query())
-        ->select('pp.gasto_activo gasto_activo, pp.precio_neto precio_neto, pp.id id, dm.texto_breve material, pr.nombre proveedor, pp.cantidad cantidad, pp.solicitante solicitante, dm.material codigo, DATE(pp.created_on) fecha, pp.repetido repetido, pp.tipo_presupuesto tipo_presupuesto, pp.motivo_rechazo motivo_rechazo')
+        ->select('pp.gasto_activo gasto_activo, pp.precio_neto precio_neto, pp.id id, dm.texto_breve material, pr.nombre proveedor, pp.cantidad cantidad, pp.solicitante solicitante, dm.material codigo, DATE(pp.created_on) fecha, pp.repetido repetido, pp.tipo_presupuesto tipo_presupuesto, pp.motivo_rechazo motivo_rechazo,pp.sistema')
         ->from('proyecto_pedidos pp, proyectos p, detalle_maestra dm, proyecto_estado_pedidos pe, proveedor pr, maestra_proveedor mp')
         ->where('pp.proyecto_id='.$array_post['proyecto'].' AND p.id=pp.proyecto_id AND pp.detalle_maestra_id=dm.id AND pp.estado_id=pe.id AND dm.maestra_proveedor_id=mp.id AND pr.id=mp.proveedor_id AND pp.estado_id='.$estado);
         // quite esto dm.proveedor=pr.codigo AND ** 5 de julio 2017
@@ -1126,6 +1191,7 @@ class ProyectoDependenciaController extends Controller
                     'gasto_activo' => 'GASTO/ACTIVO',
                     'codigo' => 'CODIGO',
                     'material' => 'MATERIAL',
+                    'sistema'=>'Sistema',
                     'proveedor' => 'PROVEEDOR',
                     'cantidad'=>'CANTIDAD',
                     'precio_neto'=>'PRECIO NETO',
@@ -1150,10 +1216,12 @@ class ProyectoDependenciaController extends Controller
                 'modelcount' => $modelcount
             ), true);
         }
+        $sistemas=SistemaProyectos::find()->all();//los pedidos seran marcados de acuerdo al sistema asignado
         if($estado==1){
             $res.= $this->renderPartial('pedidos/_normal_partial', array(
             'model' => $model,
             'estado' => $estado,
+            'sistemas'=>$sistemas
                 ), true);
         }else{
             $res.= $this->renderPartial('pedidos/_normal_partial_na', array(
@@ -1196,7 +1264,7 @@ class ProyectoDependenciaController extends Controller
             }
         }
         $rows = (new \yii\db\Query())
-        ->select("pp.gasto_activo gasto_activo, (CASE WHEN pp.precio_sugerido>=0 THEN pp.precio_sugerido ELSE pp.precio_neto END) precio_neto, pp.id id, pp.archivo archivo, (CASE WHEN pp.producto_sugerido = '' THEN dm.texto_breve ELSE pp.producto_sugerido END) material, pp.cantidad cantidad, pp.solicitante solicitante, DATE(pp.created_on) fecha, pp.repetido repetido, pp.tipo_presupuesto tipo_presupuesto, pp.motivo_rechazo motivo_rechazo,dm.material AS num_material")
+        ->select("pp.gasto_activo gasto_activo, (CASE WHEN pp.precio_sugerido>=0 THEN pp.precio_sugerido ELSE pp.precio_neto END) precio_neto, pp.id id, pp.archivo archivo, (CASE WHEN pp.producto_sugerido = '' THEN dm.texto_breve ELSE pp.producto_sugerido END) material, pp.cantidad cantidad, pp.solicitante solicitante, DATE(pp.created_on) fecha, pp.repetido repetido, pp.tipo_presupuesto tipo_presupuesto, pp.motivo_rechazo motivo_rechazo,dm.material AS num_material,pp.sistema")
         ->from('proyecto_pedido_especial pp, proyectos p, maestra_especial dm, proyecto_estado_pedidos pe')
         ->where('pp.proyecto_id='.$array_post['proyecto'].' AND p.id=pp.proyecto_id AND pp.maestra_especial_id=dm.id AND pp.estado_id=pe.id AND pp.estado_id='.$estado);
         if(isset($_POST['desde'])){
@@ -1278,10 +1346,12 @@ class ProyectoDependenciaController extends Controller
                 'modelcount' => $modelcount
             ), true);
         }
+        $sistemas=SistemaProyectos::find()->all();//los pedidos seran marcados de acuerdo al sistema asignado
         if($estado==1){
             $res.= $this->renderPartial('pedidos/_especial_partial', array(
             'model' => $model,
             'estado' => $estado,
+            'sistemas'=>$sistemas,
             'presupuesto' => $presupuesto = Proyectos::findOne($_POST['proyecto'])
                 ), true);
         }else{
@@ -1567,34 +1637,141 @@ class ProyectoDependenciaController extends Controller
         ];
     }
 
-      public function actionFinalizar($id,$form){
+    public function actionFinalizar($id){
         $model=$this->findModel($id);
+        $form=$_POST['form'];
 
-       
-       $sala_control=$_POST['check-sala']==1?true:false;
-       $model->setAttribute('sala_control', $sala_control);
-       $model->setAttribute('fecha_sala_control', $_POST['fecha_sala']);
-       $model->setAttribute('correo_sala_control', $_POST['email_sala']);
-       $model->save();
+        switch ($form) {
+            case 'sala':
+                $model->setAttribute('sala_control', true);
+                if($_POST['check-sala']==1){
+                    $model->setAttribute('na_sala', true);
+                }else{
 
-  
+                    $model->setAttribute('fecha_sala_control', $_POST['fecha_sala']);
+                   if($_FILES['file_sala']['name']!=''){
+                       Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/sala_control/';
+                       $shortPath = '/uploads/proyecto_finalizar/sala_control/';
+                       $name=$id."-".$_FILES['file_sala']['name'];
+                       $path    = Yii::$app->params['uploadPath'] . $name;
+                       $model->setAttribute('adjunto_sala_control', $shortPath.$name);
+                       move_uploaded_file($_FILES['file_sala']['tmp_name'], $path);
+                   }
 
-       $orden_compra=$_POST['check-orden']==1?true:false;
-       $model->setAttribute('ordenes_compra', $orden_compra);
-       $model->setAttribute('fecha_ajuste_final', $_POST['fecha_orden']);
-       $model->save();
-       
-  
-       
-       $facturacion=$_POST['check-factura']==1?true:false;
-       $model->setAttribute('facturacion', $facturacion);
-       $model->setAttribute('fecha_entrega', $_POST['fecha_factura']);
-       $model->save();
+                }
+
+                if($model->save()){
+                    echo "todo esta bien";
+                }else{
+
+                    echo "Hubo un error";
+                }
+
+            break;
+
+            case 'acta':
+                $model->setAttribute('acta_entrega', true);
+                if($_POST['check-acta']==1){
+                    $model->setAttribute('na_acta', true);
+                }else{
+                    $model->setAttribute('fecha_acta_entrega', $_POST['fecha_acta']);
+                   if($_FILES['file_acta']['name']!=''){
+                       Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/acta_entrega/';
+                       $shortPath = '/uploads/proyecto_finalizar/acta_entrega/';
+                       $name=$id."-".$_FILES['file_acta']['name'];
+                       $path    = Yii::$app->params['uploadPath'] . $name;
+                       $model->setAttribute('adjunto_acta_entrega', $shortPath.$name);
+                       move_uploaded_file($_FILES['file_acta']['tmp_name'], $path);
+                   }
+                }
+
+                if($model->save()){
+                    echo "todo esta bien";
+                }else{
+
+                    echo "Hubo un error";
+                }
+
+            break;
+
+            case 'factura':
+                $model->setAttribute('facturacion', true);
+                $model->setAttribute('estado_proyecto', "F");
+                $model->setAttribute('dias_seguidos', $_POST['dias_seguidos']);
+                if($_POST['check-facturacion']==1){
+                    $model->setAttribute('na_factura', true);
+                }else{
+                    $model->setAttribute('recibe_factura', $_POST['recibio_factura']);
+                    $model->setAttribute('fecha_entrega', $_POST['fecha_factura']);
+                    if($_FILES['file_factura']['name']!=''){
+                        echo "<pre>";
+                        print_r($_FILES['file_factura']);
+                        echo "</pre>";
+                       Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/factura/';
+                       $shortPath = '/uploads/proyecto_finalizar/factura/';
+                       $name=$id."-".$_FILES['file_factura']['name'];
+                       $path    = Yii::$app->params['uploadPath'] . $name;
+                       $model->setAttribute('adjunto_factura', $shortPath.$name);
+                       move_uploaded_file($_FILES['file_factura']['tmp_name'], $path);
+                   }
+                }
+
+                if($model->save()){
+
+                    echo "todo esta bien";
+                }else{
+
+                    echo "Hubo un error";
+                }
+            break;
+          
+        }
+
+       /*if(isset($_POST['finalizar'])){
+            $model->setAttribute('estado_proyecto', "F");
+            $model->setAttribute('dias_seguidos', $_POST['dias_seguidos']);
+            $model->save();
+       }elseif(isset($_POST['abrir'])){
+            $model->setAttribute('estado_proyecto', "A");
+            $model->save();
+       }else{
+           if($_POST['check-sala']==1){
+               $sala_control=$_POST['check-sala']==1?true:false;
+               $model->setAttribute('sala_control', $sala_control);
+               $model->setAttribute('fecha_sala_control', $_POST['fecha_sala']);
+               if(isset($_FILES['file_sala'])){
+                   Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/sala_control/';
+                   $shortPath = '/uploads/proyecto_finalizar/sala_control/';
+                   $name=$id."-".$_FILES['file_sala']['name'];
+                   $path    = Yii::$app->params['uploadPath'] . $name;
+                   $model->setAttribute('adjunto_sala_control', $shortPath.$name);
+                   move_uploaded_file($_FILES['file_sala']['tmp_name'], $path);
+               }
+               $model->save();
+
+            }
+
+            if($_POST['check-acta']==1){
+               $sala_control=$_POST['check-acta']==1?true:false;
+               $model->setAttribute('acta_entrega', $sala_control);
+               $model->setAttribute('fecha_acta_entrega', $_POST['fecha_acta']);
+               if(isset($_FILES['file_acta'])){
+                   Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/acta_entrega/';
+                   $shortPath = '/uploads/proyecto_finalizar/acta_entrega/';
+                   $name=$id."-".$_FILES['file_acta']['name'];
+                   $path    = Yii::$app->params['uploadPath'] . $name;
+                   $model->setAttribute('adjunto_acta_entrega', $shortPath.$name);
+                   move_uploaded_file($_FILES['file_acta']['tmp_name'], $path);
+               }
+               $model->save();
+
+            }
+        }*/
 
           
         return $this->redirect(['view', 
-                'id' => $id
-            ]);
+            'id' => $id
+        ]);
 
     }
 
@@ -1638,5 +1815,91 @@ class ProyectoDependenciaController extends Controller
         return [
             'respuesta' => $res
         ];
+    }
+
+    public function actionBloquearCronograma($id,$accion){
+        $model=$this->findModel($id);
+              
+        $model->setAttribute('estado_cronograma', $accion);
+        if($model->save()){
+            return $this->redirect(['view','id'=>$id]);
+        }else{
+
+            print_r($model->getErrors());
+        }
+        
+    }
+
+    public function actionAsignarSistematodos(){
+        $count=0;
+        if ($_POST['tipo']=='normal') {
+            if(trim($_POST['productos_id'])!=''){
+                $array = explode(",",$_POST['productos_id']);
+                if(count($array)>0){
+                    foreach ($array as $valor) {
+                        $model = ProyectoPedidos::findOne($valor);
+                        $model->setAttribute('sistema', $_POST['sistema']);
+                        if($model->save()){
+                            $count++;
+                        }
+                    }
+                }
+            }
+            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return [
+                'respuesta' => $count,
+            ];
+        }else if ($_POST['tipo']=='especial') {
+            if(trim($_POST['productos_id'])!=''){
+               $array = explode(",",$_POST['productos_id']);
+                if(count($array)>0){
+                    foreach ($array as $valor) {
+                        $model = ProyectoPedidoEspecial::findOne($valor);
+                        $model->setAttribute('sistema', $_POST['sistema']);
+                        if($model->save()){
+                            $count++;
+                        }
+                    }
+                } 
+            }
+            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return [
+                'respuesta' => $count,
+            ];
+        }
+    }
+
+    public function actionAsignarSistemaPedido(){
+
+        if ($_POST['tipo']=='normal') {
+            $model = ProyectoPedidos::findOne($_POST['producto']);
+            $model->setAttribute('sistema', $_POST['sistema']);
+            if($model->save()){
+                \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                return [
+                    'respuesta' => true,
+                ];
+            }else{
+                \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                return [
+                    'respuesta' => print_r($model->getErrors()),
+                ];
+            }
+        }else if ($_POST['tipo']=='especial') {
+            $model = ProyectoPedidoEspecial::findOne($_POST['producto']);
+            $model->setAttribute('sistema', $_POST['sistema']);
+            if($model->save()){
+                \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                return [
+                    'respuesta' => true,
+                ];
+            }else{
+                \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                return [
+                    'respuesta' => print_r($model->getErrors()),
+                ];
+            }
+        }
+
     }
 }

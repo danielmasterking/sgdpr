@@ -122,7 +122,7 @@ use kartik\widgets\Select2;
                 ?>
             </div>
         </div>
-
+        
         <div class="form-group">
             <?= Html::submitButton($model->isNewRecord?'Crear':'Actualizar', ['class' => 'btn btn-primary']) ?>
         </div>

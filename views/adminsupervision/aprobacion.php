@@ -131,7 +131,7 @@ $this->title = 'Aprobación Pedidos de Administracion y supervision';
     <i class="fas fa-ban"></i> Rechazar
 </button>
 <a href="<?php echo Url::toRoute('pedido/prefactura-index')?>" class="btn btn-primary">Prefactura-fija</a>
-
+<a href="<?php echo Url::toRoute('prefacturaelectronica/aprobacion')?>" class="btn btn-primary">Prefactura Electronica</a>
 <div class="col-md-12">
   <div class="table-responsive">
    
@@ -142,6 +142,8 @@ $this->title = 'Aprobación Pedidos de Administracion y supervision';
                <th>Acciones</th>
                <th>Id</th>
                <th>Empresa</th>
+               <th>Usuario</th>
+               <th>Numero factura</th>
                <th>Mes</th>
                <th>Ano</th>
                <th>Total Servicio</th>
@@ -164,6 +166,8 @@ $this->title = 'Aprobación Pedidos de Administracion y supervision';
                 </td>
                 <td><?= $rw['id']?></td>
                 <td><?= $rw['empresa']?></td>
+                <td><?= $rw['usuario']?></td>
+                <td><?= $rw['numero_factura']?></td>
                 <td><?= $rw['mes']?></td>
                 <td><?= $rw['ano']?></td>
                 <td><?= '$ '.number_format(($rw['total_factura']), 0, '.', '.').' COP'?></td>

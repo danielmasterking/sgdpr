@@ -188,7 +188,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 page: page,
                 marca:marca,
                 mes:mes,
-                empresa:empresa
+                empresas:empresa
             },
             beforeSend:  function() {
                 $('#info').html('Cargando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');

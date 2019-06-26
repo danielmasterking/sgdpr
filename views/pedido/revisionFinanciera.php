@@ -204,12 +204,12 @@ $this->title = 'Revisión Financiera de pedidos';
 					
 						'name' => 'valor1-view'.$pendiente->id,
 						'value' =>  $pendiente->precio_neto,
-						'options' => ['readonly' => 'readonly']
+						'options' => ['readonly' => 'readonly','type'=>'hidden']
 					]);
 				 
 				 ?>
 				
-				
+				<?='$ '.number_format($pendiente->precio_neto, 0, '.', '.').' COP'?>
 				
 				</td>
 				<td>
@@ -221,11 +221,11 @@ $this->title = 'Revisión Financiera de pedidos';
 					
 						'name' => 'valor3-view-'.$pendiente->id,
 						'value' =>  $pendiente->precio_neto * $pendiente->cantidad,
-						'options' => ['readonly' => 'readonly']
+						'options' => ['readonly' => 'readonly','type'=>'hidden']
 					]);
 				 
 				 ?>
-				
+				<?='$ '.number_format($pendiente->precio_neto * $pendiente->cantidad, 0, '.', '.').' COP'?>
 				</td>
 
 				
@@ -422,10 +422,12 @@ $this->title = 'Revisión Financiera de pedidos';
 					
 						'name' => 'valor2-view'.$pendiente->id,
 						'value' =>  $subtotales[$cebe_anterior_copia],
-						'options' => ['readonly' => 'readonly']
+						'options' => ['readonly' => 'readonly','type'=>'hidden']
 					]);
 				 
-				 ?></td>
+				 ?>
+				 	<?='$ '.number_format($subtotales[$cebe_anterior_copia], 0, '.', '.').' COP'?>
+				 </td>
 				 <td></td>
 				 <td></td>
 				  <td></td>

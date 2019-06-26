@@ -163,8 +163,9 @@ class CapacitacionController extends Controller
 		 
 		 if($model->save()){
 			 
-			  $fecha_real_visita = strtotime('+1 day' , strtotime ( $model->fecha_capacitacion ));
-			  $fecha_real_visita = date('Y-m-d',$fecha_real_visita);
+			  //$fecha_real_visita = strtotime('+1 day' , strtotime ( $model->fecha_capacitacion ));
+			  //$fecha_real_visita = date('Y-m-d',$fecha_real_visita);
+		 	  $fecha_real_visita =date("Y-m-d");
 			  $model->setAttribute('fecha_capacitacion',$fecha_real_visita);
 			  $model->save(); 
 

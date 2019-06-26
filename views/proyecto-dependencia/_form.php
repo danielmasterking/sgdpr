@@ -93,7 +93,7 @@ use kartik\datecontrol\DateControl;
    	</div>
 
     <div class="row"> 
-      <div class="col-md-6">
+      <div class="col-md-12">
       <label>Usuarios asignados</label>
         <?php
           if(!$model->isNewRecord){
@@ -120,22 +120,29 @@ use kartik\datecontrol\DateControl;
           }
         ?>
       </div>
-      <div class="col-md-6">
+   
+    </div>
+
+    
+    <br>
+    <div class="row">
+      <div class="col-md-4">
+        <button class="btn btn-success btn-xs" type="button" id="btn-agregar" title="Clic para agregar sistema"><i class="fa fa-check"></i></button>
         <label>Sistemas a seguir</label>
         <?php 
 
-          if(!$model->isNewRecord){
+          //if(!$model->isNewRecord){
             echo Select2::widget([
-                      'name' => 'sistemas[]',
+                      'name' => '',
                       'data' => $model->Sistemas(),
                       //'size' => Select2::SMALL,
                       'value'=>$arraySistema,
-                      'options' => ['placeholder' => 'Selecciona sistemas ...', 'multiple' => true,'id'=>'sistemas'],
+                      'options' => ['placeholder' => 'Selecciona sistemas ...', /*'multiple' => true,*/'id'=>'sistemas'],
                       'pluginOptions' => [
                           'allowClear' => true
                       ],
                   ]);
-          }else{
+         /* }else{
            echo Select2::widget([
                       'name' => 'sistemas[]',
                       'data' => $model->Sistemas(),
@@ -145,13 +152,50 @@ use kartik\datecontrol\DateControl;
                           'allowClear' => true
                       ],
                   ]);
-          }
+          }*/
 
         ?>
       </div>
-    </div>
-    <br>
+      <div class="col-md-8">
 
+        <table class="table table-striped" id="tbl_encargado">
+          <thead>
+            <tr>
+              <th>Sistema</th>
+              <th>Encargado</th>
+              <th>Otro</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody >
+            <?php if(!$model->isNewRecord){ ?>
+              <?php foreach($proyectoSistema as $py): ?>
+                <tr>
+                  <td><?php echo  $py->sistema->nombre ?><input type="hidden" name="sistemas[]" value="<?php echo  $py->id_sistema ?>" ></td>
+                  <td>
+                    <select name='encargado[]' id='encargado_<?php echo  $py->id_sistema ?>' style="<?= $py->otro!=''?'display: none;':''; ?>">
+                      <?php foreach($array_empresas as $nit=>$em):  ?>
+                        <option value="<?= $nit?>" <?php echo $py->encargado==$nit?'selected':'' ?>><?= $em?></option>
+                      <?php endforeach; ?>
+                    </select>
+                    <input type="text" name="otro[]" style="<?= $py->otro!=''?'':'display: none;'; ?>"" id="otro_<?php echo  $py->id_sistema ?>" value="<?= $py->otro?>">
+                  </td>
+                  <td>
+                    <input type="checkbox" name="check_otro[]" onclick="activar_otro(this,<?php echo  $py->id_sistema ?>)" <?= $py->otro!=''?'checked':''; ?>>
+                  </td>
+                  <td>
+                    <button class='btn btn-danger btn-xs' type='button' onclick='quitar(this);'><i class='fa fa-trash'></i></button>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+
+            <?php } ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <br>
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Crear' : 'Actualizar', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

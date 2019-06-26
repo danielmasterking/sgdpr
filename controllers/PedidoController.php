@@ -1515,9 +1515,18 @@ class PedidoController extends Controller
                 WHEN dp.imputacion="F" THEN "Proyecto"
                 ELSE ""
             END) Imputacion,'.
-            'p.fecha Fecha_pedido,dp.observaciones')
-        ->from('detalle_pedido dp, detalle_maestra dm, pedido p, proveedor pr, centro_costo cc, maestra_proveedor mp')
-        ->where("dp.pedido_id=p.id AND dp.detalle_maestra_id=dm.id AND p.centro_costo_codigo=cc.codigo AND dm.proveedor=pr.codigo AND dp.estado NOT IN ('R','Y','F','T','A','P') AND dm.maestra_proveedor_id=mp.id AND pr.id=mp.proveedor_id");
+            'p.fecha Fecha_pedido,dp.observaciones,ma.nombre marca,ci.nombre ciudad,
+            (
+            select zona.nombre  from centro_costo cco
+            inner join ciudad_zona cz on cco.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cco.codigo=cc.codigo limit 1
+            )regional')
+        ->from('detalle_pedido dp, detalle_maestra dm, pedido p, proveedor pr, centro_costo cc, maestra_proveedor mp,marca ma,ciudad ci')
+        //->where("dp.pedido_id=p.id AND dp.detalle_maestra_id=dm.id AND p.centro_costo_codigo=cc.codigo AND dm.proveedor=pr.codigo AND /*dp.estado NOT IN ('R','Y','F','T','A','P') AND*/ dm.maestra_proveedor_id=mp.id AND pr.id=mp.proveedor_id /*AND dp.imputacion='F'*/");
+
+        ->where("dp.pedido_id=p.id AND dp.detalle_maestra_id=dm.id AND p.centro_costo_codigo=cc.codigo AND dm.maestra_proveedor_id=mp.id AND pr.id=mp.proveedor_id AND dp.estado NOT IN ('R','Y','F','T','A','P')
+            AND cc.marca_id=ma.id AND cc.ciudad_codigo_dane=ci.codigo_dane");
         if(isset($_POST['desde'])){
             if($_POST['desde']!="" && $_POST['hasta']!=""){
                 $rows->andWhere("DATE(dp.created_on) between '".$_POST['desde']."' AND '".$_POST['hasta']."'");
@@ -1599,11 +1608,14 @@ class PedidoController extends Controller
             \moonland\phpexcel\Excel::widget([
                 'models' => $pendientes,
                 'mode' => 'export',
-                'columns' => ['fecha','repetido','dependencia','cebe','producto','observaciones','cantidad','proveedor','orden','codigo_activo','precio_neto','precio_total','ffinanciera','ofinanciera','mrechazo','Imputacion','Fecha_pedido'],
+                'columns' => ['fecha','repetido','dependencia','marca','ciudad','regional','cebe','producto','observaciones','cantidad','proveedor','orden','codigo_activo','precio_neto','precio_total','ffinanciera','ofinanciera','mrechazo','Imputacion','Fecha_pedido'],
                 'headers' => [
                     'fecha' => 'FECHA',
                     'repetido' => 'REPETIDO?',
                     'dependencia' => 'DEPENDENCIA',
+                    'marca' => 'MARCA',
+                    'ciudad' => 'CIUDAD',
+                    'regional' => 'REGIONAL',
                     'cebe'=>'CEBE',
                     'producto'=>'PRODUCTO',
                     'observaciones'=>'Observacion',
@@ -1708,9 +1720,15 @@ class PedidoController extends Controller
                 WHEN dp.imputacion="F" THEN "Proyecto"
                 ELSE ""
             END) Imputacion,'.
-            'p.fecha Fecha_pedido,p.observaciones')
-        ->from('detalle_pedido_especial dp, maestra_especial me, pedido p, centro_costo cc')
-        ->where('dp.pedido_id=p.id AND dp.maestra_especial_id=me.id AND p.centro_costo_codigo=cc.codigo');
+            'p.fecha Fecha_pedido,p.observaciones,ma.nombre marca,ci.nombre ciudad,
+            (
+            select zona.nombre  from centro_costo cco
+            inner join ciudad_zona cz on cco.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cco.codigo=cc.codigo limit 1
+            )regional')
+        ->from('detalle_pedido_especial dp, maestra_especial me, pedido p, centro_costo cc,marca ma,ciudad ci')
+        ->where('dp.pedido_id=p.id AND dp.maestra_especial_id=me.id AND p.centro_costo_codigo=cc.codigo/* AND dp.imputacion IN("A","K","F")*/ AND cc.marca_id=ma.id AND cc.ciudad_codigo_dane=ci.codigo_dane');
         if(isset($_POST['desde'])){
             if($_POST['desde']!="" && $_POST['hasta']!=""){
                 $rows->andWhere("DATE(dp.created_on) between '".$_POST['desde']."' AND '".$_POST['hasta']."'");
@@ -1792,11 +1810,14 @@ class PedidoController extends Controller
             \moonland\phpexcel\Excel::widget([
                 'models' => $pendientes,
                 'mode' => 'export',
-                'columns' => ['fecha','repetido','dependencia','cebe','producto','observaciones','cantidad','proveedor','orden','codigo_activo','precio_sugerido','precio_total','ffinanciera','ofinanciera','mrechazo','Imputacion','Fecha_pedido'],
+                'columns' => ['fecha','repetido','dependencia','marca','ciudad','regional','cebe','producto','observaciones','cantidad','proveedor','orden','codigo_activo','precio_sugerido','precio_total','ffinanciera','ofinanciera','mrechazo','Imputacion','Fecha_pedido'],
                 'headers' => [
                     'fecha' => 'FECHA',
                     'repetido' => 'REPETIDO?',
                     'dependencia' => 'DEPENDENCIA',
+                    'marca' => 'MARCA',
+                    'ciudad' => 'CIUDAD',
+                    'regional' => 'REGIONAL',
                     'cebe'=>'CEBE',
                     'producto'=>'PRODUCTO',
                     'observaciones'=>'Observacion',
@@ -1971,47 +1992,47 @@ class PedidoController extends Controller
                             //$detallePedido->setAttribute('estado','E');//E item colocado como pendiente por coordinador
                             $detallePedido->setAttribute('usuario_aprobador_revision', Yii::$app->session['usuario-exito']);
                             $detallePedido->save();
-                            date_default_timezone_set ( 'America/Bogota');
-                            $titulo="<span class='label label-danger'>Rechazo</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
-                            $descripcion="
-                              <div class='table-responsive'>
-                                <table class='table table-bordered'>
-                                    <thead>
-                                        <tr>
-                                          <th>Fecha Pedido</th>
-                                          <th>Dependencia</th>
-                                          <th>Proveedor</th>
-                                          <th>Material</th>
-                                          <th>Texto breve</th>
-                                          <th>Cantidad</th>
-                                          <th>Observaciones</th>
-                                          <th>Ordinario</th>
-                                          <th>Solicitante</th>
-                                          <th>Motivo rechazo</th>
+                            //date_default_timezone_set ( 'America/Bogota');
+                            // $titulo="<span class='label label-danger'>Rechazo</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
+                            // $descripcion="
+                            //   <div class='table-responsive'>
+                            //     <table class='table table-bordered'>
+                            //         <thead>
+                            //             <tr>
+                            //               <th>Fecha Pedido</th>
+                            //               <th>Dependencia</th>
+                            //               <th>Proveedor</th>
+                            //               <th>Material</th>
+                            //               <th>Texto breve</th>
+                            //               <th>Cantidad</th>
+                            //               <th>Observaciones</th>
+                            //               <th>Ordinario</th>
+                            //               <th>Solicitante</th>
+                            //               <th>Motivo rechazo</th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>".$detallePedido->pedido->fecha."</td>
-                                            <td>".$detallePedido->pedido->dependencia->nombre."</td>
-                                            <td>".$detallePedido->producto->maestra->proveedor->nombre."</td>
-                                            <td>".$detallePedido->producto->material."</td>
-                                            <td>".$detallePedido->producto->texto_breve."</td>
-                                            <td>".$detallePedido->cantidad."</td>
-                                            <td>".$detallePedido->observaciones."</td>
-                                            <td>".$detallePedido->ordinario."</td>
-                                            <td>".strtoupper($detallePedido->pedido->solicitante)."</td>
-                                            <td>".$mensaje."</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                              </div>
+                            //             </tr>
+                            //         </thead>
+                            //         <tbody>
+                            //             <tr>
+                            //                 <td>".$detallePedido->pedido->fecha."</td>
+                            //                 <td>".$detallePedido->pedido->dependencia->nombre."</td>
+                            //                 <td>".$detallePedido->producto->maestra->proveedor->nombre."</td>
+                            //                 <td>".$detallePedido->producto->material."</td>
+                            //                 <td>".$detallePedido->producto->texto_breve."</td>
+                            //                 <td>".$detallePedido->cantidad."</td>
+                            //                 <td>".$detallePedido->observaciones."</td>
+                            //                 <td>".$detallePedido->ordinario."</td>
+                            //                 <td>".strtoupper($detallePedido->pedido->solicitante)."</td>
+                            //                 <td>".$mensaje."</td>
+                            //             </tr>
+                            //         </tbody>
+                            //     </table>
+                            //   </div>
 
-                            ";
-                            $solicitantes=[$detallePedido->pedido->solicitante];
-                            Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
-                            Yii::$app->session['notificacion']=1;
+                            // ";
+                            // $solicitantes=[$detallePedido->pedido->solicitante];
+                            // Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
+                            // Yii::$app->session['notificacion']=1;
                             return $this->redirect(['rechazar-producto', 'id_detalle_producto' => $detallePedido->id]);
                         }
 
@@ -2698,36 +2719,36 @@ class PedidoController extends Controller
             $solicitantes[]=$ped->pedido->solicitante;
             $index++;
         }
-        date_default_timezone_set ( 'America/Bogota');
-        $titulo="<span class='label label-danger'>Rechazo</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
-        $descripcion="
-          <div class='table-responsive'>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                      <th>Fecha Pedido</th>
-                      <th>Dependencia</th>
-                      <th>Proveedor</th>
-                      <th>Material</th>
-                      <th>Texto breve</th>
-                      <th>Cantidad</th>
-                      <th>Observaciones</th>
-                      <th>Ordinario</th>
-                      <th>Solicitante</th>
-                      <th>Motivo rechazo</th>
+        // date_default_timezone_set ( 'America/Bogota');
+        // $titulo="<span class='label label-danger'>Rechazo</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
+        // $descripcion="
+        //   <div class='table-responsive'>
+        //     <table class='table table-bordered'>
+        //         <thead>
+        //             <tr>
+        //               <th>Fecha Pedido</th>
+        //               <th>Dependencia</th>
+        //               <th>Proveedor</th>
+        //               <th>Material</th>
+        //               <th>Texto breve</th>
+        //               <th>Cantidad</th>
+        //               <th>Observaciones</th>
+        //               <th>Ordinario</th>
+        //               <th>Solicitante</th>
+        //               <th>Motivo rechazo</th>
 
-                    </tr>
-                </thead>
-                <tbody>
-                    ".$tr."
-                </tbody>
-            </table>
-           </div>
+        //             </tr>
+        //         </thead>
+        //         <tbody>
+        //             ".$tr."
+        //         </tbody>
+        //     </table>
+        //    </div>
 
-        ";
+        // ";
 
-        Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
-        Yii::$app->session['notificacion']=1;
+        // Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
+        // Yii::$app->session['notificacion']=1;
         return $this->redirect('revision');
     }
     public function actionRechazarProductoEspecialCoordinadorTodos()
@@ -2938,37 +2959,37 @@ class PedidoController extends Controller
 
             $index++;
         }
-        date_default_timezone_set ( 'America/Bogota');
-        $titulo="<span class='label label-success'>Aprobacion</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
-        $descripcion="
-            <div class='table-responsive'>
-                <table class='table table-bordered'>
-                    <thead>
-                        <tr>
-                          <th>Fecha Pedido</th>
-                          <th>Dependencia</th>
-                          <th>Proveedor</th>
-                          <th>Material</th>
-                          <th>Texto breve</th>
-                          <th>Cantidad</th>
-                          <th>Observaciones</th>
-                          <th>Ordinario</th>
-                          <th>Solicitante</th>
+        // date_default_timezone_set ( 'America/Bogota');
+        // $titulo="<span class='label label-success'>Aprobacion</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
+        // $descripcion="
+        //     <div class='table-responsive'>
+        //         <table class='table table-bordered'>
+        //             <thead>
+        //                 <tr>
+        //                   <th>Fecha Pedido</th>
+        //                   <th>Dependencia</th>
+        //                   <th>Proveedor</th>
+        //                   <th>Material</th>
+        //                   <th>Texto breve</th>
+        //                   <th>Cantidad</th>
+        //                   <th>Observaciones</th>
+        //                   <th>Ordinario</th>
+        //                   <th>Solicitante</th>
                          
 
-                        </tr>
-                    </thead>
-                    <tbody>
-                       ".$tr."
-                    </tbody>
-                </table>
-            </div>
+        //                 </tr>
+        //             </thead>
+        //             <tbody>
+        //                ".$tr."
+        //             </tbody>
+        //         </table>
+        //     </div>
 
 
-        ";
+        // ";
 
-        Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
-        Yii::$app->session['notificacion']=1;
+        // Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
+        // Yii::$app->session['notificacion']=1;
 
 
         return $this->redirect('revision');
@@ -3419,44 +3440,44 @@ class PedidoController extends Controller
             $pendiente->setAttribute('fecha_revision_coordinador', $fecha); 
             $pendiente->setAttribute('usuario_aprobador_revision', Yii::$app->session['usuario-exito']);        
             $pendiente->save();
-            date_default_timezone_set ( 'America/Bogota');
-            $titulo="<span class='label label-success'>Aprobacion</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
-            $descripcion="
-                <table class='table table-bordered'>
-                    <thead>
-                        <tr>
-                          <th>Fecha Pedido</th>
-                          <th>Dependencia</th>
-                          <th>Proveedor</th>
-                          <th>Material</th>
-                          <th>Texto breve</th>
-                          <th>Cantidad</th>
-                          <th>Observaciones</th>
-                          <th>Ordinario</th>
-                          <th>Solicitante</th>
+            // date_default_timezone_set ( 'America/Bogota');
+            // $titulo="<span class='label label-success'>Aprobacion</span> Revision de pedidos - <i class='fa fa-user'></i> ".Yii::$app->session['usuario-exito']."- <i class='fa fa-calendar'></i>".date('Y-m-d h:i:s');
+            // $descripcion="
+            //     <table class='table table-bordered'>
+            //         <thead>
+            //             <tr>
+            //               <th>Fecha Pedido</th>
+            //               <th>Dependencia</th>
+            //               <th>Proveedor</th>
+            //               <th>Material</th>
+            //               <th>Texto breve</th>
+            //               <th>Cantidad</th>
+            //               <th>Observaciones</th>
+            //               <th>Ordinario</th>
+            //               <th>Solicitante</th>
 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>".$pendiente->pedido->fecha."</td>
-                            <td>".$pendiente->pedido->dependencia->nombre."</td>
-                            <td>".$pendiente->producto->maestra->proveedor->nombre."</td>
-                            <td>".$pendiente->producto->material."</td>
-                            <td>".$pendiente->producto->texto_breve."</td>
-                            <td>".$pendiente->cantidad."</td>
-                            <td>".$pendiente->observaciones."</td>
-                            <td>".$pendiente->ordinario."</td>
-                            <td>".strtoupper($pendiente->pedido->solicitante)."</td>
-                        </tr>
-                    </tbody>
-                </table>
+            //             </tr>
+            //         </thead>
+            //         <tbody>
+            //             <tr>
+            //                 <td>".$pendiente->pedido->fecha."</td>
+            //                 <td>".$pendiente->pedido->dependencia->nombre."</td>
+            //                 <td>".$pendiente->producto->maestra->proveedor->nombre."</td>
+            //                 <td>".$pendiente->producto->material."</td>
+            //                 <td>".$pendiente->producto->texto_breve."</td>
+            //                 <td>".$pendiente->cantidad."</td>
+            //                 <td>".$pendiente->observaciones."</td>
+            //                 <td>".$pendiente->ordinario."</td>
+            //                 <td>".strtoupper($pendiente->pedido->solicitante)."</td>
+            //             </tr>
+            //         </tbody>
+            //     </table>
 
 
-            ";
-            $solicitantes=[$pendiente->pedido->solicitante];
-            Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
-            Yii::$app->session['notificacion']=1;
+            // ";
+            // $solicitantes=[$pendiente->pedido->solicitante];
+            // Notificacion::CrearNotificacion($titulo,$descripcion,$solicitantes);
+            // Yii::$app->session['notificacion']=1;
         }
 
         return $this->redirect('revision');
@@ -4090,11 +4111,11 @@ class PedidoController extends Controller
             $ordenado => $forma
         ]);
 
-        $count = $query->count();
+        /*$count = $query->count();
         // crea un objeto paginación con dicho total
         $pagination = new Pagination(['totalCount' => $count]);
-        $limit=30;
-        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+        $limit=30;*/
+        $command = $query->createCommand();
 
         // Ejecutar el comando:
         $rows = $command->queryAll();
@@ -4165,7 +4186,7 @@ class PedidoController extends Controller
         // crea un objeto paginación con dicho total
         $pagination = new Pagination(['totalCount' => $count]);
         $limit=30;
-        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+        $command = $query->/*offset($pagination->offset)->limit($limit)->*/createCommand();
 
         // Ejecutar el comando:
         $rows = $command->queryAll();
@@ -4242,7 +4263,7 @@ class PedidoController extends Controller
         }
 
        $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado,orden_compra,id_pedido,posicion')
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,usuario_aprueba,fecha_aprobacion,usuario,estado_pedido,usuario_rechaza,fecha_rechazo,motivo_rechazo_prefactura,created AS Fecha_creado,orden_compra,id_pedido,posicion,ciudad')
         ->from('prefactura_consolidado_pedido')
         ->where('estado_pedido IN("F")');
 
@@ -4252,7 +4273,8 @@ class PedidoController extends Controller
         $query->orderBy([
             $ordenado => $forma
         ]);
-        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+        //$command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+        $command = $query->createCommand();
 
         // Ejecutar el comando:
         $rows = $command->queryAll();

@@ -22,6 +22,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 <button class="btn btn-primary"  onclick="devolver();"><i class="fa fa-reply"></i> Devolver a consolidado</button>
 <?php }?>
 <a href="<?php echo Url::toRoute('adminsupervision/orden-compra-prefactura')?>" class="btn btn-primary">Admin y sup</a>
+<a href="<?php echo Url::toRoute('prefacturaelectronica/orden-compra')?>" class="btn btn-primary">Prefactura-electronica</a>
 <br><br>
 <div class="col-md-12">
 	<div class="table-responsive">
@@ -33,6 +34,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 					<th>Posicion</th>
 					<th>Cebe</th>
 					<th>Dependencia</th>
+          <th>Ciudad</th>
 					<th>Texto breve</th>
 					<th>Cantidad</th>
 					<th>OC/No.Solicitud</th>
@@ -52,6 +54,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 				  	<td><?= $row['posicion'] ?></td>
 				  	<td><?= $row['cebe'] ?></td>
 				  	<td><?= $row['dependencia']?></td>
+            <td><?= $row['ciudad']?></td>
 				  	<td></td>
 				  	<td>1</td>
 				  	<td><?= $row['orden_compra']?></td>
@@ -161,7 +164,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
         }
     });
 
-    table_consolidado.buttons().container().appendTo($('.col-sm-6:eq(0)', table.table().container()));
+    table_consolidado.buttons().container().appendTo($('.col-sm-6:eq(0)', table_consolidado.table().container()));
 
   });
 

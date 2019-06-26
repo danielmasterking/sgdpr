@@ -18,6 +18,7 @@ if($usuario != null){
 
        <tr>
            <th></th>
+           <th>ID</th>
            <th>Fecha creación</th>
            <th>Repetido?</th>
 		   <th>Dependencia</th>
@@ -67,6 +68,7 @@ if($usuario != null){
 					 }
 				 ?>
 			</td>
+			<td><?=$pen['id']?></td>
              <td><?=$pen['fecha']?></td>
              <td><?php
 				  if($pen['repetido']=='SI'){

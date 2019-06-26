@@ -101,9 +101,9 @@ foreach($dependencias as $value){
 
 
 ?>
-<div class="alert alert-info" role="alert">
+<!-- <div class="alert alert-info" role="alert">
 	<i class="glyphicon glyphicon-warning-sign"></i> Este modulo se encuentra en mantenimiento por lo tanto estara suspendido temporalmente gracias por su comprension...
-</div>
+</div> -->
 <div class="gestion-riesgo-form">
 
     <?php $form = ActiveForm::begin(); ?>
@@ -246,7 +246,7 @@ foreach($dependencias as $value){
 
     <br>
     <div class="form-group">
-        <?//= Html::submitButton($model->isNewRecord ? 'Crear' : 'Actualizar', ['class' => $model->isNewRecord ? 'btn btn-primary' : 'btn btn-primary']) ?>
+        <?= Html::submitButton($model->isNewRecord ? 'Crear' : 'Actualizar', ['class' => $model->isNewRecord ? 'btn btn-primary' : 'btn btn-primary']) ?>
     </div>
 
 

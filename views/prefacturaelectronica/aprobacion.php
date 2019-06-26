@@ -4,7 +4,7 @@ use yii\helpers\Url;
 use kartik\widgets\Select2;
 
 
-$this->title = 'Aprobación Pedidos de prefactura';
+$this->title = 'Aprobación Pedidos de prefactura Electronica';
 ?>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
@@ -22,7 +22,7 @@ $this->title = 'Aprobación Pedidos de prefactura';
     </div>
     
     <div class="box-body">
-       <form id="form_excel" method="get" action="<?php echo Url::toRoute('prefactura-index')?>">
+       <form id="form_excel" method="get" action="<?php echo Url::toRoute('aprobacion')?>">
             <div class="row">
                 
                 <div class="col-md-3">
@@ -178,7 +178,7 @@ $this->title = 'Aprobación Pedidos de prefactura';
     <i class="fas fa-ban"></i> Rechazar
 </button>
 <a href="<?php echo Url::toRoute('adminsupervision/aprobacion')?>" class="btn btn-primary">Admin y supervision</a>
-<a href="<?php echo Url::toRoute('prefacturaelectronica/aprobacion')?>" class="btn btn-primary">Prefactura Electronica</a>
+<a href="<?php echo Url::toRoute('pedido/prefactura-index')?>" class="btn btn-primary">Prefactura fija</a>
 <div class="col-md-12">
   <div class="table-responsive">
    
@@ -188,6 +188,7 @@ $this->title = 'Aprobación Pedidos de prefactura';
                <th><input type="checkbox" id="todos"></th>
                <th>Acciones</th>
                <th></th>
+               <th>Numero factura</th>
                <th>Dependencia</th>
                <th>Ceco</th>
                <th>Cebe</th>
@@ -199,6 +200,7 @@ $this->title = 'Aprobación Pedidos de prefactura';
                <th>Ano</th>
                <th>Total Fijo</th>
                <th>Total Variable</th>
+               <th>Total Monitoreo</th>
                <th>Total Servicio</th>
             </tr>
         </thead>
@@ -218,6 +220,7 @@ $this->title = 'Aprobación Pedidos de prefactura';
                     </button>
                 </td>
                 <td><?= $rw['id']?></td>
+                <td><?= $rw['numero_factura']?></td>
                 <td><?= $rw['dependencia']?></td>
                 <td><?= $rw['ceco']?></td>
                 <td><?= $rw['cebe']?></td>
@@ -227,9 +230,10 @@ $this->title = 'Aprobación Pedidos de prefactura';
                 <td><?= $rw['empresa']?></td>
                 <td><?= $rw['mes']?></td>
                 <td><?= $rw['ano']?></td>
-                <td><?= '$ '.number_format(($rw['total_fijo']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_variable']), 0, '.', '.').' COP'?></td>
-                <td><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['fijos']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['variables']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['Monitoreo']), 0, '.', '.').' COP'?></td>
+                <td><?= '$ '.number_format(($rw['fijos']+$rw['variables']+$rw['Monitoreo']), 0, '.', '.').' COP'?></td>
             </tr>
             
         <?php endforeach;?>

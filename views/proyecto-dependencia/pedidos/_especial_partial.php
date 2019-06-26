@@ -25,6 +25,20 @@ if( isset(Yii::$app->session['permisos-exito']) ){
     	<li><a href="#" onclick="cambiarGastoActivoCheckBox('activo','especial');return false;"><i class="fas fa-chart-line"></i> +Activo</a></li>
   	</ul>
 </div>
+
+<div class="btn-group dropup">
+  	<button type="button" class="btn btn-primary btn-xs lock">Marcar sistema...</button>
+  	<button type="button" class="btn btn-primary btn-xs dropdown-toggle lock" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    	<span class="caret"></span>
+    	<span class="sr-only">Toggle Dropdown</span>
+  	</button>
+  	<ul class="dropdown-menu">
+  		<?php foreach($sistemas as $st): ?>
+    	<li><a href="#" onclick="AsignarSistemaTodos('especial','<?= $st->nombre?>');"><i class="fas fa-video"></i> <?= $st->nombre?></a></li>
+        <?php endforeach; ?>
+    	
+  	</ul>
+</div>
 <?php } ?>
 <table class="table table-hover" width="100%">
 	<thead>
@@ -34,6 +48,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 			</th>
 			<th style="width: 5%;">Area</th>
 			<th style="width: 15%;">Material</th>
+			<th>Sistema</th>
 			<th style="width: 15%;">Descripcion</th>
 			<th style="width: 5%;">Cant</th>
 			<?php 
@@ -58,6 +73,9 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 			<td><?= ucwords($key['tipo_presupuesto'].' - '.$key['gasto_activo'])?></td>
 			<td>
 				<?= $key['num_material'] ?>
+			</td>
+			<td>
+				<?= $key['sistema'] ?>
 			</td>
 			<td>
 			<?php
@@ -106,6 +124,20 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 				    	<li><a href="#" onclick="cambiarGastoActivo('activo',<?=$key['id']?>,'especial');return false;"><i class="fas fa-chart-line"></i> +Activo</a></li>
 				  	</ul>
 				</div>
+
+				<div class="btn-group dropup">
+						  	<button type="button" class="btn btn-primary btn-xs lock">Marcar sistema...</button>
+						  	<button type="button" class="btn btn-primary btn-xs dropdown-toggle lock" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						    	<span class="caret"></span>
+						    	<span class="sr-only">Toggle Dropdown</span>
+						  	</button>
+						  	<ul class="dropdown-menu">
+						  		<?php foreach($sistemas as $st1): ?>
+						    	<li><a href="#" onclick="AsignarSistema('<?= $st1->nombre?>',<?=$key['id']?>,'especial');"><i class="fas fa-video"></i> <?= $st1->nombre?></a></li>
+						        <?php endforeach; ?>
+						    	
+						  	</ul>
+						</div>
 			<?php }	?>
 			</td>
 		</tr>

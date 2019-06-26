@@ -6,6 +6,7 @@ use Yii;
 use yii\helpers\ArrayHelper;
 use app\models\ProyectoSeguimiento;
 use app\models\SistemaProyectos;
+use app\models\LogFechaProyectos;
 /**
  * This is the model class for table "proyectos".
  *
@@ -91,6 +92,7 @@ class Proyectos extends \yii\db\ActiveRecord
             'presupuesto_activo'=>'Presupuesto activo',
             'presupuesto_gasto'=>'Presupuesto gasto',
             'image2' => 'Cotizacion',
+            'fecha_apertura'=>'Fecha Finalizacion'
 
         ];
     }
@@ -175,28 +177,28 @@ class Proyectos extends \yii\db\ActiveRecord
     }
 
     public function PromedioSistema($id_proyecto,$id_sistema){
-        $query=ProyectoSeguimiento::find()
+        /*$query=ProyectoSeguimiento::find()
         ->where('id_proyecto='.$id_proyecto.' AND id_sistema=7 AND id_tipo_reporte=6')
         ->orderby('fecha DESC')
         ->limit(1)
         ->one();
 
         if($query!=null){
-
+            //echo "entra en if";
             return $query->avance;
 
-        }else{
-
+        }else{*/
+            //echo "entra en else";
             $porcentaje_total = (new \yii\db\Query())
-            ->select('/*(SUM(avance)/COUNT(id)) as TOTAL*/ avance')
+            ->select('id,avance')
             ->from('proyecto_seguimiento')
-            ->where('id_proyecto='.$id_proyecto.' AND id_sistema='.$id_sistema.' AND id_tipo_reporte=6')
-            ->orderby('id DESC')
+            ->where('id_proyecto='.$id_proyecto.' AND (id_sistema='.$id_sistema.'  OR id_sistema=7) AND id_tipo_reporte=6')
+            ->orderby('fecha DESC')
             ->limit(1)
             ->one();
 
             return $porcentaje_total['avance'];
-        }
+        //}
     }
 
 
@@ -224,5 +226,40 @@ class Proyectos extends \yii\db\ActiveRecord
         return $detalle;
     }
 
+    public static function PromedioProyecto($id){
+        $sistemas=ProyectoSistema::find()->where('id_proyecto='.$id)->all();
+        $cont_sistema=0;
+        $acumulador=0;
+        $model=new Proyectos;
+        foreach($sistemas as $st): 
+            $promedio_sistema=$model->PromedioSistema($id,$st->id_sistema);
+            $acumulador=$acumulador+$promedio_sistema;
+            $cont_sistema++;
+        endforeach;
+
+        if($cont_sistema==0){
+            $promedio_total="0";
+        }else{
+            //echo "acumulador=".$acumulador."- num=".$cont_sistema;
+            $promedio_total=round(($acumulador/$cont_sistema),2, PHP_ROUND_HALF_DOWN);
+            if($promedio_total>100){
+                $promedio_total=100;
+            }
+        }
+
+        return $promedio_total;
+    }
+
+
+    public function Get_fecha_finalizacion($id,$fecha){
+
+        $model=LogFechaProyectos::find()->where('id_proyecto='.$id)->orderby('id Desc')->limit(1)->one();
+
+        if($model!=null){
+            return $model->fecha;
+        }else{
+            return $fecha;
+        }
+    }
 
 }

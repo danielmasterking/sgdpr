@@ -26,8 +26,10 @@ use yii\helpers\Html;
                     <td><?= $cr->fecha_fin?></td>
                     <td><?= $cr->encargado?></td>
                     <td>
+                        <?php if($estado_crono=="A"): ?>
                         <?= Html::a('<i class="fa fa-edit"></i>', ['editarcronograma','id'=>$cr->id,'id_proyecto'=>$id], ['class' => 'btn btn-primary btn-xs']) ?>
                         <?= Html::a('<i class="fa fa-trash"></i>', ['deletecronograma','id'=>$cr->id,'id_proyecto'=>$id], ['class' => 'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar?']) ?>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

@@ -67,6 +67,10 @@ class SiteController extends Controller
         }
     }
 
+    public function actionMapa(){
+      return $this->render('mapa');
+    }
+
     public function actionError()
     {
         $exception = Yii::$app->errorHandler->exception;
@@ -200,7 +204,7 @@ class SiteController extends Controller
 				 $rolesArray [] = strtolower($rol->rol->nombre);
    				 
 			 }
-			 \Yii::$app->session->setTimeout(5400);//5400
+			 \Yii::$app->session->setTimeout($model->rememberMe);//5400
 			 \Yii::$app->session['usuario-exito'] = $usuario;
              \Yii::$app->session['nombre-apellido'] = $modelUsuario->nombres." ".$modelUsuario->apellidos;
 			 \Yii::$app->session['rol-exito'] = $rolesArray;		

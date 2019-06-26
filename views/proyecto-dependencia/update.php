@@ -105,7 +105,69 @@ foreach($dependencias as $value){
         'model' => $model,
         'data_dependencias'=>$data_dependencias,
         'arrayProvedor'=>$arrayProvedor,
-        'arrayUsuarios'=>$arrayUsuarios
+        'arrayUsuarios'=>$arrayUsuarios,
+        'proyectoSistema'=>$proyectoSistema,
+        'array_empresas'=>$array_empresas
     ]) ?>
 
 </div>
+<script type="text/javascript">
+	var empresas=<?= json_encode($array_empresas) ?>;
+	console.log(empresas);
+	$('#btn-agregar').click(function(event) {
+		var sistema=$('#sistemas option:selected').text();
+		var id_sistema=$('#sistemas option:selected').val();
+		var input='<input type="hidden" name="sistemas[]" value="'+id_sistema+'" >';
+		var input_otro='<input type="text" name="otro[]" style="display: none;" id="otro_'+id_sistema+'">';
+		var check='<input type="checkbox" name="check_otro[]" onclick="activar_otro(this,'+id_sistema+')">';
+		var option='<option>--Selecciona un encargado--</option>';
+		console.log(id_sistema)
+		var existe=0;
+		$('#tbl_encargado tbody tr').each(function(){
+			var td=$(this).find("td")[0].innerHTML.replace(/<[^>]*>?/g, '').replace(' ', "");
+			console.log(td)
+			existe=td==sistema?1:existe;
+		});
+
+		console.log(existe)
+		if(existe==0){
+			if(id_sistema!=0){
+				$.each(empresas, function(i,item){
+					 option+="<option value='"+i+"'>"+item+"</option>";
+					
+				})
+
+				var html="<tr>";
+				html+="<td>"+sistema+input+"</td>";
+				html+="<td><select name='encargado[]' id='encargado_"+id_sistema+"'>"+option+"</select>"+input_otro+"</td>";
+				html+="<td>"+check+"</td>";
+				html+="<td><button class='btn btn-danger btn-xs' type='button' onclick='quitar(this);'><i class='fa fa-trash'></i></button></td>";
+				html+="</tr>";
+
+				$('#tbl_encargado tbody').prepend(html);
+			}else{
+				alert('Debes seleccionar un sistema')
+			}
+		}else{
+
+			alert('Ya se agrego este sistema');
+		}
+
+	});
+
+	function quitar(objeto){
+		var confirmar=confirm('seguro deseas quitar este elemento?');
+		if(confirmar)
+			$(objeto).parent().parent().remove();
+	}
+
+	function activar_otro(objeto,id_sistema){
+		if($(objeto).prop('checked')){
+			$('#otro_'+id_sistema).show();
+			$('#encargado_'+id_sistema).hide();
+		}else{
+			$('#encargado_'+id_sistema).show();
+			$('#otro_'+id_sistema).hide();
+		}
+	}
+</script>

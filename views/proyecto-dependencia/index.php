@@ -1,9 +1,15 @@
+<style type="text/css">
+    .label-default{
+        background-color: black !important;
+        color :white !important;
+    }
+</style>
 <?php
 
 use yii\helpers\Html;
 use yii\grid\GridView;
 use app\models\Proyectos;
-
+$proyectos=new Proyectos;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\ProyectoDependenciaSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -18,6 +24,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p>
         <?= Html::a('<i class="fa fa-plus"></i> Crear', ['create'], ['class' => 'btn btn-primary']) ?>
+
+        <?php 
+            if ($estado=='A') {
+                echo Html::a('Finalizados', ['index','estado'=>'F'], ['class' => 'btn btn-primary']);
+            }else{
+                echo Html::a('Abiertos', ['index','estado'=>'A'], ['class' => 'btn btn-primary']);
+            }
+
+        ?>
     </p>
 
     <div class="row">
@@ -30,10 +45,15 @@ $this->params['breadcrumbs'][] = $this->title;
                         <th>Nombre</th>
                         <th>Marca</th>
                         <th>Regional</th>
-                        <th>Fecha de apertura</th>
+                        <th>Fecha de finalizacion</th>
                         <!-- <th>Estado Presupuesto</th> -->
-                        <th># Seguimientos</th>
+                        <!-- <th># Seguimientos</th> -->
                         <th>Ultima Actualizacion</th>
+                        <th>Presupuesto</th>
+                        <th>Cronograma</th>
+                        <th>% Porcentaje Total</th>
+                        <th>Seguimiento en dias</th>
+                        <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,12 +71,60 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= $row->cecoo->ciudad->zona->zona->nombre?></td>    
                         <td><?= $row->fecha_apertura?></td>
                         <!-- <td><?//= $row->estado?></td> -->
-                        <td><?= $model->NumSeguimientos($row->id)?></td>
+                        <!-- <td><?//= $model->NumSeguimientos($row->id)?></td> -->
                         <td>
                             <?php
                                 echo Proyectos::Seguimiento($row->id)->fecha;
                             ?>
-                        </td>    
+                        </td>
+                        <td>
+                            <?php 
+                                 echo $row->estado=='CERRADO'?'<span class="text-success"><i class="fas fa-check"></i> OK</span>':'<span class="text-red"><i class="fas fa-comments-dollar"></i> Pendiente</span></th>';
+
+                            ?>
+                        </td>
+                        <td>
+                            <?php 
+
+                                echo $row->estado_cronograma=='C'?'<span class="text-success"><i class="fas fa-check"></i> OK</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span></th>';
+
+                            ?>
+                        </td>
+                        <td>
+                          <?php echo Proyectos::PromedioProyecto($row->id)."%" ?>
+                        </td>   
+                        <td>
+                            <?php 
+                            if($row->fecha_apertura!="0000-00-00"){
+                               $fecha_final=$proyectos->Get_fecha_finalizacion($row->id,$row->fecha_apertura);
+                               $date1 = new DateTime(date('Y-m-d'));
+                                $date2 = new DateTime($fecha_final);
+                                $diff = $date1->diff($date2);
+                                $dias=$row->dias_seguidos!=0 || $row->dias_seguidos!=''?$row->dias_seguidos:$diff->format('%R%a');
+                                $color=$dias<=20?'label-warning':'label-info';
+                                //$color=$diff->days<=15?'label-warning':$color;
+                                $color=$dias<=7?'label-success':$color;
+                                $color=$date2 < $date1 ?'label-danger':$color;
+                                $color=$row->dias_seguidos!=0 || $row->dias_seguidos!=''?'label-default':$color;
+                                //echo $diff->days;
+                                
+                                echo "<h4><span class='label ".$color."' >".$dias." </span></h4>";
+                                
+                            }else{
+
+                                echo '<span class="text-red"><i class="fas fa-question"></i></span>';
+                            }
+
+
+                            ?>
+                        </td> 
+                        <td>
+                            <?php 
+                                $estado=$row->estado_proyecto=='A'?'Abierto':'Finalizado';
+                                $label=$row->estado_proyecto=='A'?'label-warning':'label-success';
+                            ?>
+                            <span class="label <?= $label?>"><?= $estado?></span>
+                        </td>
                     </tr>
                     <?php endforeach;?>
                 </tbody>
@@ -73,7 +141,7 @@ $this->params['breadcrumbs'][] = $this->title;
             "className": "dt-center",
             "targets": "_all"
         }],
-        "order": [[ 7, "desc" ]],
+        "order": [[ 10, "asc" ]],
         dom: 'Bfrtip',
         buttons: ['excel', 'pdf'],
         // "order": [[0,"desc"]],

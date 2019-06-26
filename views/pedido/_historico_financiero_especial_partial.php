@@ -9,6 +9,9 @@ use yii\bootstrap\Modal;
 		   <th>F.Creación</th>
 		   <th>Rptdo?</th>
 		   <th>Dependencia</th>
+		   <th>Marca</th>
+		   <th>Ciudad</th>
+		   <th>Regional</th>
 		   <th>CeBe</th>
            <th>Producto</th>
            <th>Observacion</th>
@@ -40,7 +43,9 @@ use yii\bootstrap\Modal;
 				?>
 				</td>
 				<td><?= $pendiente['dependencia']?></td>
-					
+				<td><?= $pendiente['marca']?></td>
+				<td><?= $pendiente['ciudad']?></td>
+				<td><?= $pendiente['regional']?></td>
                 <td><?= $pendiente['cebe']?></td>
                 <td><?= $pendiente['producto']?></td>
                 <td><?= $pendiente['observaciones']?></td>

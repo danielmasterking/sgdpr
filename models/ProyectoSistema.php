@@ -28,6 +28,7 @@ class ProyectoSistema extends \yii\db\ActiveRecord
     {
         return [
             [['id_proyecto', 'id_sistema'], 'required'],
+            [['encargado'], 'safe'],
             [['id_proyecto', 'id_sistema'], 'integer'],
         ];
     }
@@ -48,5 +49,10 @@ class ProyectoSistema extends \yii\db\ActiveRecord
     public function getSistema()
     {
         return $this->hasOne(SistemaProyectos::className(), ['id' => 'id_sistema']);
+    }
+
+    public function getEmpresa()
+    {
+        return $this->hasOne(Empresa::className(), ['nit' => 'encargado']);
     }
 }

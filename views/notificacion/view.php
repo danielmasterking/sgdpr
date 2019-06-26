@@ -2,35 +2,19 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
-
+use yii\helpers\Url;
 /* @var $this yii\web\View */
 /* @var $model app\models\Notificacion */
 
-$this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Notificacions', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+$this->title ='Notificaciones';
+
 ?>
 <div class="notificacion-view">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
-
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'descripcion:ntext',
-        ],
-    ]) ?>
-
+<a class="btn btn-primary" href="<?php echo Url::toRoute('notificacion/listado-notificaciones')?>">
+    <i class="fas fa-arrow-left"></i>
+</a>
+    <h3 class="text-center"><?= $model->titulo ?></h3><br>
+    <div class="col-md-12">
+        <?= $model->descripcion ?>
+    </div>
 </div>

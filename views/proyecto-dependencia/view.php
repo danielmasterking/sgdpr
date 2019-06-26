@@ -3,6 +3,10 @@
   width: 100% !important;
 }
 
+.label-default{
+    background-color: black !important;
+    color :white !important;
+}
 
 </style>
 <?php
@@ -50,15 +54,48 @@ echo "</pre>";*/
     <h1 class="text-center"><?= Html::encode($this->title) ?></h1>
 
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-6">
         <p>
-            <?= Html::a('<i class="fa fa-arrow-left"></i>', ['index'], ['class' => 'btn btn-danger']) ?>
-            <?= Html::a('<i class="fa fa-edit"></i> Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-            <?php if(in_array(Yii::$app->session['usuario-exito'], $usuarios) || $model->solicitante==Yii::$app->session['usuario-exito']){ ?>
-            <button class="btn btn-danger" data-toggle="modal" data-target="#Modalfinalizar">
-                <i class="fa fa-thumbs-up"></i> Finalizar
+            <?= Html::a('<i class="fa fa-arrow-left"></i>', ['index'], ['class' => 'btn btn-danger btn-xs']) ?>
+            <?= Html::a('<i class="fa fa-edit"></i> Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-primary btn-xs']) ?>
+            <?php 
+                if(!$model->sala_control){
+                    $block_sala="";
+                }else{
+                    $block_sala="disabled";
+                }
+
+                if($model->sala_control && !$model->acta_entrega){
+                    $block_acta="";
+                }else{
+                    $block_acta="disabled";
+                }
+
+                if($model->acta_entrega && !$model->facturacion){
+                    $block_facturacion="";
+                }else{
+                    $block_facturacion="disabled";
+                }
+            ?>
+           <?php //if(!$model->sala_control): ?>
+            <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php echo $block_sala ?>>
+                <i class="fas fa-broadcast-tower"></i> Ok Sala
             </button>
-            <?php } ?>
+           <?php //endif; ?>
+
+           <?php //if($model->sala_control && !$model->acta_entrega): ?>
+            <button class="btn btn-warning btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php echo $block_acta  ?>>
+                <i class="fas fa-book"></i> Ok Acta
+            </button>
+           <?php //endif; ?>
+           <?php //if($model->acta_entrega && !$model->facturacion): ?>
+            <button class="btn btn-success btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php echo $block_facturacion ?>>
+                <i class="fas fa-clipboard-list"></i> Factura
+            </button>
+           <?php //endif; ?>
+           <?php if($model->facturacion): ?>
+            <label class="label label-default">Ok</label>
+           <?php endif; ?>
         </p>
         </div>
     </div>
@@ -72,8 +109,8 @@ echo "</pre>";*/
                     
                 </tr>
                 <tr>
-                    <th>Fecha de Apertura:</th>
-                    <td><?= $model->fecha_apertura?></td>
+                    <th>Fecha de finalizacion:</th>
+                    <td><?= $fecha_final=$model->Get_fecha_finalizacion($model->id,$model->fecha_apertura) ?> <a href="#" data-toggle="modal" data-target="#modal-fecha-finalizacion"><i class="fa fa-edit"></i></a></td>
                 </tr>
                 <tr>
                     <th>Usuario Creador:</th>
@@ -107,11 +144,42 @@ echo "</pre>";*/
                         ?>
                     </td>
                 </tr>
+                <tr>
+                    <th><i class="fas fa-broadcast-tower"></i> Ok Sala:</th>
+                    <td>
+                        <?php  
+                            echo $model->sala_control?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                        ?>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th><i class="fas fa-book"></i> Ok Acta:</th>
+                    <td>
+                        <?php  
+                            echo $model->acta_entrega?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                        ?>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th><i class="fas fa-clipboard-list"></i> Factura:</th>
+                    <td>
+                        <?php  
+                            echo $model->facturacion?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                        ?>
+
+                    </td>
+                </tr>
             </table>
         </div>
         <div class="col-md-6">
               <table class="table">
-                
+                <tr>
+                    <th>Sistema</th>
+                    <th>Encargado</th>
+                    <th>Avance</th>
+                </tr>
                 <?php 
                     $cont_sistema=0;
                     $acumulador=0;
@@ -119,6 +187,17 @@ echo "</pre>";*/
                 ?>
                 <tr>
                     <th><?= $st->sistema->nombre?></th>
+                    <td>
+                        <?php 
+                            if($st->otro!=''){
+                                echo $st->otro;
+                            }else{
+                                echo $st->empresa->nombre;
+                            }
+
+                        ?>
+                            
+                    </td>
                     <td>
                     <?php 
                         /*$promedio_sistema=round($model->PromedioSistema($model->id,$st->id_sistema),2, PHP_ROUND_HALF_DOWN);
@@ -145,7 +224,8 @@ echo "</pre>";*/
                     endforeach; 
                 ?>
                  <tr>
-                    <th><span class="text-red">Total Avance %</span></th>
+                    <th><span class="text-red">%Total Avance</span></th>
+                    <td></td>
                     <td>
                         <?php 
                             if($cont_sistema==0){
@@ -161,11 +241,90 @@ echo "</pre>";*/
 
                         ?>
                     </td>
+                </tr>
+                <tr>
+                    <th>$Presupuesto:</th>
+                    <td></td>
+                    <td>
+                        <?php 
+
+                            echo $model->estado=='CERRADO'?'<span class="text-success"><i class="fas fa-check"></i> OK</span>':'<span class="text-red"><i class="fas fa-comments-dollar"></i> Pendiente</span></th>';
+
+                        ?>
+                    </td>
                 </tr> 
+                <tr>
+                    <th><i class="fa fa-calendar"></i> Cronograma:</th>
+                    <td></td>
+                    <td>
+                        <?php 
+
+                            echo $model->estado_cronograma=='C'?'<span class="text-success"><i class="fas fa-check"></i> OK</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span></th>';
+
+                        ?>
+                    </td>
+                </tr> 
+
+                <tr>
+                    <th ><i class="fas fa-user-clock"></i> Seguimiento en días:</th>
+                    <td></td>
+                    <td >
+                        <?php 
+                            if($model->fecha_apertura!="0000-00-00"){
+
+                                $date1 = new DateTime(date('Y-m-d'));
+                                $date2 = new DateTime($fecha_final);
+                                $diff = $date1->diff($date2);
+                                $dias=$model->dias_seguidos!=0 || $model->dias_seguidos!=''?$model->dias_seguidos:$diff->format('%R%a días');
+                                $color=$dias<=20?'label-warning':'label-info';
+                                //$color=$diff->days<=15?'label-warning':$color;
+                                $color=$dias<=7?'label-success':$color;
+                                $color=$date2 < $date1 ?'label-danger':$color;
+                                $color=$model->dias_seguidos!=0 || $model->dias_seguidos!=''?'label-default':$color;
+                                //echo $diff->days;
+                                
+                                echo "<h4><span class='label ".$color."' >".$dias." </span></h4>";
+                                
+                            }else{
+
+                                echo '<span class="text-red"><i class="fas fa-question"></i></span>';
+                            }
+
+
+                        ?>
+                    </td>
+                </tr>
             </table>
         </div>
     </div>
-   
+
+    
+    <!-- Modal para edicion de la fecha -->
+    <!-- Modal -->
+    <div class="modal fade" id="modal-fecha-finalizacion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Edicion fecha finalizacion</h4>
+          </div>
+          <div class="modal-body">
+           <form method="post" action="">
+                <label>Fecha Finalizacion:</label>
+               <input class="form-control" type="date" name="fecha_fin" value="<?= $model->fecha_apertura?>">
+                <br>
+                <label>Motivo cambio:</label>
+                <textarea class="form-control" name="motivo"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-primary" name="fecha_cambio">Guardar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ///////////////////////////////////////////// -->
     <div class="row">
 
   <!-- Nav tabs -->
@@ -182,6 +341,12 @@ echo "</pre>";*/
         </li>
 
         <li role="presentation">
+            <a href="#historial_fecha" aria-controls="historial_fecha" role="tab" data-toggle="tab">
+                <i class="fas fa-history"></i> Historico fecha finalizacion
+            </a>
+        </li>
+
+        <li role="presentation">
             <a href="#cronograma" aria-controls="cronograma" role="tab" data-toggle="tab">
                 <i class="fa   fa-calendar"></i> Cronograma
             </a>
@@ -192,6 +357,13 @@ echo "</pre>";*/
             <a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-money-bill-alt"></i> Presupuesto</a>
         </li>
        <?php }?>
+
+        <li role="presentation">
+            <a href="#finalizacion" aria-controls="finalizacion" role="tab" data-toggle="tab">
+                <i class="fas fa-calendar-check"></i> Detalle finalizacion
+            </a>
+        </li>
+
       </ul>
       </div>
     </div>
@@ -235,8 +407,9 @@ echo "</pre>";*/
                             <?php foreach($detalle as $det): ?>
                             <tr>
                                 <td>
-                                    <?php if(in_array("proyecto-eliminar-seguimiento", $permisos)){ ?>
                                     <?= Html::a('<i class="fa fa-edit"></i>', ['editarseguimiento','id'=>$det->id,'id_proyecto'=>$model->id], ['class' => 'btn btn-primary btn-xs']) ?>
+                                    <?php if(in_array("proyecto-eliminar-seguimiento", $permisos)){ ?>
+                                    
                                     <?= Html::a('<i class="fa fa-trash"></i>', ['deleteseguimiento','id'=>$det->id,'id_proyecto'=>$model->id], ['class' => 'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar?']) ?>
                                     <?php } ?>
                                 </td>
@@ -301,26 +474,55 @@ echo "</pre>";*/
                     <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                       <div class="panel-body">
                        <!-- *************************************************** -->
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th style="text-align: center;">Activo</th>
-                                    <th style="text-align: center;">Gasto</th>
-                                    <th style="text-align: center;">Fecha</th>
-                                </tr>
-                            </thead>
-                            
-                            <tbody>
-                                <?php foreach ($presupuestos as $key) {?>
-                                <tr>
-                                    <td style="text-align: center;"><?='$ '.number_format($key->presupuesto_activo, 0, '.', '.').' COP'?></td>
-                                    <td style="text-align: center;"><?='$ '.number_format($key->presupuesto_gasto, 0, '.', '.').' COP'?></td>
-                                    <td style="text-align: center;"><?=$key->created_on?></td>
-                                </tr>
-                                <?php } ?>
-                            </tbody>
-                            
-                        </table>
+                       <div>
+                            <?= $this->render('_tab_transactions') ?>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="saldos">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center;">Activo</th>
+                                                <th style="text-align: center;">Gasto</th>
+                                                <th style="text-align: center;">Fecha</th>
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody>
+                                            <?php foreach ($presupuestos as $key) {?>
+                                            <tr>
+                                                <td style="text-align: center;"><?='$ '.number_format($key->presupuesto_activo, 0, '.', '.').' COP'?></td>
+                                                <td style="text-align: center;"><?='$ '.number_format($key->presupuesto_gasto, 0, '.', '.').' COP'?></td>
+                                                <td style="text-align: center;"><?=$key->created_on?></td>
+                                            </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                        
+                                    </table>
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="saldos_adicional">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center;">Activo</th>
+                                                <th style="text-align: center;">Gasto</th>
+                                                <th style="text-align: center;">Fecha</th>
+                                                <th style="text-align: center;">Observacion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach($query_saldo_adicional as $qsa): ?>
+                                                <tr>
+                                                    <td style="text-align: center;"><?='$ '.number_format($qsa->activo, 0, '.', '.').' COP'?></td>
+                                                    <td style="text-align: center;"><?='$ '.number_format($qsa->gasto, 0, '.', '.').' COP'?></td>
+                                                    <td style="text-align: center;"><?= $qsa->fecha?></td>
+                                                    <td style="text-align: center;"><?= $qsa->observacion?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                        <!-- *************************************************** -->
                       </div>
                     </div>
@@ -337,22 +539,20 @@ echo "</pre>";*/
                       <div class="panel-body">
                         <!-- *********************************************************************************** -->
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Orden Interna Gasto(Opex)</label>
                                     <input id="orden_interna_gasto" name="orden_interna_gasto" class="form-control lock" placeholder="Orden Interna Gasto" type="text" maxlength="20">
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Orden Interna Activo(Capex)</label>
                                     <input id="orden_interna_activo" name="orden_interna_activo" class="form-control lock" placeholder="Orden Interna Activo" type="text" maxlength="20">
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-
-                            <div class="col-md-6 ">
+                       
+                            <div class="col-md-3 ">
                                 <div class="form-group">
                                     <label># Metros cuadrados</label>
                                     <input id="m2" name="m2" class="form-control lock" placeholder="Metros cuadrados" type="number" >
@@ -360,7 +560,7 @@ echo "</pre>";*/
                             </div>
 
 
-                            <div class="col-md-6 ">
+                            <div class="col-md-3 ">
                                 <div class="form-group">
                                     <label>IVA</label>
                                     <input id="iva" name="iva" class="form-control lock" placeholder="IVA" type="number" maxlength="2"
@@ -448,67 +648,72 @@ echo "</pre>";*/
                                 <a href="#" id="link_especial_no_aprobado" onclick="return false;">Especiales No Aprobados</a>
                             </li>
                         </ul>
-
+                        <br>
                         <form id="form_excel" method="post">
                            <div class="row">
-                                <div class="navbar-form navbar-right" role="search">
-                                    <div class="form-group">
-                                        <input type="text" id="buscar" name="buscar" class="form-control" placeholder="Buscar Coincidencias">
-                                    </div>
-                                    <div class="form-group">
-                                        <select id="ordenado" name="ordenado" class="form-control">
-                                            <option value="">[ORDENAR POR...]</option>
-                                            <option value="fecha">Fecha</option>
-                                            <option value="repetido">Repetido</option>
-                                            <option value="producto">Producto</option>
-                                            <option value="cantidad">Cantidad</option>
-                                            <option value="proveedor">Proveedor</option>
-                                            <option value="solicitante">Solicitante</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <select id="forma" name="forma" class="form-control">
-                                            <option value="">[FORMA...]</option>
-                                            <option value="SORT_ASC">Ascendente</option>
-                                            <option value="SORT_DESC">Descendente</option>
-                                        </select>
-                                    </div>
+                                <div class="col-md-4">
+                                    <input type="text" id="buscar" name="buscar" class="form-control" placeholder="Buscar Coincidencias">
                                 </div>
+
+                                <div class="col-md-4">
+                                    <select id="ordenado" name="ordenado" class="form-control">
+                                        <option value="">[ORDENAR POR...]</option>
+                                        <option value="fecha">Fecha</option>
+                                        <option value="repetido">Repetido</option>
+                                        <option value="producto">Producto</option>
+                                        <option value="cantidad">Cantidad</option>
+                                        <option value="proveedor">Proveedor</option>
+                                        <option value="solicitante">Solicitante</option>
+                                    </select>
+                                </div>
+                                
+                                
+                                <div class="col-md-4">
+                                    <select id="forma" name="forma" class="form-control">
+                                        <option value="">[FORMA...]</option>
+                                        <option value="SORT_ASC">Ascendente</option>
+                                        <option value="SORT_DESC">Descendente</option>
+                                    </select>
+                                </div>
+                                        
+                                           
                            </div>
-                           <div class="row">
-                                <div class="navbar-form navbar-right" role="search">
-                                    <div class="form-group">
-                                        <?= 
-                                            DatePicker::widget([
-                                                'id' => 'desde',
-                                                'name' => 'desde',
-                                                'options' => ['placeholder' => 'Fecha Desde'],
-                                                'pluginOptions' => [
-                                                    'format' => 'yyyy-mm-dd',
-                                                    'todayHighlight' => true
-                                                ]
-                                            ]);
-                                        ?>
-                                    </div>
-                                    <div class="form-group">
-                                        <?= 
-                                            DatePicker::widget([
-                                                'id' => 'hasta',
-                                                'name' => 'hasta',
-                                                'options' => ['placeholder' => 'Fecha Hasta'],
-                                                'pluginOptions' => [
-                                                    'format' => 'yyyy-mm-dd',
-                                                    'todayHighlight' => true
-                                                ]
-                                            ]);
-                                        ?>
-                                    </div>
+                           <br>
+                           <div class="row">.
+                                <div class="col-md-4">
+                                    <?= 
+                                        DatePicker::widget([
+                                            'id' => 'desde',
+                                            'name' => 'desde',
+                                            'options' => ['placeholder' => 'Fecha Desde'],
+                                            'pluginOptions' => [
+                                                'format' => 'yyyy-mm-dd',
+                                                'todayHighlight' => true
+                                            ]
+                                        ]);
+                                    ?>
                                 </div>
+                                
+                                <div class="col-md-4">
+                                    <?= 
+                                        DatePicker::widget([
+                                            'id' => 'hasta',
+                                            'name' => 'hasta',
+                                            'options' => ['placeholder' => 'Fecha Hasta'],
+                                            'pluginOptions' => [
+                                                'format' => 'yyyy-mm-dd',
+                                                'todayHighlight' => true
+                                            ]
+                                        ]);
+                                    ?>
+                                </div> 
+                                   
                            </div>
                         </form>
 
-                        <div class="row">
-                            <div class="navbar-form navbar-right" role="search">
+                       <br>
+                       <div class="row">
+                           <div class="container">
                                 <button type="submit" class="btn btn-primary" onclick="excel()">
                                     <i class="fas fa-file-excel"></i> Descargar Busqueda en Excel
                                 </button>
@@ -517,6 +722,7 @@ echo "</pre>";*/
                                 </button>
                             </div>
                         </div>
+                        <br>
                         <div id="info"></div>
                         <div id="partial"></div>
                         <div class="modal-process"></div>
@@ -534,11 +740,57 @@ echo "</pre>";*/
             <?= $this->render('_historial',['historial'=>$historial]) ?>
         </div>
 
+        <div role="tabpanel" class="tab-pane" id="historial_fecha">
+            <!-- ************************************************** -->
+            <h1 class="text-center">Historico Fecha Finalizacion</h1>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Fecha</th>
+                                <th style="text-align: center;">Motivo Cambio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($log_fechas as $lgf): ?>
+                                <tr>
+                                    <td style="text-align: center;"><?php echo $lgf->fecha ?></td>
+                                    <td style="text-align: center;"><?php echo $lgf->descripcion ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <tr>
+                                <td style="text-align: center;"><?php echo $model->fecha_apertura ?></td>
+                                <td style="text-align: center;">Fecha asignada inicialmente</td>
+                                
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- *************************************************** -->
+        </div>
+
         <div role="tabpanel" class="tab-pane" id="cronograma">
             <br>
+            <?php if($model->estado_cronograma=="A"): ?>
             <button class="btn btn-primary" data-toggle="modal" data-target="#Modalcronograma">
                 <i class="fa fa-plus"></i> Agregar Cronograma
             </button>
+            
+            <?php endif; ?>
+
+            <?php if($model->estado_cronograma=="A"){ ?>
+            <a href="<?= Url::to(['proyecto-dependencia/bloquear-cronograma', 'id' => $model->id,'accion'=>'C']) ?>" class="btn btn-danger" data-confirm="Seguro desea finalizar el cronograma?">
+                <i class="fas fa-ban"></i> Bloquear
+            </a>
+
+            <?php }else{ ?>
+                <a href="<?= Url::to(['proyecto-dependencia/bloquear-cronograma', 'id' => $model->id,'accion'=>'A']) ?>" class="btn btn-success" data-confirm="Seguro desea abrir el cronograma?">
+                 <i class="fas fa-lock-open"></i> Desbloquear
+                </a>
+            <?php } ?>
+
             <br><br>
             <div class="panel-group" id="accordioncrono" role="tablist" aria-multiselectable="true">
               <div class="panel panel-primary">
@@ -569,7 +821,7 @@ echo "</pre>";*/
                 </div>
                 <div id="collapseTwocrono" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
                   <div class="panel-body">
-                    <?= $this->render('_list_cronograma',['cronograma'=>$cronograma,'id'=>$id]) ?>
+                    <?= $this->render('_list_cronograma',['cronograma'=>$cronograma,'id'=>$id,'estado_crono'=>$model->estado_cronograma]) ?>
 
                   </div>
                 </div>
@@ -579,6 +831,128 @@ echo "</pre>";*/
             
             
             
+        </div>
+
+        <div role="tabpanel" class="tab-pane" id="finalizacion">
+            <h3 class="text-center"><i class="fas fa-broadcast-tower"></i> Ok sala control</h3>
+            <?php if($model->na_sala==false): ?>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Adjunto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><?= $model->fecha_sala_control?></td>
+                                <td>
+                                    <?php if($model->adjunto_sala_control!=''): ?>
+                                        <a href="<?php echo Yii::$app->request->baseUrl.$model->adjunto_sala_control ?>" title="Click Para ver adjunto" target="_blank">
+                                        <i class="fas fa-file-alt fa-2x"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php else: ?>
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3" >
+                        <div class="alert alert-info" role="alert" >
+                            <h3 class="text-center">No aplica</h3>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <br>
+            <h3 class="text-center"><i class="fas fa-book"></i> Ok Acta</h3>
+            <?php if($model->na_acta==false): ?>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Adjunto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><?= $model->fecha_acta_entrega?></td>
+                                <td>
+                                    <?php if($model->adjunto_acta_entrega!=''): ?>
+                                        <a href="<?php echo Yii::$app->request->baseUrl.$model->adjunto_acta_entrega ?>" title="Click Para ver adjunto" target="_blank">
+                                        <i class="fas fa-file-alt fa-2x"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php else: ?>
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3" >
+                        <div class="alert alert-info" role="alert" >
+                            <h3 class="text-center">No aplica</h3>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+             <br>
+            <h3 class="text-center"><i class="fas fa-clipboard-list"></i> Ok factura</h3>
+            <?php if($model->na_factura==false): ?>
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th>Fecha</th>
+                                <th>Se entrego factura</th>
+                                <th>Adjunto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><?= $model->fecha_entrega?></td>
+                                <td>
+                                    <?php 
+                                        $resp=$model->recibe_factura=='S'?'Si':'No';
+
+                                        echo $resp;
+
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php if($model->adjunto_factura!=''): ?>
+                                        <a href="<?php echo Yii::$app->request->baseUrl.$model->adjunto_factura ?>" title="Click Para ver adjunto" target="_blank">
+                                        <i class="fas fa-file-alt fa-2x"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php else: ?>
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3" >
+                        <div class="alert alert-info" role="alert" >
+                            <h3 class="text-center">No aplica</h3>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
         </div>
 
       </div>
@@ -675,68 +1049,130 @@ echo "</pre>";*/
       </div>
       <div class="modal-body">
         
-        <div class="row">
-            <div class="col-md-12">
+       <form action="<?=Url::toRoute(['finalizar', 'id' =>$model->id]);?>" method="post" enctype="multipart/form-data" id="form-finalizar">
+
+        <?php if(!$model->sala_control): ?>
+            <h3 class="text-center">Sala de control</h3>
+            <div class="row">
+                <div class="col-md-12">
+                    
+                    <label>
+                       No aplica 
+                        <input type="checkbox" name="check-sala" value="1"  >
+                    </label>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="hidden" name="form" value="sala">
+                    <label>Fecha</label>
+                    <input type="date" name="fecha_sala" class="form-control" value="<?= $model->fecha_sala_control?>" <?php //echo $model->sala_control==true?'disabled':'' ?>>
+                </div>
+                <div class="col-md-6">
+                    <?php if($model->adjunto_sala_control==''): ?>
+                    <label>Documento</label>
+                    <input type="file" name="file_sala" class="form-control" > 
+                    <?php else: ?>
+                        <br>
+                        <a href="<?php echo Yii::$app->request->baseUrl.$model->adjunto_sala_control ?>" title="Click Para ver adjunto" target="_blank">
+                            <i class="fas fa-file-alt fa-2x"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
                 
-                <div class="col-md-4">
-                    <form action="<?=Url::toRoute(['finalizar', 'id' =>$model->id,'form'=>'sala_control']);?>" method="post">
-                        <label>
-                            Sala de control 
-                            <input type="checkbox" name="check-sala" value="1" <?= $model->sala_control==true?'checked':'' ?>  onclick="activar_finalizar(this,'sala_control');">
-                        </label><br>
 
-                        <div id="sala_control" style="display: <?= $model->sala_control==true?'block':'none' ?>">
-                            <label>Fecha</label>
-                            <input type="date" name="fecha_sala" class="form-control" value="<?= $model->fecha_sala_control?>">
-
-                            <label>Correo</label>
-                            <input type="email" name="email_sala" class="form-control" value="<?= $model->correo_sala_control?>"> 
-                        </div>
-                        <br>
-                        <!-- <button class="btn btn-primary">Guardar cambios</button>               
-                    </form> -->
+                
+                   
+        <?php if($model->sala_control && !$model->acta_entrega): ?>
+            <h3 class="text-center">Acta de entrega</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>
+                        No aplica
+                        <input type="checkbox" name="check-acta" value="1" >
+                    </label>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                     <input type="hidden" name="form" value="acta">
+                    <label>Fecha </label>
+                    <input type="date" name="fecha_acta" class="form-control" value="<?= $model->fecha_acta_entrega?>">
                 </div>
 
-                <div class="col-md-4">
-                    <!-- <form action="<?=Url::toRoute(['finalizar', 'id' =>$model->id,'form'=>'orden_compra']);?>" method="post"> -->
-                        <label>
-                            Ordenes de compra 
-                            <input type="checkbox" name="check-orden" value="1" <?= $model->ordenes_compra==true?'checked':'' ?> onclick="activar_finalizar(this,'ordenes_compra');">
-                        </label><br>
+                <div class="col-md-6">
+                     <?php if($model->adjunto_acta_entrega==''): ?>
+                        <label>Documento</label>
+                        <input type="file" name="file_acta" class="form-control" > 
+                        <?php else: ?>
+                            <br>
+                            <a href="<?php echo Yii::$app->request->baseUrl.$model->adjunto_acta_entrega ?>" title="Click Para ver adjunto" target="_blank">
+                                <i class="fas fa-file-alt fa-2x"></i>
+                            </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+  
+        <?php endif; ?>
 
-                        <div id="ordenes_compra" style="display: <?= $model->ordenes_compra==true?'block':'none' ?>">
-                            <label>Fecha ajuste final</label>
-                            <input type="date" name="fecha_orden" class="form-control" value="<?= $model->fecha_ajuste_final?>">
-                        </div>
-                        <br>
-                        <!-- <button class="btn btn-primary">Guardar cambios</button>
-                    </form> -->
+        <?php if($model->acta_entrega && !$model->facturacion): ?>
+            <h3 class="text-center">Facturacion</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>
+                        No aplica
+                        <input type="checkbox" name="check-facturacion" value="1" >
+                    </label>
                 </div>
 
-                <div class="col-md-4">
-                   <!--  <form action="<?=Url::toRoute(['finalizar', 'id' =>$model->id,'form'=>'facturacion']);?>" method="post"> -->
-                        <label>
-                            Facturacion 
-                            <input type="checkbox" name="check-factura" value="1" <?= $model->facturacion==true?'checked':'' ?> onclick="activar_finalizar(this,'facturacion');">
-                        </label><br>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Entrego factura?</label>
+                    <label class="radio-inline">
+                      <input type="radio" name="recibio_factura" id="inlineRadio1" value="S" checked=""> Si
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="recibio_factura" id="inlineRadio2" value="N"> No
+                    </label>
 
-                        <div id="facturacion" style="display: <?= $model->facturacion==true?'block':'none' ?>">
-                            <label>Fecha entrega</label>
-                            <input type="date" name="fecha_factura" class="form-control" value="<?= $model->fecha_entrega?>">
-                        </div>
-                        <br>
-                        <!-- <button class="btn btn-primary">Guardar cambios</button>
-                    </form>  -->  
                 </div>
 
 
             </div>
-        </div>
+
+            <div class="row">
+                 <div class="col-md-6">
+                    <input type="hidden" name="form" value="factura">
+                    <input type="hidden" name="dias_seguidos" value="<?= $dias?>">
+                    <label>Fecha</label>
+                    <input type="date" name="fecha_factura" class="form-control">
+                </div>
+                <div class="col-md-6">
+                     <?php if($model->adjunto_factura==''): ?>
+                        <label>Documento</label>
+                        <input type="file" name="file_factura" class="form-control" > 
+                        <?php else: ?>
+                            <br>
+                            <a href="<?php echo Yii::$app->request->baseUrl.$model->adjunto_factura ?>" title="Click Para ver adjunto" target="_blank">
+                                <i class="fas fa-file-alt fa-2x"></i>
+                            </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
 
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        <?php if($model->estado_proyecto=="A"): ?>
+        <button type="submit" class="btn btn-primary" >Guardar cambios</button>
+        <?php endif; ?>
         </form>
       </div>
     </div>
@@ -877,8 +1313,11 @@ echo "</pre>";*/
         <h4 class="modal-title" id="myModalLabel">Cronograma</h4>
       </div>
       <div class="modal-body">
-
+        <?php if($model->estado_cronograma=="A"): ?>
         <?= $this->render('_form_cronograma',['model'=>$model_cronograma,'id'=>$id,'list_usuarios'=>$list_usuarios]) ?>
+        <?php else: ?>
+            <div class="alert alert-info" role="alert">Este Cronograma ya se encuentra finalizado</div>
+        <?php endif; ?>
       </div>
      <!--  <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -901,18 +1340,142 @@ echo "</pre>";*/
        
       </div>
        <div class="modal-footer">
+        <?php if($model->estado_cronograma=="A"): ?>
         <a href=""  class="btn btn-primary" id="editar-crono">
             <i class="fa fa-edit"></i> Editar
         </a>
         <a href=""  class="btn btn-danger" data-confirm="Seguro desea eliminar?" id="eliminar-crono">
             <i class="fa fa-trash"></i> Eliminar
         </a>
-         
+        <?php endif; ?>
       </div> 
     </div>
   </div>
 </div>
+
+<!-- Modal para agregar adicional del presupuesto -->
+<!-- Modal -->
+<div class="modal fade" id="myModal-adicional" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Adicional</h4>
+      </div>
+      <div class="modal-body">
+       
+        <!-- *********************************************************************************************** -->
+         <?php $form_adicional = ActiveForm::begin(); ?>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <?= $form_adicional->field($model_adicional_proyecto, 'activo')->textInput(['type'=>'number']) ?>   
+                </div>
+
+                 <div class="col-md-6">
+                    <?= $form_adicional->field($model_adicional_proyecto, 'gasto')->textInput(['type'=>'number']) ?>   
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <?= $form_adicional->field($model_adicional_proyecto, 'observacion')->textarea(['rows'=>5]); ?>
+                </div>
+            </div>
+       
+            <div id="sum_adicional"><h3><b>$ 0 COP</b></h3></div>
+
+        <!-- *********************************************************************************************** -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+       <!--  <button type="submit" data-confirm="Seguro desea realizar esta accion?" class="btn btn-primary">Guardar</button> -->
+       <?= Html::submitButton($model_adicional_proyecto->isNewRecord ? 'Crear' : 'Actualizar', ['class' => $model_adicional_proyecto->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?php ActiveForm::end(); ?>
+      </div> 
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
+    $("#form-finalizar").submit(function(event) {
+        /* Act on the event */
+        var confirmar=confirm('Seguro desea realizar esta accion?');
+        if(!confirmar){
+            return false;
+        }
+    });
+
+    ////Esta funcion es para la suma de los adicionales para presupuestos
+    var valor_activo=$('#proyectospresupuestoadicional-activo');
+    var valor_gasto=$('#proyectospresupuestoadicional-gasto');
+    $('#proyectospresupuestoadicional-activo,#proyectospresupuestoadicional-gasto').keyup(function(event) {
+        /* Act on the event */
+        var adicional_activo=!isNaN(parseInt(valor_activo.val()))?parseInt(valor_activo.val()):0;
+        var adicional_gasto=!isNaN(parseInt(valor_gasto.val()))?parseInt(valor_gasto.val()):0;
+        var total_adicional=(adicional_activo+adicional_gasto);
+        $('#sum_adicional').html("<h3><b>$ "+total_adicional.formatPrice()+" COP</b></h3>");
+    });
+
+  
+    /////////////////////////////////////////////////////////////////////
+
+
+    function AsignarSistemaTodos(tipo,sistema){//Funcion para asignar sistemas a todos los pedidos seleccionados
+         var checkboxValues = new Array();
+        //recorremos todos los checkbox seleccionados con .each
+        $('.checkBoxid').each(function() {
+            if($(this).prop('checked')==true){
+                checkboxValues.push($(this).attr("id"));
+            }
+        });
+        var productos_id = checkboxValues.toString();
+        $.ajax({
+            url:"<?php echo Yii::$app->request->baseUrl . '/proyecto-dependencia/asignar-sistematodos'; ?>",
+            type:'POST',
+            dataType:"json",
+            cache:false,
+            data: {
+                sistema: sistema,
+                productos_id: productos_id,
+                tipo: tipo
+            },
+            beforeSend:  function() {
+                $('#info').html('Cambiando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');
+            },
+            success: function(data){
+                //if (data.respuesta==true) {
+                    consultar(0)
+                //}
+                $("#info").html('');
+            }
+        });
+    }
+
+    function AsignarSistema(sistema,producto,tipo){//funcion para asignar individualmente los sistemas a los pedidos
+        $.ajax({
+            url:"<?php echo Yii::$app->request->baseUrl . '/proyecto-dependencia/asignar-sistema-pedido'; ?>",
+            type:'POST',
+            dataType:"json",
+            cache:false,
+            data: {
+                sistema: sistema,
+                producto: producto,
+                tipo: tipo
+            },
+            beforeSend:  function() {
+                $('#info').html('Cambiando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');
+            },
+            success: function(data){
+                if (data.respuesta==true) {
+                    consultar(0)
+                }
+                $("#info").html('');
+            }
+        });
+    }
+
+
 
     function activar_finalizar(checkbox,div){
          
@@ -1195,8 +1758,15 @@ function cambiarEstadoPresupuesto(estado){
                 });
                 $("#cr_pedido_especial").hide('slow/400/fast', function() {
                 });
+
+                $('#agregar_adicional').show('slow/400/fast', function() {
+                    
+                });
             }else if(data.respuesta=='ABIERTO'){
                 //$("#bloquear_presupuesto").html('<i class="fa fa-unlock"></i> BLOQUEAR PRESUPUESTO');
+                $('#agregar_adicional').hide('slow/400/fast', function() {
+                    
+                });
 
                 $("#bloquear_presupuesto").show('slow/400/fast', function() {
                     
@@ -2021,5 +2591,29 @@ function cambiarEstadoPresupuesto(estado){
     function rgb2hex(red, green, blue) {
         var rgb = blue | (green << 8) | (red << 16);
         return '#' + (0x1000000 + rgb).toString(16).slice(1)
+    }
+
+    function cambiarEstado(estado,producto,tipo,cantidad){//dovolver a pedidos normales y especiales desde no aprobados
+        $.ajax({
+            url:"<?php echo Yii::$app->request->baseUrl . '/proyecto-dependencia/cambiar-estado'; ?>",
+            type:'POST',
+            dataType:"json",
+            cache:false,
+            data: {
+                estado: estado,
+                producto: producto,
+                tipo: tipo,
+                cantidad: cantidad
+            },
+            beforeSend:  function() {
+                $('#info').html('Cambiando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');
+            },
+            success: function(data){
+                if (data.respuesta==true) {
+                    consultar(0)
+                }
+                $("#info").html('');
+            }
+        });
     }
 </script>

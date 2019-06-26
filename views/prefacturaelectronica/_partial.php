@@ -31,7 +31,8 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 			   	<th style="text-align: center;">Usuario</th>
 			   	<th style="text-align: center;">Regional</th>
 			   	<th style="text-align: center;">Ceco</th>
-			   	<th style="text-align: center;">Dependencia</th>           
+			   	<th style="text-align: center;">Dependencia</th>
+			   	<th style="text-align: center;">Ciudad</th>           
 			   	<th style="text-align: center;">Empresa</th>
 			   	<th style="text-align: center;">Cuenta contable</th>
 			   	<th style="text-align: center;">$ Dispositivos fijos</th>
@@ -89,6 +90,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 		 		<td><?=$pref['regional']?></td>
 		 		<td><?=$pref['ceco']?></td>
 		 		<td><?=$pref['dependencia']?></td>
+		 		<td><?=$pref['ciudad']?></td>
 		 		<td><?php echo $pref['empresa']?></td> 
 		 		<td>523595006</td>
 		 		<td>

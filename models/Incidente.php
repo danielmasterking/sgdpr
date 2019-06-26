@@ -38,7 +38,7 @@ class Incidente extends \yii\db\ActiveRecord
             [['fecha', 'usuario', 'centro_costo_codigo', 'novedad_id','fecha_inicio','titulo'], 'required'],
             [['fecha'], 'safe'],
             [['novedad_id'], 'integer'],
-            [['detalle'], 'string', 'max' => 2500],
+            [['detalle'], 'string', 'max' => 5000],
             [['recomendaciones'], 'string', 'max' => 1500],
             [['usuario'], 'string', 'max' => 50],
             [['centro_costo_codigo'], 'string', 'max' => 15],

@@ -137,7 +137,7 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 
 						   if(in_array("dependencia-create", $permisos)){
 							
-							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs']);  
+							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar']);  
 						   }
 						   
 							
@@ -187,7 +187,7 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 
 						   if(in_array("dependencia-create", $permisos)){
 							
-							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs']);  
+							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar']);  
 						   }
 								?>
 							</td>
@@ -234,7 +234,7 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
                        }					
 						if(in_array("dependencia-create", $permisos)){
 							
-							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs']);  
+							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar']);  
 						   }
 							?>
 						</td>
@@ -280,10 +280,3 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 	 
 	 </table>
 	</div>
-<script type="text/javascript">
-	$(function(){
-		Push.create('Hello World!')	
-	})
-	
-
-</script>

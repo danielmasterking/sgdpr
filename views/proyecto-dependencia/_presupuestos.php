@@ -32,6 +32,14 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
         <i class="fa fa-lock"></i>
         DESBLOQUEAR PRESUPUESTO
     </button>
+
+    <button style="display:<?php echo $model->estado=='CERRADO'?'inline':'none'; ?>;"  id="agregar_adicional" type="button" class="btn btn-danger lock" data-toggle="modal" data-target="#myModal-adicional">
+        <i class="fa fa-plus"></i>
+        AGREGAR ADICIONAL
+    </button>
+
+
+
 <?php } ?>
 
 
@@ -61,7 +69,7 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                 <td style="width: 25%;font-weight: bold;">Total Metros2</td>
 
                 <?php endif;?>
-
+                <td style="width: 25%;font-weight: bold;">Total Adicional</td>
                 <td style="width: 12%;"></td>
             </th>
             <!--<tr>
@@ -114,7 +122,7 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     ?>
                 </td>
             </tr>-->
-            <tr>
+          <!--   <tr>
                 <td><b>Seguridad</b></td>
                 <?php 
                 $total_iva_seguridad=(($model->suma_seguridad*$model->iva)/100)+$model->suma_seguridad;
@@ -160,8 +168,8 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     }
                     ?>
                 </td>
-            </tr>
-            <tr>
+            </tr> -->
+            <!-- <tr>
                 <td><b>Riesgo</b></td>
                 <?php 
                 $total_iva_riesgo=(($model->suma_riesgo*$model->iva)/100)+$model->suma_riesgo;
@@ -207,7 +215,7 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     }
                     ?>
                 </td>
-            </tr>
+            </tr> -->
             <!--<tr>
                 <th></th>
                 <th>Preestablecido para...</th>
@@ -232,6 +240,7 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     <?php
                     echo '$ '.number_format($total_iva_activo, 0, '.', '.').' COP'?>
                 </td>
+               
 
                  <?php  if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){ ?>
                 <td id="saldo_activo">
@@ -247,13 +256,16 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     ?>  
                 </td>
             <?php } ?>
+               
 
                 <?php if(in_array("presupuesto_ver_metros_cuadrados", $permisos)):?>
                 <td>
                     
                 </td>
             <?php endif;?>
-
+                <td>
+                   <?php  echo '$ '.number_format($model->suma_adicional_activo, 0, '.', '.').' COP';  ?> 
+                </td>
                 <td id="money-activo">
                     <?php 
                     
@@ -305,7 +317,9 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     
                 </td>
                 <?php endif;?>
-
+                 <td>
+                   <?php  echo '$ '.number_format($model->suma_adicional_gasto, 0, '.', '.').' COP';  ?> 
+                </td>
                 <td id="money-gasto">
                     <?php 
                     //if($model->presupuesto_gasto<$total_iva_gasto){//ANTES
@@ -364,7 +378,12 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                 </td>
 
                 <?php endif;?>
-
+                 <td> 
+                   <?php  
+                    $total_adicional=($model->suma_adicional_activo+$model->suma_adicional_gasto);
+                    echo '$ '.number_format($total_adicional, 0, '.', '.').' COP';  
+                   ?> 
+                </td>
                 <td id="money-total">
                     <?php 
                     if($model->presupuesto_total<$total_iva){

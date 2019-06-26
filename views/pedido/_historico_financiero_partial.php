@@ -7,11 +7,14 @@ use yii\bootstrap\Modal;
        <thead>
 
        <tr>
-           
+           <th>Id</th>
            <th>Fecha creacion pedido</th>
 		   <th>Fecha Creación</th>
 		   <th>Repetido?</th>
 		   <th>Dependencia</th>
+		   <th>Marca</th>
+		   <th>Ciudad</th>
+		   <th>Regional</th>
 		   <th>CeBe</th>
            <th>Producto</th>
            <th>Observacion</th>
@@ -38,6 +41,7 @@ use yii\bootstrap\Modal;
              <?php foreach($pendientes as $pendiente):?>	  
 			   
               <tr>			  
+              	<td><?= $pendiente['id']?></td> 
               	<td><?= $pendiente['Fecha_pedido']?></td> 
                 <td><?= $pendiente['fecha']?></td>
                 <td>
@@ -48,7 +52,9 @@ use yii\bootstrap\Modal;
 				?>
 				</td>
 				<td><?= $pendiente['dependencia']?></td>
-					
+				<td><?= $pendiente['marca']?></td>
+				<td><?= $pendiente['ciudad']?></td>
+				<td><?= $pendiente['regional']?></td>
                 <td><?= $pendiente['cebe']?></td>
 				<td><?= $pendiente['producto']?></td>
 				<td><?= $pendiente['observaciones']?></td>

@@ -109,6 +109,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 <button class="btn btn-primary"  onclick="devolver();"><i class="fa fa-reply"></i> Devolver a aprobacion</button>
 <?php }?>
 <a href="<?php echo Url::toRoute('adminsupervision/consolidado')?>" class="btn btn-primary">Admin y supervision</a>
+<a href="<?php echo Url::toRoute('prefacturaelectronica/consolidado')?>" class="btn btn-primary">Prefactura-electronica</a>
 <br><br>
 <?php
     /*echo "Mostrando Pagina <b>".$pagina."</b>  de un total de <b>".$count."</b> Registros <br>";
@@ -203,7 +204,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               <td>1</td>
               <td>UN</td>
               <td></td>
-              <td><?= '$ '.number_format(($valor1), 0, '.', '.').' COP'?></td>
+              <td><?= $valor1//'$ '.number_format(($valor1), 0, '.', '.').' COP'?></td>
               <td><?= $rw['cebe']?></td>
               <td></td>
               <td></td>
@@ -366,7 +367,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               <td>1</td>
               <td>UN</td>
               <td></td>
-              <td><?= '$ '.number_format(($valor2), 0, '.', '.').' COP'?></td>
+              <td><?= $valor2//'$ '.number_format(($valor2), 0, '.', '.').' COP'?></td>
               <td><?= $rw['cebe']?></td>
               <td></td>
               <td></td>
@@ -463,7 +464,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
               <td></td>
               <td></td>
               <td></td>
-              <td><b><?= '$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></b></td>
+              <td><b><?= $rw['total_mes']//'$ '.number_format(($rw['total_mes']), 0, '.', '.').' COP'?></b></td>
               <td></td>
               <td></td>
               <td></td>
@@ -498,16 +499,21 @@ if( isset(Yii::$app->session['permisos-exito']) ){
   $(function(){
       var table_consolidado = $('.my-data-consolidado').DataTable({
         "ordering": false,
-        "columnDefs": [{
+        /*"columnDefs": [{
             "className": "dt-center",
             "targets": "_all"
-        }],
+        }],*/
         dom: 'Bfrtip',
         buttons: [
           {
             extend:    'excelHtml5',
             text:      '<i class="fas fa-file-excel"></i> Excel',
-            titleAttr: 'Excel'
+            titleAttr: 'Excel',
+            customize: function(xlsx) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+ 
+              $('c[r=J2] t', sheet).text(0);
+            }
           }
 
         ],
@@ -538,7 +544,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
         }
     });
 
-    table_consolidado.buttons().container().appendTo($('.col-sm-6:eq(0)', table.table().container()));
+    table_consolidado.buttons().container().appendTo($('.col-sm-6:eq(0)', table_consolidado.table().container()));
 
   });
 

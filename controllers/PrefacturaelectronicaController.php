@@ -26,6 +26,8 @@ use yii\helpers\ArrayHelper;
 use kartik\mpdf\Pdf;
 use yii\filters\AccessControl;
 use yii\data\Pagination;
+use app\models\Pedido;
+use app\models\Ciudad;
 /**
  * PrefacturaelectronicaController implements the CRUD actions for PrefacturaElectronica model.
  */
@@ -201,7 +203,7 @@ class PrefacturaelectronicaController extends Controller
             inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
             inner join zona on  cz.zona_id=zona.id
             WHERE cc.codigo=dp.centro_costo_codigo limit 1
-            ) regional','dp.numero_factura','dp.fecha_factura','dp.nombre_factura'])
+            ) regional','dp.numero_factura','dp.fecha_factura','dp.nombre_factura','dp.ciudad'])
             ->from('prefactura_electronica dp, centro_costo cc, empresa em')
             ->where('dp.centro_costo_codigo=cc.codigo AND dp.empresa=em.nit');
             
@@ -986,4 +988,631 @@ class PrefacturaelectronicaController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+
+     public function actionAprobacion(){
+
+        $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
+        $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+        $zonasUsuario = array();
+        $marcasUsuario = array();
+        
+        if($usuario != null){
+          $zonasUsuario = $usuario->zonas;      
+          $marcasUsuario = $usuario->marcas;
+        }
+        $data_marcas=array();
+        foreach($marcasUsuario as $marca){
+            
+            $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
+        }
+
+        $data_regional=[];
+        foreach ($zonasUsuario as $reg){
+            $data_regional[$reg->zona->nombre]=$reg->zona->nombre;
+        }
+
+        $empresas = Empresa::find()->orderBy(['nombre' => SORT_ASC])->all();
+        $list_empresas=ArrayHelper::map($empresas,'nombre','nombre');
+
+        $ciudad=Ciudad::find()->orderBy(['nombre' => SORT_ASC])->all();
+        $list_ciudad=ArrayHelper::map($ciudad,'nombre','nombre');        
+
+        $query = (new \yii\db\Query())
+         ->select(['dp.id id', 'DATE(dp.created) fecha','dp.mes mes','dp.ano ano','dp.usuario usuario','cc.nombre dependencia','cc.ceco','em.nombre empresa','dp.estado estado','(
+
+                    
+                    (   SELECT SUM(REPLACE(valor_arrendamiento_mensual, ".", "")) 
+                        FROM prefactura_dispositivo_fijo_electronico 
+                        WHERE id_prefactura_electronica=dp.id  
+                    )
+                    +
+
+                    (
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")) ,0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=2)
+                        )
+                        -
+
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")),0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=1  or  id_tipo_servicio=4)
+                        )
+                    )
+
+                )Total','
+                (
+
+                    
+                    (   SELECT SUM(REPLACE(valor_arrendamiento_mensual, ".", "")) 
+                        FROM prefactura_dispositivo_fijo_electronico 
+                        WHERE id_prefactura_electronica=dp.id  
+                    )
+                    
+
+                    
+
+                )fijos
+                ',
+                '
+                    (
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")) ,0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=2)
+                        )
+                        -
+
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")),0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=1  or  id_tipo_servicio=4)
+                        )
+                    )variables
+
+                '
+
+                ,'
+                    (   SELECT SUM(valor_total) 
+                        FROM prefactura_monitoreo 
+                        WHERE id_prefactura_electronica=dp.id  
+                    ) Monitoreo
+
+                ','(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=dp.centro_costo_codigo limit 1
+            ) regional','dp.numero_factura','dp.fecha_factura','dp.nombre_factura','dp.ciudad','cc.cebe','dp.marca'])
+            ->from('prefactura_electronica dp, centro_costo cc, empresa em')
+            ->where('dp.centro_costo_codigo=cc.codigo AND dp.empresa=em.nit AND dp.estado_pedido="S"');
+        //FILTROS
+        if(isset($_GET['enviar'])){
+           
+            if(isset($_GET['dependencias']) && $_GET['dependencias']!=''){
+                $query->andWhere('cc.nombre="'.$_GET['dependencias'].'" ');
+            }
+            if(isset($_GET['marca']) && $_GET['marca']!=''){
+                $query->andWhere('dp.marca="'.$_GET['marca'].'" ');
+            }
+
+            if(isset($_GET['regional']) && $_GET['regional']!=''){
+                $query->andWhere('dp.regional="'.$_GET['regional'].'" ');
+            }
+
+            if(isset($_GET['mes']) && $_GET['mes']!=''){
+                $query->andWhere('dp.mes="'.$_GET['mes'].'" ');
+            }
+            if(isset($_GET['empresas']) && $_GET['empresas']!=''){
+                $query->andWhere('em.nombre="'.$_GET['empresas'].'" ');
+            }
+
+            if(isset($_GET['ciudad']) && $_GET['ciudad']!=''){
+                $query->andWhere('dp.ciudad="'.$_GET['ciudad'].'" ');
+            }
+
+            if(isset($_GET['buscar']) && $_GET['buscar']!=''){
+                $query->andWhere(" 
+                cc.nombre like '%".$_GET['buscar']."%' OR 
+                dp.marca like '%".$_GET['buscar']."%' OR 
+                cc.ceco like '%".$_GET['buscar']."%' 
+                OR dp.usuario like '%".$_GET['buscar']."%' 
+                OR cc.cebe like '%".$_GET['buscar']."%' 
+                OR dp.regional like '%".$_GET['buscar']."%' 
+                OR dp.ano like '%".$_GET['buscar']."%'
+                OR dp.ciudad like '%".$_GET['buscar']."%' 
+                OR dp.numero_factura like '%".$_GET['buscar']."%' 
+                ");
+            }
+        }
+
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"dp.id";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        $count = $query->count();
+        // crea un objeto paginación con dicho total
+        $pagination = new Pagination(['totalCount' => $count]);
+        $limit=30;
+        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        $pagina=isset($_GET['page'])?$_GET['page']:1;
+        
+        return $this->render('aprobacion', [
+            'rows'=>$rows,
+            'pagination'=>$pagination,
+            'count'=>$count,
+            'dependencias'=>$dependencias,
+            'marcas'=>$data_marcas,
+            'pagina'=>$pagina,
+            'data_regional'=>$data_regional,
+            'list_empresas'=>$list_empresas,
+            'list_ciudad'=>$list_ciudad
+        ]);
+    }
+
+
+     public function actionAprobarRechazar(){
+        $count=count($_POST['seleccion']);
+        $checks=$_POST['seleccion'];
+
+        if(isset($_POST['aprobar'])){
+            foreach ($checks as $value) {
+                $model=PrefacturaElectronica::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_pedido', 'A');
+                $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
+                $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
+                $model->save();
+            }
+        }else if(isset($_POST['rechazar'])){
+            foreach ($checks as $value) {
+                $model=PrefacturaElectronica::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_pedido', 'R');
+                $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
+                $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
+                $model->setAttribute('fecha_rechazo',date('Y-m-d'));
+                $model->save();
+            }
+        }
+
+        return $this->redirect(['aprobacion']);
+
+    }
+
+    public function actionAprobarPrefactura($id){//A= Aprobar
+        $model=PrefacturaElectronica::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_pedido', 'A');
+        $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
+        $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
+        if($model->save()){
+            return $this->redirect(['aprobacion']);
+        }else{
+            print_r($model->getErrors());
+        }
+
+    }
+
+    public function actionRechazarPrefactura($id){//R= Rechazar
+        $model=PrefacturaElectronica::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_pedido', 'R');
+        $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
+        $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
+        $model->setAttribute('fecha_rechazo',date('Y-m-d'));
+        if($model->save()){
+            return $this->redirect(['aprobacion']);
+        }else{
+            print_r($model->getErrors());
+        }
+
+    }
+
+
+    public function actionConsolidado(){
+
+        $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
+        $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+        $zonasUsuario = array();
+        $marcasUsuario = array();
+        
+        if($usuario != null){
+          $zonasUsuario = $usuario->zonas;      
+          $marcasUsuario = $usuario->marcas;
+        }
+        $data_marcas=array();
+        foreach($marcasUsuario as $marca){
+            
+            $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
+        }
+
+       $query = (new \yii\db\Query())
+         ->select(['dp.id id', 'DATE(dp.created) fecha','dp.mes mes','dp.ano ano','dp.usuario usuario','cc.nombre dependencia','cc.ceco','em.nombre empresa','dp.estado estado','(
+
+                    
+                    (   SELECT SUM(REPLACE(valor_arrendamiento_mensual, ".", "")) 
+                        FROM prefactura_dispositivo_fijo_electronico 
+                        WHERE id_prefactura_electronica=dp.id  
+                    )
+                    +
+
+                    (
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")) ,0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=2)
+                        )
+                        -
+
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")),0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=1  or  id_tipo_servicio=4)
+                        )
+                    )
+
+                )Total','
+                (
+
+                    
+                    (   SELECT SUM(REPLACE(valor_arrendamiento_mensual, ".", "")) 
+                        FROM prefactura_dispositivo_fijo_electronico 
+                        WHERE id_prefactura_electronica=dp.id  
+                    )
+                    
+
+                    
+
+                )fijos
+                ',
+                '
+                    (
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")) ,0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=2)
+                        )
+                        -
+
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")),0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=1  or  id_tipo_servicio=4)
+                        )
+                    )variables
+
+                '
+
+                ,'
+                    (   SELECT SUM(valor_total) 
+                        FROM prefactura_monitoreo 
+                        WHERE id_prefactura_electronica=dp.id  
+                    ) Monitoreo
+
+                ','(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=dp.centro_costo_codigo limit 1
+            ) regional','dp.numero_factura','dp.fecha_factura','dp.nombre_factura','dp.ciudad','cc.cebe','dp.marca','dp.id_pedido','dp.posicion'])
+            ->from('prefactura_electronica dp, centro_costo cc, empresa em')
+            ->where('dp.centro_costo_codigo=cc.codigo AND dp.empresa=em.nit AND dp.estado_pedido="A"');
+        //FILTROS
+        if(isset($_GET['enviar'])){
+           
+            if(isset($_GET['dependencias']) && $_GET['dependencias']!=''){
+                $query->andWhere('dependencia="'.$_GET['dependencias'].'" ');
+            }
+            if(isset($_GET['marca']) && $_GET['marca']!=''){
+                $query->andWhere('marca="'.$_GET['marca'].'" ');
+            }
+            if(isset($_GET['buscar']) && $_GET['buscar']!=''){
+                $query->andWhere(" 
+                DEPENDENCIA like '%".$_GET['buscar']."%' OR 
+                marca like '%".$_GET['buscar']."%' OR 
+                ceco like '%".$_GET['buscar']."%' 
+                OR solicitante like '%".$_GET['buscar']."%' 
+                OR material like '%".trim($_GET['buscar'])."%' 
+                OR cebe like '%".$_GET['buscar']."%' 
+                ");
+            }
+        }
+
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        /*$count = $query->count();
+        // crea un objeto paginación con dicho total
+        $pagination = new Pagination(['totalCount' => $count]);
+        $limit=30;*/
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        $pagina=isset($_GET['page'])?$_GET['page']:1;
+
+        return $this->render('consolidado', [
+            'rows'=>$rows,
+            'pagination'=>$pagination,
+            'count'=>$count,
+            'dependencias'=>$dependencias,
+            'marcas'=>$data_marcas,
+            'pagina'=>$pagina
+        ]);
+    }
+
+
+     public function actionEquivalenciaPrefactura(){
+        $id_pedido=1;
+        $posicion=1;
+        $empresa_anterior=null;
+        $ciudad_anterior=null;
+        //$posicion_anterior=0;
+
+        $query=PrefacturaElectronica::find()->where('estado_pedido="A"')->orderby('ciudad,empresa')->all();
+
+        foreach ($query as $ped) {
+            if($empresa_anterior==null && $ciudad_anterior==null){
+                PrefacturaElectronica::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped->id]);
+
+                $empresa_anterior=$ped->empresa;
+                $ciudad_anterior=$ped->ciudad;
+                //$posicion_anterior=$posicion;
+            }elseif($empresa_anterior==$ped->empresa && $ciudad_anterior==$ped->ciudad){
+                $posicion++;
+                PrefacturaElectronica::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped->id]);
+                $empresa_anterior=$ped->empresa;
+                $ciudad_anterior=$ped->ciudad;
+                //$posicion_anterior=$posicion_anterior+1;
+            }else{
+                $id_pedido++;
+                $posicion=1;
+                PrefacturaElectronica::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped->id]);
+                $empresa_anterior=$ped->empresa;
+                $ciudad_anterior=$ped->ciudad;
+            }
+            //echo $ped->id."-".$ped->ciudad."-".$ped->empresa."<br>";
+        }
+
+        return $this->redirect(['consolidado']);
+    }
+
+    public function actionFinalizarPrefacturas(){
+        PrefacturaElectronica::updateAll(['estado_pedido' => "F"], ['=', 'estado_pedido', 'A']);
+        return $this->redirect(['consolidado']);
+    }
+
+    public function actionCabeceraPrefactura(){
+       $query = (new \yii\db\Query())
+         ->select(['dp.id id', 'DATE(dp.created) fecha','dp.mes mes','dp.ano ano','dp.usuario usuario','cc.nombre dependencia','cc.ceco','em.nombre empresa','dp.estado estado','(
+
+                    
+                    (   SELECT SUM(REPLACE(valor_arrendamiento_mensual, ".", "")) 
+                        FROM prefactura_dispositivo_fijo_electronico 
+                        WHERE id_prefactura_electronica=dp.id  
+                    )
+                    +
+
+                    (
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")) ,0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=2)
+                        )
+                        -
+
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")),0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=1  or  id_tipo_servicio=4)
+                        )
+                    )
+
+                )Total','
+                (
+
+                    
+                    (   SELECT SUM(REPLACE(valor_arrendamiento_mensual, ".", "")) 
+                        FROM prefactura_dispositivo_fijo_electronico 
+                        WHERE id_prefactura_electronica=dp.id  
+                    )
+                    
+
+                    
+
+                )fijos
+                ',
+                '
+                    (
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")) ,0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=2)
+                        )
+                        -
+
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")),0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=1  or  id_tipo_servicio=4)
+                        )
+                    )variables
+
+                '
+
+                ,'
+                    (   SELECT SUM(valor_total) 
+                        FROM prefactura_monitoreo 
+                        WHERE id_prefactura_electronica=dp.id  
+                    ) Monitoreo
+
+                ','(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=dp.centro_costo_codigo limit 1
+            ) regional','dp.numero_factura','dp.fecha_factura','dp.nombre_factura','dp.ciudad','cc.cebe','dp.marca','dp.id_pedido','dp.posicion'])
+            ->from('prefactura_electronica dp, centro_costo cc, empresa em')
+            ->where('dp.centro_costo_codigo=cc.codigo AND dp.empresa=em.nit AND dp.estado_pedido="A"');
+
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        return $this->render('cabecera_prefactura', [
+         'result'=>$rows
+        ]);
+    }
+
+    public function actionDevolverAprobacion(){
+        PrefacturaElectronica::updateAll(['estado_pedido' => 'S'], ['=', 'estado_pedido', 'A']);
+        return $this->redirect(['consolidado']);
+    }
+
+    public function actionOrdenCompra(){
+
+        $prefacturas=$_POST['seleccion'];
+
+        if(count($prefacturas)>0){
+            foreach ($prefacturas as $pref) {
+                $query=PrefacturaElectronica::find()->where('id='.$pref)->one();
+                if($query->orden_compra!=null && $query->orden_compra!=''){
+                    $query->setAttribute('estado_pedido', 'H');
+                    $query->save();
+                }
+            }
+            return $this->redirect(['orden-compra']);
+
+        }
+
+        $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
+        $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+        $zonasUsuario = array();
+        $marcasUsuario = array();
+        
+        if($usuario != null){
+          $zonasUsuario = $usuario->zonas;      
+          $marcasUsuario = $usuario->marcas;
+        }
+        $data_marcas=array();
+        foreach($marcasUsuario as $marca){
+            
+            $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
+        }
+
+        $query = (new \yii\db\Query())
+         ->select(['dp.id id', 'DATE(dp.created) fecha','dp.mes mes','dp.ano ano','dp.usuario usuario','cc.nombre dependencia','cc.ceco','em.nombre empresa','dp.estado estado','(
+
+                    
+                    (   SELECT SUM(REPLACE(valor_arrendamiento_mensual, ".", "")) 
+                        FROM prefactura_dispositivo_fijo_electronico 
+                        WHERE id_prefactura_electronica=dp.id  
+                    )
+                    +
+
+                    (
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")) ,0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=2)
+                        )
+                        -
+
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")),0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=1  or  id_tipo_servicio=4)
+                        )
+                    )
+
+                )Total','
+                (
+
+                    
+                    (   SELECT SUM(REPLACE(valor_arrendamiento_mensual, ".", "")) 
+                        FROM prefactura_dispositivo_fijo_electronico 
+                        WHERE id_prefactura_electronica=dp.id  
+                    )
+                    
+
+                    
+
+                )fijos
+                ',
+                '
+                    (
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")) ,0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=2)
+                        )
+                        -
+
+                        (   SELECT COALESCE(SUM(REPLACE(valor_novedad, ".", "")),0)
+                            FROM prefactura_dispositivo_variable_electronico 
+                            WHERE (id_prefactura_electronica=dp.id)  and   (id_tipo_servicio=1  or  id_tipo_servicio=4)
+                        )
+                    )variables
+
+                '
+
+                ,'
+                    (   SELECT SUM(valor_total) 
+                        FROM prefactura_monitoreo 
+                        WHERE id_prefactura_electronica=dp.id  
+                    ) Monitoreo
+
+                ','(
+            select zona.nombre  from centro_costo cc
+            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
+            inner join zona on  cz.zona_id=zona.id
+            WHERE cc.codigo=dp.centro_costo_codigo limit 1
+            ) regional','dp.numero_factura','dp.fecha_factura','dp.nombre_factura','dp.ciudad','cc.cebe','dp.marca','dp.id_pedido','dp.posicion','dp.orden_compra'])
+            ->from('prefactura_electronica dp, centro_costo cc, empresa em')
+            ->where('dp.centro_costo_codigo=cc.codigo AND dp.empresa=em.nit AND dp.estado_pedido="F"');
+       
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id_pedido";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+        //$command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+        $command = $query->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        return $this->render('orden_prefactura', [
+         'result'=>$rows
+        ]);
+    }
+
+
+    public function actionPrefacturaAgregarOrden(){
+
+        PrefacturaElectronica::updateAll(['orden_compra' => $_POST['orden']], ['=', 'id', $_POST['id_pref']]);
+        return $this->redirect(['orden-compra']);
+    }
+
+    public function actionPrefacturaAgregarOrdenTodos(){
+
+        $prefacturas=$_POST['seleccion'];
+        $orden=$_POST['orden'];
+        foreach ($prefacturas as $key => $value) {
+            PrefacturaElectronica::updateAll(['orden_compra' => $orden], ['=', 'id', $value]);
+        }
+       
+        return $this->redirect(['orden-compra']);
+    }
+
+     public function actionDevolverConsolidado(){
+        PrefacturaElectronica::updateAll(['estado_pedido' => 'A'], ['=', 'estado_pedido', 'F']);
+        return $this->redirect(['orden-compra']);
+    }
+
 }

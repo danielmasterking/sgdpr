@@ -17,11 +17,12 @@ use app\assets\AppAsset;
 use app\models\Notificacion;
 use app\models\Usuario;
 use app\models\ManualApp;
+use yii\helpers\Url;
 
 /////////////////////////////////////////////////////
 if(isset(Yii::$app->session['usuario-exito'])):
   $date=date('Y-m-d');
-  $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+  /*$usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
   $zonasUsuario = $usuario->zonas;
 
   $in_zona=" IN(";
@@ -36,31 +37,9 @@ if(isset(Yii::$app->session['usuario-exito'])):
       $in_final = substr($in_zona, 0, -1).")";
   }else{
       $in_final = " IN('')";
-  }
-
-  $notificacion=Notificacion::find()
-->leftJoin('notificacion_zona', ' notificacion_zona.id_notificacion= notificacion.id')
-->leftJoin('notificacion_usuario', ' notificacion_usuario.id_notificacion= notificacion.id')
-->where(' ( notificacion.fecha_final >= "'.$date.'" ) and (notificacion_zona.id_zona '.$in_final.' or notificacion_usuario.usuario IN("'.Yii::$app->session['usuario-exito'].'") )');
-//->orderBy('id DESC')
-//->all();
-$rows_not= clone $notificacion;
-$notificacion2=$rows_not->andwhere('tipo="C"')->orderBy('id DESC')->all();
-$notificacion1=$notificacion->andwhere('tipo="M"')->orderBy('id DESC')->all();
+  }*/
 
 
-$count=Notificacion::find()
-->leftJoin('notificacion_zona', ' notificacion_zona.id_notificacion= notificacion.id')
-->leftJoin('notificacion_usuario', ' notificacion_usuario.id_notificacion= notificacion.id')
-->where(' (notificacion.fecha_final > "'.$date.'" OR notificacion.fecha_final = "'.$date.'" ) AND (notificacion_zona.id_zona '.$in_final.' OR notificacion_usuario.usuario IN("'.Yii::$app->session['usuario-exito'].'") )');
-
-$count1=$count->andwhere('tipo="M"')->groupBy('notificacion.id')->count();
-$count2=$rows_not->andwhere('tipo="C"')->groupBy('notificacion.id')->count();
-
-$count_total=($count1+$count2);
-
-  //->groupBy('notificacion.id')
-  //->count();
 
   $manuales=ManualApp::find()->count();
 endif;
@@ -90,6 +69,9 @@ AppAsset::register($this);
   <!-- AdminLTE Skins. Choose a skin from the css/skins
        folder instead of downloading all of them to reduce the load. -->
   <link rel="stylesheet" href="<?php echo $this->theme->baseUrl; ?>/dist/css/skins/_all-skins.css">
+
+  <!--mis propios estilos personalizados-->
+  <link rel="stylesheet" href="<?php echo $this->theme->baseUrl; ?>/dist/css/estilos.css"> 
 
   <link rel="icon" type="image/png" href="<?php echo $this->theme->baseUrl; ?>/dist/img/431px-Grupo_Exito_logo.png" />
 
@@ -152,34 +134,34 @@ AppAsset::register($this);
           </li> 
           <!-- Notifications: style can be found in dropdown.less -->
           <li class="dropdown notifications-menu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: black;" title="Tienes <?=$count_total?> Notificaciones">
+            <a href="#" c data-target="#myModal-notificacion" data-toggle="modal" style="color: black;" title="" id="badge-total">
               <i class="fas fa-bell"></i>
-              <span class="label label-warning"><?= $count_total?></span>
+              <span class="label label-warning info-notificacion" id="total_not"></span>
             </a>
-            <ul class="dropdown-menu">
+            <!-- <ul class="dropdown-menu">
               <li class="header">Tienes <?= $count_total?> notificaciones</li>
               <li>
                 
-                <ul class="menu">
-                  <?php foreach($notificacion2 as $noti): ?>
+                 <ul class="menu">
+                  <?php //foreach($notificacion2 as $noti): ?>
                   <li>
                     <a href="#">
                       <i class="fas fa-info-circle" style="color: #Ffe701 "></i> <?= $noti->titulo?>
                     </a>
                   </li>
-                <?php endforeach;?>
+                <?php //endforeach;?>
 
-                 <?php foreach($notificacion1 as $noti): ?>
+                 <?php //foreach($notificacion1 as $noti): ?>
                   <li>
                     <a href="#">
                       <i class="fas fa-info-circle" style="color: #Ffe701 "></i> <span class="label label-info"><i class="fas fa-envelope "></i> Mensaje</span> <?= $noti->titulo?>
                     </a>
                   </li>
-                <?php endforeach;?>
-                </ul>
+                <?php //endforeach;?>
+                </ul> 
               </li>
               <li class="footer" data-target="#myModal-notificacion" data-toggle="modal" ><a href="#">Ver Todas</a></li>
-            </ul> 
+            </ul>  -->
           </li>
           <!-- Tasks: style can be found in dropdown.less -->
           <!-- <li class="dropdown tasks-menu">
@@ -332,25 +314,111 @@ AppAsset::register($this);
 <!-- AdminLTE for demo purposes -->
 <script src="<?php echo $this->theme->baseUrl; ?>/dist/js/demo.js"></script>
 <script type="text/javascript">
-$(window).load(function() {
-    $(".loader").fadeOut("slow");
-});
-</script>
-<script>
+/*$(window).load(function() {
+   
+});*/
+
   $(document).ready(function () {
-    $('.sidebar-menu').tree()
+     $('.sidebar-menu').tree();
+    $(".loader").fadeOut("slow");
+    $('.info-notificacion').html('<i class="fas fa-sync fa-spin"></i>');
+   
+    <?php if(Yii::$app->session['notificacion']==1 ): ?>
+  
+      $('#myModal-notificacion').modal('show');
+ 
+    <?php Yii::$app->session['notificacion']=0; endif; ?>
+    /*setInterval(function(){
+      notificacion();
+    },20000);*/
+    notificacion();
   })
 
 
-</script>
-<script type="text/javascript">
-    //setInterval(function(){alert('prueba')},1000);
-    <?php if(Yii::$app->session['notificacion']==1 and $count>0): ?>
-    $(function(){
-        $('#myModal-notificacion').modal('show');
-    });
-    <?php Yii::$app->session['notificacion']=0; endif; ?>
-     <?php if(Yii::$app->session['update-contrasena']==false): ?>
+    
+    var cantidad_notificaciones=0;
+    var ingreso=0;
+    function notificacion(){
+      $.ajax({
+            url:"<?php echo Url::toRoute('notificacion/notificacion')?>",
+            type:'POST',
+            dataType:"json",
+            //cache:false,
+            //Async:false;
+            data: {
+               cantidad_notificaciones:cantidad_notificaciones
+            },
+            async:false,
+            beforeSend:  function() {
+                //$('.info-notificacion').html('<i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');
+            },
+            success: function(data){
+              if(cantidad_notificaciones>0 && cantidad_notificaciones<data.total_not_general || ingreso==0){
+                $("#total_not").html(data.total_not_general);
+                $("#total_notificaciones_modal").html(data.total_not_general);
+                $("#badge-total").attr({
+                  title: 'Tienes '+data.total_not_general+' notificaciones',
+                });
+                $("#total_not_mensajes").html(data.total_not_mensaje);
+                $("#total_not_pedido").html(data.total_not_pedido);
+                $("#body_not_mensaje").html(data.res_not);
+                $("#body_not_pedido").html(data.res_pedido);
+              }
+
+                if(ingreso==0)
+                  cantidad_notificaciones=data.total_not_general;
+
+                if(data.total_not_general>cantidad_notificaciones){
+                  var notificaciones_nuevas=(data.total_not_general-cantidad_notificaciones);
+                  cantidad_notificaciones=notificaciones_nuevas;
+                  //Push.create('tienes '+notificaciones_nuevas+' notificaciones nuevas');
+                  Push.create("SGDPR", {
+                      body: 'Tienes '+cantidad_notificaciones+' Notificaciones nuevas',
+                      icon: '<?php echo $this->theme->baseUrl; ?>/dist/img/431px-Grupo_Exito_logo.png',
+                      timeout: 7000,
+                      onClick: function () {
+                          //window.focus();
+                           $('#myModal-notificacion').modal('show');
+                          this.close();
+                      }
+                  });
+
+
+                  cantidad_notificaciones=data.total_not_general;
+                }
+
+                ingreso++;
+                setTimeout(function(){notificacion();},15000);
+            }
+        });
+    }
+
+    function leido(notificacion_id,usuario){
+      
+      ingreso=0;
+      $.ajax({
+            url:"<?php echo Url::toRoute('notificacion/leido')?>",
+            type:'POST',
+            dataType:"json",
+            //cache:false,
+            //Async:false;
+            data: {
+               id_not:notificacion_id,
+               usuario:usuario
+            },
+            async:false,
+            beforeSend:  function() {
+                $('.info-notificacion').html('<i class="fas fa-sync fa-spin"></i>');
+            },
+            success: function(data){
+              
+                notificacion();
+            }
+        });
+
+    }
+
+    <?php if(Yii::$app->session['update-contrasena']==false): ?>
      
      location.href="<?= Yii::$app->request->baseUrl.'/site/cambio'?>";
      <?php Yii::$app->session['update-contrasena']=true; endif; ?>

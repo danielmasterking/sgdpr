@@ -138,8 +138,8 @@ class AdminsupervisionController extends Controller
             $rows->andWhere("mes like '%".$_POST['mes']."%'");
         }
 
-        if (trim($_POST['empresa'])!='') {
-            $rows->andWhere("admin_supervision.empresa like '%".$_POST['empresa']."%'");
+        if (trim($_POST['empresas'])!='') {
+            $rows->andWhere("admin_supervision.empresa like '%".$_POST['empresas']."%'");
         }
 
         $rowsCount= clone $rows;
@@ -658,7 +658,7 @@ class AdminsupervisionController extends Controller
         date_default_timezone_set ( 'America/Bogota');
         $model = $this->findModel($id);
         $model_dep= AdminDependencia::find()->where('id_admin='.$id.' limit 1')->one();
-        $dependencias = CentroCosto::find()->/*where(['not in', 'estado', ['C']])->*/orderBy(['nombre' => SORT_ASC])->all();
+        $dependencias = CentroCosto::find()->where(['not in', 'estado', ['C']])->orderBy(['nombre' => SORT_ASC])->all();
         $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
         $zonasUsuario = array();
         $marcasUsuario = array();
@@ -685,41 +685,12 @@ class AdminsupervisionController extends Controller
             $model->save();
 
             
-            $dependencias=$_POST['dependencias'];
-            $cantidad=count($dependencias);
-
-
-            $dispositivos=AdminDispositivo::find()->where('id_admin='.$id)->all();
-            
-            foreach ($dispositivos as $row) {
-                
-                $precio_dep=($row->precio_total/$cantidad);
-                $precio_dep_final=round($precio_dep, 2, PHP_ROUND_HALF_DOWN);
-
-                $model_disp=AdminDispositivo::findOne($row->id);
-                $model_disp->setAttribute('precio_dependencia',$precio_dep_final);
-
-                if ($row->ftes!=0) {
-                        
-                    $ftes_diurno_dep=bcdiv((($row->ftes_diurno/$num_dep)*$row->cantidad), '1', 3);
-                    
-                    $ftes_nocturno_dep=bcdiv((($row->ftes_nocturno/$num_dep)*$row->cantidad), '1', 3);
-
-
-                    $ftes_dep=($row->ftes/$cantidad);
-                    $ftes_dep_final=round($ftes_dep,3, PHP_ROUND_HALF_DOWN);
-
-                    $model_disp->setAttribute('ftes_dependencia',$ftes_dep_final);
-                }
-
-                $model_disp->save();
-            }
-            // AdminDependencia::updateAll(['precio' => $_POST['precio_dep'],'horas'=>$horas_dep,'ftes'=>$_POST['ftes_dep']], 'id_admin ='.$model->id);
-
+            $dependencias_seleccionadas=$_POST['dependencias'];
+            $cantidad=count($dependencias_seleccionadas);
             AdminDependencia::deleteAll(['id_admin' => $model->id]);
 
             if($cantidad>0){
-                foreach ($dependencias as $value) {
+                foreach ($dependencias_seleccionadas as $value) {
                     $model_dep=new AdminDependencia();
                     $model_dep->setAttribute('centro_costos_codigo', $value);
                    
@@ -729,7 +700,49 @@ class AdminsupervisionController extends Controller
 
 
                 }
+
+                $cantidad=AdminDependencia::find()->where('id_admin='.$model->id)->count();
             }
+
+            //echo $cantidad;
+            $dispositivos=AdminDispositivo::find()->where('id_admin='.$id)->all();
+            
+            foreach ($dispositivos as $row) {
+                
+                $precio_dep=($row->precio_total/$cantidad);
+                $precio_dep_final=round($precio_dep, 2, PHP_ROUND_HALF_DOWN);
+
+                //$model_disp=AdminDispositivo::findOne($row->id);
+                //$model_disp->setAttribute('precio_dependencia',$precio_dep_final);
+                $array_update=['precio_dependencia'=>$precio_dep_final];
+                if ($row->ftes!=0) {
+                        
+                    $ftes_diurno_dep=bcdiv((($row->ftes_diurno/$cantidad)*$row->cantidad), '1', 3);
+                    
+                    $ftes_nocturno_dep=bcdiv((($row->ftes_nocturno/$cantidad)*$row->cantidad), '1', 3);
+
+
+                    //$ftes_dep=($row->ftes/$cantidad);
+                    //$ftes_dep_final=round($ftes_dep,3, PHP_ROUND_HALF_DOWN);
+                    $ftes_dep=($ftes_diurno_dep+$ftes_nocturno_dep);
+                    $ftes_dep_final=bcdiv($ftes_dep, '1', 3);
+                    //$model_disp->setAttribute('ftes_diurno_dep',$ftes_diurno_dep);
+                    //$model_disp->setAttribute('ftes_nocturno_dep',$ftes_nocturno_dep);
+                    //$model_disp->setAttribute('ftes_dependencia',$ftes_dep_final);
+
+                    $array_update['ftes_diurno_dep']=$ftes_diurno_dep;
+                    $array_update['ftes_nocturno_dep']=$ftes_nocturno_dep;
+                    $array_update['ftes_dependencia']=$ftes_dep_final;
+
+                }
+
+                //$model_disp->save();
+
+                AdminDispositivo::updateAll($array_update, ['=', 'id', $row->id ]);
+            }
+            // AdminDependencia::updateAll(['precio' => $_POST['precio_dep'],'horas'=>$horas_dep,'ftes'=>$_POST['ftes_dep']], 'id_admin ='.$model->id);
+
+            
 
 
             return $this->redirect(['view', 'id' => $model->id]);
@@ -894,7 +907,9 @@ class AdminsupervisionController extends Controller
 
         $option="";
         foreach ($query as $value) {
-            $option.="<option value='".$value->codigo."'>".$value->nombre."</option>";
+            if($value->marca->nombre!='VIVA' && $value->marca->nombre!='INDUSTRIA'){
+                $option.="<option value='".$value->codigo."'>".$value->nombre."</option>";
+            }
         }
 
         echo json_encode(array('resp'=>$option));
@@ -971,6 +986,8 @@ class AdminsupervisionController extends Controller
                 OR usuario like '%".$_GET['buscar']."%' 
                 OR mes like '%".$_GET['buscar']."%' 
                 OR ano like '%".$_GET['buscar']."%' 
+                OR numero_factura like '%".$_GET['buscar']."%'
+                OR usuario like '%".$_GET['buscar']."%' 
                 ");
             }
         }
@@ -1062,7 +1079,7 @@ class AdminsupervisionController extends Controller
     public function actionConsolidado(){
 
         $query=(new \yii\db\Query())
-        ->select(["CAST(null AS CHAR) as nombre_factura",'as.mes','as.ano','cc.nombre dependencia','as.empresa nit','em.nombre empresa_seg','as.estado',"/*ROUND((da.ftes_dependencia* da.cantidad),3)*/ da.ftes_dependencia as ftes/*da.ftes*/",'da.precio_dependencia as total_factura','as.numero_factura','as.fecha_factura',
+        ->select(['as.mes','as.ano','cc.nombre dependencia','as.empresa nit','em.nombre empresa_seg','as.estado','(select SUM(precio_dependencia) FROM admin_dispositivo where id_admin=as.id) as total_factura','as.numero_factura','as.fecha_factura',
             '(
                 CASE
                 WHEN SUBSTRING(cc.ceco,1,1) =3 THEN 533505001 
@@ -1071,27 +1088,23 @@ class AdminsupervisionController extends Controller
                 ELSE  523505001
                 END
 
-             )cuenta_contable','cc.ceco','c.nombre as ciudad','m.nombre as marca',"da.descripcion as puesto","da.cantidad as cantidad_servicios","da.horas","da.lunes","da.martes","da.miercoles","da.jueves","da.viernes","da.sabado","da.domingo","da.festivo","CAST(null AS CHAR) as tipo_servicio","da.hora_inicio","da.hora_fin","da.dias as total_dias",
-             /*"(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ) as  num_dep",*/
-             "da.ftes_diurno_dep /*ROUND(((da.ftes_diurno/(SELECT COUNT(id) FROM admin_dependencia WHERE id_admin=as.id  ))*da.cantidad),3)*/ as ftes_diurno",
-             "da.ftes_nocturno_dep as ftes_nocturno",
-             "CAST(null AS CHAR) as explicacion",
-             "/*CAST(null AS CHAR)*/((da.ftes_diurno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_diurno","/*CAST(null AS CHAR)*/((da.ftes_nocturno_dep*da.precio_dependencia)/da.ftes_dependencia) as valor_serv_nocturno",'CAST("Administracion y supervision" AS CHAR) as tipo','(
+             )cuenta_contable','cc.ceco','c.nombre as ciudad','m.nombre as marca',
+             '(
             select zona.nombre  from centro_costo cc
             inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
             inner join zona on  cz.zona_id=zona.id
             WHERE cc.codigo=ad.centro_costos_codigo limit 1
-            ) regional','da.id as id_disp','CAST(null AS CHAR) as servicio_disp','ad.id id_admin_dep','cc.cebe','ad.id_pedido'])
-            ->from('admin_supervision  as'/*'admin_dependencia ad','admin_dispositivo da'*/)
+            ) regional','ad.id id_admin_dep','cc.cebe','ad.id_pedido','as.fecha_aprobacion'])
+            ->from('admin_supervision  as')
             //->innerJoin('admin_supervision  as', 'ad.id_admin=as.id')
             ->innerJoin('admin_dependencia ad', 'as.id=ad.id_admin')
-            ->innerJoin('admin_dispositivo da', 'as.id=da.id_admin')
+            //->innerJoin('admin_dispositivo da', 'as.id=da.id_admin')
             ->leftJoin('centro_costo  cc', 'ad.centro_costos_codigo=cc.codigo')
             ->leftJoin('marca  m', 'cc.marca_id=m.id')
             ->leftJoin('ciudad  c', 'cc.ciudad_codigo_dane=c.codigo_dane')
             ->leftJoin('empresa  em', 'as.empresa=em.nit')
             ->where('as.estado="cerrado" AND as.estado_pedido="A"')
-            ->orderby('c.nombre,em.nombre');
+            ->orderby('as.numero_factura ASC');
 
         $command = $query->createCommand();
 
@@ -1105,31 +1118,26 @@ class AdminsupervisionController extends Controller
     public function actionEquivalenciaPrefactura(){
         $id_pedido=1;
         $posicion=1;
-        $empresa_anterior=null;
-        $ciudad_anterior=null;
+        $numero_factura_anterior=null;
+       // $empresa_anterior=null;
+        //$ciudad_anterior=null;
         //$posicion_anterior=0;
 
         //$query=PrefacturaConsolidadoPedido::find()->where('estado_pedido="A"')->orderby('ciudad,empresa')->all();
 
         $query=(new \yii\db\Query())
         ->select(['cc.nombre dependencia','asu.empresa nit','em.nombre empresa_seg','asu.estado',
-            'cc.ceco','c.nombre as ciudad','m.nombre as marca',
-            '(
-            select zona.nombre  from centro_costo cc
-            inner join ciudad_zona cz on cc.ciudad_codigo_dane=cz.ciudad_codigo_dane
-            inner join zona on  cz.zona_id=zona.id
-            WHERE cc.codigo=ad.centro_costos_codigo limit 1
-            ) regional','ad.id as id_disp','ad.id id_admin_dep','cc.cebe','ad.id_pedido'])
+            'cc.ceco','c.nombre as ciudad','m.nombre as marca','ad.id as id_disp','ad.id id_admin_dep','cc.cebe','ad.id_pedido','asu.numero_factura'])
             ->from('admin_supervision  asu'/*'admin_dependencia ad','admin_dispositivo da'*/)
             //->innerJoin('admin_supervision  as', 'ad.id_admin=as.id')
             ->innerJoin('admin_dependencia ad', 'asu.id=ad.id_admin')
-            ->innerJoin('admin_dispositivo da', 'asu.id=da.id_admin')
+            //->innerJoin('admin_dispositivo da', 'asu.id=da.id_admin')
             ->leftJoin('centro_costo  cc', 'ad.centro_costos_codigo=cc.codigo')
             ->leftJoin('marca  m', 'cc.marca_id=m.id')
             ->leftJoin('ciudad  c', 'cc.ciudad_codigo_dane=c.codigo_dane')
             ->leftJoin('empresa  em', 'asu.empresa=em.nit')
             ->where('asu.estado="cerrado" AND asu.estado_pedido="A"')
-            ->orderby('c.nombre,em.nombre');
+            ->orderby('asu.numero_factura');
 
         $command = $query->createCommand();
 
@@ -1138,24 +1146,24 @@ class AdminsupervisionController extends Controller
 
 
         foreach ($rows as $ped) {
-            if($empresa_anterior==null && $ciudad_anterior==null){
+            if($numero_factura_anterior==null ){
                 AdminDependencia::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped['id_disp']]);
 
-                $empresa_anterior=$ped['empresa_seg'];
-                $ciudad_anterior=$ped['ciudad'];
+                $numero_factura_anterior=$ped['numero_factura'];
+                
                 //$posicion_anterior=$posicion;
-            }elseif($empresa_anterior==$ped['empresa_seg'] && $ciudad_anterior==$ped['ciudad']){
+            }elseif($numero_factura_anterior==$ped['numero_factura']){
                 $posicion++;
                 AdminDependencia::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped['id_disp']]);
-                $empresa_anterior=$ped['empresa_seg'];
-                $ciudad_anterior=$ped['ciudad'];
+                $numero_factura_anterior=$ped['numero_factura'];
+                
                 //$posicion_anterior=$posicion_anterior+1;
             }else{
                 $id_pedido++;
                 $posicion=1;
                 AdminDependencia::updateAll(['id_pedido' => $id_pedido,'posicion'=>$posicion], ['=', 'id', $ped['id_disp']]);
-                $empresa_anterior=$ped['empresa_seg'];
-                $ciudad_anterior=$ped['ciudad'];
+                $numero_factura_anterior=$ped['numero_factura'];
+                
             }
             //echo $ped['id_disp']."-".$ped['ciudad']."-".$ped['empresa_seg']."<br>";
         }
@@ -1341,5 +1349,35 @@ class AdminsupervisionController extends Controller
             'rows'=>$rows
         ]);
 
+    }
+
+    public function actionEliminarViva($eliminar=0,$contador=0){
+        $query=(new \yii\db\Query())
+        ->select(["dp.id id_admin_dep","cc.nombre dependencia","m.nombre marca"])
+        ->from('admin_dependencia dp')
+        ->innerJoin('admin_supervision asu', 'dp.id_admin=asu.id')
+        ->innerJoin('centro_costo cc', 'cc.codigo=dp.centro_costos_codigo')
+        ->innerJoin('marca m', 'm.id=cc.marca_id')
+        ->where("m.nombre IN('VIVA','INDUSTRIA') AND asu.mes='06' AND asu.empresa<>'800185549'");
+        $command = $query->createCommand();
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        if($eliminar==1){
+            $contador=0;
+            foreach ($rows as $value) {
+                $model=AdminDependencia::find()->where('id='.$value['id_admin_dep'])->one();
+                $model->delete();
+                $contador++;
+            }
+
+             return $this->redirect(['eliminar-viva','eliminar'=>0,'contador'=>$contador]);
+        }
+
+
+        return $this->render('eliminar_viva', [
+            'rows'=>$rows,
+            'contador'=>$contador
+        ]);
     }
 }
