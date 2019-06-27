@@ -27,7 +27,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
   	</button>
   	<ul class="dropdown-menu">
   		<?php foreach($sistemas as $st): ?>
-    	<li><a href="#" onclick="AsignarSistemaTodos('normal','<?= $st->nombre?>');"><i class="fas fa-video"></i> <?= $st->nombre?></a></li>
+    	<li><a href="#" onclick="AsignarSistemaTodos('normal','<?= $st->sistema->nombre?>');"><i class="fas fa-video"></i> <?= $st->sistema->nombre?></a></li>
         <?php endforeach; ?>
     	
   	</ul>
@@ -111,7 +111,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 						  	</button>
 						  	<ul class="dropdown-menu">
 						  		<?php foreach($sistemas as $st1): ?>
-						    	<li><a href="#" onclick="AsignarSistema('<?= $st1->nombre?>',<?=$key['id']?>,'normal');"><i class="fas fa-video"></i> <?= $st1->nombre?></a></li>
+						    	<li><a href="#" onclick="AsignarSistema('<?= $st1->sistema->nombre?>',<?=$key['id']?>,'normal');"><i class="fas fa-video"></i> <?= $st1->sistema->nombre?></a></li>
 						        <?php endforeach; ?>
 						    	
 						  	</ul>

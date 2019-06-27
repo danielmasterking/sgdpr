@@ -57,7 +57,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach($rows as $row):?>
+                    <?php 
+                        foreach($rows as $row):
+                            $fecha_final=$proyectos->Get_fecha_finalizacion($row->id,$row->fecha_apertura);
+                    ?>
                     <tr>
                         <td>
                             <?= Html::a('<i class="fa fa-eye"></i>', ['view','id'=>$row->id], ['class' => 'btn btn-primary btn-xs']) ?>
@@ -69,7 +72,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= $row->nombre?></td>
                         <td><?= $row->cecoo->marca->nombre?></td>   
                         <td><?= $row->cecoo->ciudad->zona->zona->nombre?></td>    
-                        <td><?= $row->fecha_apertura?></td>
+                        <td><?= $fecha_final?></td>
                         <!-- <td><?//= $row->estado?></td> -->
                         <!-- <td><?//= $model->NumSeguimientos($row->id)?></td> -->
                         <td>
@@ -96,7 +99,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td>
                             <?php 
                             if($row->fecha_apertura!="0000-00-00"){
-                               $fecha_final=$proyectos->Get_fecha_finalizacion($row->id,$row->fecha_apertura);
+                               //$fecha_final=$proyectos->Get_fecha_finalizacion($row->id,$row->fecha_apertura);
                                $date1 = new DateTime(date('Y-m-d'));
                                 $date2 = new DateTime($fecha_final);
                                 $diff = $date1->diff($date2);

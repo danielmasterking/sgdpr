@@ -110,7 +110,7 @@ echo "</pre>";*/
                 </tr>
                 <tr>
                     <th>Fecha de finalizacion:</th>
-                    <td><?= $fecha_final=$model->Get_fecha_finalizacion($model->id,$model->fecha_apertura) ?> <a href="#" data-toggle="modal" data-target="#modal-fecha-finalizacion"><i class="fa fa-edit"></i></a></td>
+                    <td><?= $fecha_final=$model->Get_fecha_finalizacion($model->id,$model->fecha_apertura) ?> <a href="#" data-toggle="modal" data-target="#modal-fecha-finalizacion"><i class="fa fa-edit"></i> Editar fecha</a></td>
                 </tr>
                 <tr>
                     <th>Usuario Creador:</th>
@@ -588,6 +588,8 @@ echo "</pre>";*/
                     </div>
                     <div id="collapseThree" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
                       <div class="panel-body">
+
+
                         <!-- ************************************************************************************************* -->
                         <?php 
                         Modal::begin([
@@ -723,6 +725,28 @@ echo "</pre>";*/
                             </div>
                         </div>
                         <br>
+                        
+                        <!-- ****************************gastos de pedidos por sistemas*************** -->
+                        <div class="row">
+                            <div class="col-md-6 col-xs-6 col-md-offset-3">
+                                <table class="table table-striped">
+                                    <tr>
+                                        <th></th>
+                                        <th>Sistema</th>
+                                        <th>Gasto</th>
+                                    </tr>
+                                    <?php foreach($array_gasto_pedidos as $apn): ?>
+                                        <tr>
+                                            <th><i class="fas fa-donate "></i></th>
+                                            <td><?= $apn['sistema']?></td>
+                                            <td><?='$ '.number_format($apn['total'], 0, '.', '.').' COP'?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </table>
+                            </div>
+                           
+                        </div>
+                        <!-- ************************************************************************* -->
                         <div id="info"></div>
                         <div id="partial"></div>
                         <div class="modal-process"></div>
@@ -2616,4 +2640,21 @@ function cambiarEstadoPresupuesto(estado){
             }
         });
     }
+
+     $(document).on( "click", ".checkBoxAll", function() {
+        $(".checkBoxid").prop('checked', $(this).prop('checked'));
+    });
+    $(document).on( "click", ".checkBoxid", function() {
+        var exist=false;
+        $('.checkBoxid').each(function() {
+            if($(this).prop('checked')==false){
+                exist=true;return 0;
+            }
+        });
+        if(!exist){
+            $(".checkBoxAll").prop('checked', true);
+        }else{
+            $(".checkBoxAll").prop('checked', false);
+        }
+    });
 </script>

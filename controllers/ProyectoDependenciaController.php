@@ -166,6 +166,30 @@ class ProyectoDependenciaController extends Controller
         ->all();*/
 
         $sistemas=ProyectoSistema::find()->where('id_proyecto='.$id)->all();
+        //calcular total de gastos de pedidos por sistema
+        //$todos_sistemas=SistemaProyectos::find()->all();
+        $array_gasto_pedidos=[];
+        foreach ($sistemas as $value_st) {
+            $query_costo = (new \yii\db\Query())
+            ->select('SUM(precio_neto) as TOTAL,gasto_activo')
+            ->from('proyecto_pedidos')
+            ->where('proyecto_id='.$id.' AND sistema="'.$value_st->sistema->nombre.'" ')
+            ->one();
+            if ($query_costo['gasto_activo']=='activo') {
+               $iva=$model->iva;
+               $total_iva=($query_costo['TOTAL']*$iva)/100;
+               $total_final=($query_costo['TOTAL']+$total_iva);
+            }else{
+                $total_final=$query_costo['TOTAL'];
+            }
+
+            $array_gasto_pedidos[]=['sistema'=>$value_st->sistema->nombre,'total'=>$total_final];
+        }
+
+       /* echo "<pre>";
+        print_r($array_gasto_pedidos);
+        echo "</pre>";*/
+        /////////////////////////////////////////////////
         //print_r($porcentaje_total_sistema);
         $permisos = array();
 		if( isset(Yii::$app->session['permisos-exito']) ){
@@ -236,7 +260,8 @@ class ProyectoDependenciaController extends Controller
             'list_usuarios'=>$list_usuarios,
             'log_fechas'=>$log_fechas,
             'model_adicional_proyecto'=>$model_adicional_proyecto,
-            'query_saldo_adicional'=>$query_saldo_adicional
+            'query_saldo_adicional'=>$query_saldo_adicional,
+            'array_gasto_pedidos'=>$array_gasto_pedidos
         ]);
     }
 
@@ -1216,7 +1241,8 @@ class ProyectoDependenciaController extends Controller
                 'modelcount' => $modelcount
             ), true);
         }
-        $sistemas=SistemaProyectos::find()->all();//los pedidos seran marcados de acuerdo al sistema asignado
+       // $sistemas=SistemaProyectos::find()->all();//los pedidos seran marcados de acuerdo al sistema asignado
+        $sistemas=ProyectoSistema::find()->where('id_proyecto='.$array_post['proyecto'])->all();
         if($estado==1){
             $res.= $this->renderPartial('pedidos/_normal_partial', array(
             'model' => $model,
@@ -1346,7 +1372,8 @@ class ProyectoDependenciaController extends Controller
                 'modelcount' => $modelcount
             ), true);
         }
-        $sistemas=SistemaProyectos::find()->all();//los pedidos seran marcados de acuerdo al sistema asignado
+        //$sistemas=SistemaProyectos::find()->all();//los pedidos seran marcados de acuerdo al sistema asignado
+        $sistemas=ProyectoSistema::find()->where('id_proyecto='.$array_post['proyecto'])->all();
         if($estado==1){
             $res.= $this->renderPartial('pedidos/_especial_partial', array(
             'model' => $model,

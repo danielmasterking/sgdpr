@@ -253,7 +253,7 @@ class Proyectos extends \yii\db\ActiveRecord
 
     public function Get_fecha_finalizacion($id,$fecha){
 
-        $model=LogFechaProyectos::find()->where('id_proyecto='.$id)->orderby('id Desc')->limit(1)->one();
+        $model=LogFechaProyectos::find()->where('id_proyecto='.$id)->orderby('fecha Desc')->limit(1)->one();
 
         if($model!=null){
             return $model->fecha;
