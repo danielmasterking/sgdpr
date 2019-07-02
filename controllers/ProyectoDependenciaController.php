@@ -169,6 +169,7 @@ class ProyectoDependenciaController extends Controller
         //calcular total de gastos de pedidos por sistema
         //$todos_sistemas=SistemaProyectos::find()->all();
         $array_gasto_pedidos=[];
+       
         foreach ($sistemas as $value_st) {
             $query_costo = (new \yii\db\Query())
             ->select('SUM(precio_neto) as TOTAL,gasto_activo')
@@ -183,10 +184,27 @@ class ProyectoDependenciaController extends Controller
                 $total_final=$query_costo['TOTAL'];
             }
 
-            $array_gasto_pedidos[]=['sistema'=>$value_st->sistema->nombre,'total'=>$total_final];
+           
+
+            $query_costo_pedido = (new \yii\db\Query())
+            ->select('SUM((CASE WHEN precio_sugerido>=0 THEN precio_sugerido ELSE precio_neto END)) as TOTAL,gasto_activo')
+            ->from('proyecto_pedido_especial')
+            ->where('(proyecto_id='.$id.' AND sistema="'.$value_st->sistema->nombre.'") ')
+            ->one();
+
+            if ($query_costo_pedido['gasto_activo']=='activo') {
+               $iva=$model->iva;
+               $total_iva_especial=($query_costo_pedido['TOTAL']*$iva)/100;
+               $total_final_especial=($query_costo_pedido['TOTAL']+$total_iva_especial);
+            }else{
+                $total_final_especial=$query_costo_pedido['TOTAL'];
+            }
+
+            
+            $array_gasto_pedidos[]=['sistema'=>$value_st->sistema->nombre,'total'=>$total_final,'total_especial'=>$total_final_especial];
         }
 
-       /* echo "<pre>";
+        /*echo "<pre>";
         print_r($array_gasto_pedidos);
         echo "</pre>";*/
         /////////////////////////////////////////////////
@@ -261,7 +279,8 @@ class ProyectoDependenciaController extends Controller
             'log_fechas'=>$log_fechas,
             'model_adicional_proyecto'=>$model_adicional_proyecto,
             'query_saldo_adicional'=>$query_saldo_adicional,
-            'array_gasto_pedidos'=>$array_gasto_pedidos
+            'array_gasto_pedidos'=>$array_gasto_pedidos,
+            
         ]);
     }
 

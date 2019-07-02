@@ -461,19 +461,21 @@ echo "</pre>";*/
 
 
             <!-- *********************************************************** -->
+
             <div class="col-md-12">
-                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                  <div class="panel panel-primary">
-                    <div class="panel-heading" role="tab" id="headingOne">
-                      <h4 class="panel-title">
-                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                          <i class="fa fa-credit-card"></i> Historial de transacciones
-                        </a>
-                      </h4>
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                      <div class="panel-body">
-                       <!-- *************************************************** -->
+              <div class="box box-primary collapsed-box">
+                <div class="box-header with-border">
+                  <h3 class="box-title"><i class="fa fa-credit-card"></i> Historial de transacciones</h3>
+
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                    </button>
+                  </div>
+                  <!-- /.box-tools -->
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                   <!-- *************************************************** -->
                        <div>
                             <?= $this->render('_tab_transactions') ?>
                             <div class="tab-content">
@@ -524,20 +526,26 @@ echo "</pre>";*/
                             </div>
                         </div>
                        <!-- *************************************************** -->
-                      </div>
-                    </div>
+                </div>
+                <!-- /.box-body -->
+              </div>
+              <!-- /.box -->
+            </div>
+
+            <div class="col-md-12">
+              <div class="box box-primary collapsed-box">
+                <div class="box-header with-border">
+                  <h3 class="box-title"><i class="fa fa-save"></i> Guardar datos</h3>
+
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                    </button>
                   </div>
-                  <div class="panel panel-primary">
-                    <div class="panel-heading" role="tab" id="headingTwo">
-                      <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                          <i class="fa fa-save"></i> Guardar datos
-                        </a>
-                      </h4>
-                    </div>
-                    <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
-                      <div class="panel-body">
-                        <!-- *********************************************************************************** -->
+                  <!-- /.box-tools -->
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                   <!-- *********************************************************************************** -->
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -575,21 +583,26 @@ echo "</pre>";*/
                         </button>
 
                         <!-- *********************************************************************************** -->
-                      </div>
-                    </div>
+                </div>
+                <!-- /.box-body -->
+              </div>
+              <!-- /.box -->
+            </div>
+
+            <div class="col-md-12">
+              <div class="box box-primary collapsed-box">
+                <div class="box-header with-border">
+                  <h3 class="box-title"><i class="fa fa-cart-plus"></i> Detalle de pedidos</h3>
+
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                    </button>
                   </div>
-                  <div class="panel panel-primary">
-                    <div class="panel-heading" role="tab" id="headingThree">
-                      <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                          <i class="fa fa-cart-plus"></i> Detalle de pedidos
-                        </a>
-                      </h4>
-                    </div>
-                    <div id="collapseThree" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingThree">
-                      <div class="panel-body">
-
-
+                  <!-- /.box-tools -->
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                  
                         <!-- ************************************************************************************************* -->
                         <?php 
                         Modal::begin([
@@ -725,37 +738,66 @@ echo "</pre>";*/
                             </div>
                         </div>
                         <br>
+
                         
-                        <!-- ****************************gastos de pedidos por sistemas*************** -->
+                        <div id="info"></div>
+                        <div id="partial"></div>
+                        <div class="modal-process"></div>
+                        <!-- ************************************************************************************************* -->
+                </div>
+                <!-- /.box-body -->
+              </div>
+              <!-- /.box -->
+            </div>
+
+            <div class="col-md-12">
+              <div class="box box-primary">
+                <div class="box-header with-border">
+                  <h3 class="box-title"><i class="fas fa-calculator"></i> Consolidado pedidos</h3>
+
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                  </div>
+                  <!-- /.box-tools -->
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                   <!-- ****************************gastos de pedidos por sistemas*************** -->
                         <div class="row">
-                            <div class="col-md-6 col-xs-6 col-md-offset-3">
+                            <div class="col-md-6 col-xs-12 col-md-offset-3">
                                 <table class="table table-striped">
+                                    
                                     <tr>
                                         <th></th>
                                         <th>Sistema</th>
-                                        <th>Gasto</th>
+                                        <th>$ Normales</th>
+                                        <th>$ Especiales</th>
+                                        <th>$ Total</th>
+                                        
                                     </tr>
                                     <?php foreach($array_gasto_pedidos as $apn): ?>
                                         <tr>
                                             <th><i class="fas fa-donate "></i></th>
                                             <td><?= $apn['sistema']?></td>
                                             <td><?='$ '.number_format($apn['total'], 0, '.', '.').' COP'?></td>
+                                            <td><?='$ '.number_format($apn['total_especial'], 0, '.', '.').' COP'?></td>
+                                            <td><?='$ '.number_format($apn['total_especial']+$apn['total'], 0, '.', '.').' COP'?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </table>
                             </div>
+
+                           
                            
                         </div>
                         <!-- ************************************************************************* -->
-                        <div id="info"></div>
-                        <div id="partial"></div>
-                        <div class="modal-process"></div>
-                        <!-- ************************************************************************************************* -->
-                      </div>
-                    </div>
-                  </div>
                 </div>
+                <!-- /.box-body -->
+              </div>
+              <!-- /.box -->
             </div>
+            
             <!-- *********************************************************** -->
         </div>
 
@@ -1422,6 +1464,7 @@ echo "</pre>";*/
 </div>
 
 <script type="text/javascript">
+
     $("#form-finalizar").submit(function(event) {
         /* Act on the event */
         var confirmar=confirm('Seguro desea realizar esta accion?');
