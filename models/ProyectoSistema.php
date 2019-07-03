@@ -55,4 +55,9 @@ class ProyectoSistema extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Empresa::className(), ['nit' => 'encargado']);
     }
+
+    public function getProvedor()
+    {
+        return $this->hasOne(Proveedor::className(), ['id' => 'encargado']);
+    }
 }

@@ -15,6 +15,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\DetailView;
 use app\models\ProyectoSeguimientoArchivo;
+use app\models\ProyectosDetalleFinalizar;
 use kartik\money\MaskMoney;
 use kartik\date\DatePicker;
 use yii\bootstrap\Modal;
@@ -59,7 +60,7 @@ echo "</pre>";*/
             <?= Html::a('<i class="fa fa-arrow-left"></i>', ['index'], ['class' => 'btn btn-danger btn-xs']) ?>
             <?= Html::a('<i class="fa fa-edit"></i> Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-primary btn-xs']) ?>
             <?php 
-                if(!$model->sala_control){
+                /*if(!$model->sala_control){
                     $block_sala="";
                 }else{
                     $block_sala="disabled";
@@ -75,27 +76,27 @@ echo "</pre>";*/
                     $block_facturacion="";
                 }else{
                     $block_facturacion="disabled";
-                }
+                }*/
             ?>
            <?php //if(!$model->sala_control): ?>
-            <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php echo $block_sala ?>>
+           <!--  <button class="btn btn-danger btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php //echo $block_sala ?>>
                 <i class="fas fa-broadcast-tower"></i> Ok Sala
-            </button>
+            </button> -->
            <?php //endif; ?>
 
            <?php //if($model->sala_control && !$model->acta_entrega): ?>
-            <button class="btn btn-warning btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php echo $block_acta  ?>>
+            <!-- <button class="btn btn-warning btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php //echo $block_acta  ?>>
                 <i class="fas fa-book"></i> Ok Acta
-            </button>
+            </button> -->
            <?php //endif; ?>
            <?php //if($model->acta_entrega && !$model->facturacion): ?>
-            <button class="btn btn-success btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php echo $block_facturacion ?>>
+            <!-- <button class="btn btn-success btn-xs" data-toggle="modal" data-target="#Modalfinalizar" <?php //echo $block_facturacion ?>>
                 <i class="fas fa-clipboard-list"></i> Factura
-            </button>
+            </button> -->
            <?php //endif; ?>
-           <?php if($model->facturacion): ?>
-            <label class="label label-default">Ok</label>
-           <?php endif; ?>
+           <?php //if($model->facturacion): ?>
+            <!-- <label class="label label-default">Ok</label> -->
+           <?php //endif; ?>
         </p>
         </div>
     </div>
@@ -116,21 +117,21 @@ echo "</pre>";*/
                     <th>Usuario Creador:</th>
                     <td><?= $model->solicitante?></td>
                 </tr>
-                <tr>
+                <!-- <tr>
                     <th>Provedores:</th>
                     <td>
                         <?php 
 
-                            $provedores=$model->ProyectoProvedor($model->id);
+                           /* $provedores=$model->ProyectoProvedor($model->id);
 
                             foreach ($provedores as $pr) {
                                 
                                 echo "<label class='label label-info' style='font-size:13px!important;'>".$pr."</label> - ";
-                            }
+                            }*/
 
                         ?>
                     </td>
-                </tr>
+                </tr> -->
                 <tr>
                     <th>Usuarios Asignados:</th>
                     <td>
@@ -144,41 +145,47 @@ echo "</pre>";*/
                         ?>
                     </td>
                 </tr>
-                <tr>
+                <!-- <tr>
                     <th><i class="fas fa-broadcast-tower"></i> Ok Sala:</th>
                     <td>
                         <?php  
-                            echo $model->sala_control?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                           /* echo $model->sala_control?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';*/
                         ?>
 
                     </td>
-                </tr>
-                <tr>
+                </tr> -->
+                <!-- <tr>
                     <th><i class="fas fa-book"></i> Ok Acta:</th>
                     <td>
                         <?php  
-                            echo $model->acta_entrega?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                            //echo $model->acta_entrega?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
                         ?>
 
                     </td>
-                </tr>
-                <tr>
+                </tr> -->
+                <!-- <tr>
                     <th><i class="fas fa-clipboard-list"></i> Factura:</th>
                     <td>
                         <?php  
-                            echo $model->facturacion?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                            //echo $model->facturacion?'<span class="text-success"><i class="fa fa-check "></i> Ok</span>':'<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
                         ?>
 
                     </td>
-                </tr>
+                </tr> -->
             </table>
         </div>
         <div class="col-md-6">
               <table class="table">
                 <tr>
+                    <th>Finalizar</th>
                     <th>Sistema</th>
                     <th>Encargado</th>
                     <th>Avance</th>
+                    <th>
+                        <i class="fas fa-broadcast-tower"></i> Ok Sala:
+                    </th>
+                    <th><i class="fas fa-book"></i> Ok Acta:</th>
+                    <th><i class="fas fa-clipboard-list"></i> Factura:</th>
                 </tr>
                 <?php 
                     $cont_sistema=0;
@@ -186,13 +193,27 @@ echo "</pre>";*/
                     foreach($sistemas as $st): 
                 ?>
                 <tr>
+                    <td>
+                        <?php 
+                            $array_finalizar=ProyectosDetalleFinalizar::ActivarEstado($model->id,$st->sistema->id);
+                            $finalizar=ProyectosDetalleFinalizar::GetFinalizacion($model->id,$st->sistema->id);
+                           
+                        ?>
+                          
+                     
+                            
+                            <button class="btn <?= $array_finalizar['class']?> btn-xs" data-toggle="modal" data-target="#Modalfinalizar" onclick="proceso_finalizar('<?= $array_finalizar['tipo_form']?>',<?= $st->sistema->id?>);">
+                            <?= $array_finalizar['icon']." ".$array_finalizar['texto']?>
+                            </button>
+                       
+                    </td>
                     <th><?= $st->sistema->nombre?></th>
                     <td>
                         <?php 
                             if($st->otro!=''){
                                 echo $st->otro;
                             }else{
-                                echo $st->empresa->nombre;
+                                echo $st->empresa->nombre==''?$st->provedor->nombre:$st->empresa->nombre;
                             }
 
                         ?>
@@ -217,6 +238,61 @@ echo "</pre>";*/
                     ?>
                         
                     </td>
+                    <td>
+                        <?php 
+                           
+
+                            if($finalizar!=null){
+                                if ($finalizar['fecha_sala_control']!=null || $finalizar['fecha_sala_control']=='0000-00-00' ) {
+                                    echo '<span class="text-success"><i class="fa fa-check "></i> Ok</span>';
+                                }else{
+
+                                    echo '<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                                }
+                            }else{
+                                echo '<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                            }
+
+                        ?>
+                    </td>
+                    <td>
+                        <?php 
+                            
+
+                            if($finalizar!=null){
+                                //echo $finalizar['fecha_acta_entrega'];
+                                //echo  $finalizar['na_acta'];
+                                if ($finalizar['fecha_acta_entrega']!='0000-00-00' || $finalizar['na_acta']==1 ) {
+                                    echo '<span class="text-success"><i class="fa fa-check "></i> Ok</span>';
+                                }else{
+
+                                    echo '<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                                }
+                            }else{
+                                echo '<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                            }
+
+                        ?>
+                    </td>
+                    <td>
+                         <?php 
+                            
+
+                            if($finalizar!=null){
+                                //echo $finalizar['fecha_acta_entrega'];
+                                //echo  $finalizar['na_acta'];
+                                if ($finalizar['fecha_entrega_factura']!='0000-00-00' || $finalizar['na_factura']==1 ) {
+                                    echo '<span class="text-success"><i class="fa fa-check "></i> Ok</span>';
+                                }else{
+
+                                    echo '<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                                }
+                            }else{
+                                echo '<span class="text-red"><i class="fas fa-question"></i> Pendiente</span>';
+                            }
+
+                        ?>
+                    </td>
                 </tr>
                 <?php
                     $acumulador=$acumulador+$promedio_sistema;
@@ -224,6 +300,7 @@ echo "</pre>";*/
                     endforeach; 
                 ?>
                  <tr>
+                    <td></td>
                     <th><span class="text-red">%Total Avance</span></th>
                     <td></td>
                     <td>
@@ -241,8 +318,12 @@ echo "</pre>";*/
 
                         ?>
                     </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
                 <tr>
+                    <td></td>
                     <th>$Presupuesto:</th>
                     <td></td>
                     <td>
@@ -252,8 +333,12 @@ echo "</pre>";*/
 
                         ?>
                     </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr> 
                 <tr>
+                    <td></td>
                     <th><i class="fa fa-calendar"></i> Cronograma:</th>
                     <td></td>
                     <td>
@@ -263,9 +348,13 @@ echo "</pre>";*/
 
                         ?>
                     </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr> 
 
                 <tr>
+                    <td></td>
                     <th ><i class="fas fa-user-clock"></i> Seguimiento en días:</th>
                     <td></td>
                     <td >
@@ -293,6 +382,9 @@ echo "</pre>";*/
 
                         ?>
                     </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
             </table>
         </div>
@@ -397,7 +489,7 @@ echo "</pre>";*/
                                 <th style="text-align: center;">Fecha</th>
                                 <th style="text-align: center;">Reporte</th>
                                 <th style="text-align: center;">%Avance</th>
-                                <th style="text-align: center;">Provedor</th>
+                                <!-- <th style="text-align: center;">Provedor</th> -->
                                 <th style="text-align: center;">Tipo reporte</th>
                                 <th style="text-align: center;">Usuario</th>
                                 <th style="text-align: center;">Adjuntos</th>
@@ -427,7 +519,7 @@ echo "</pre>";*/
                                 ?>
                                     
                                 </td>
-                                <td style="text-align: center;"><?= $det->provedor->nombre?></td>
+                               <!--  <td style="text-align: center;"><?//= $det->provedor->nombre?></td> -->
                                 <td style="text-align: center;"><?= $det->reportes->nombre?></td>
                                 <td style="text-align: center;"><?= $det->usuario?></td>
                                 <td style="text-align: center;">
@@ -1116,8 +1208,8 @@ echo "</pre>";*/
       <div class="modal-body">
         
        <form action="<?=Url::toRoute(['finalizar', 'id' =>$model->id]);?>" method="post" enctype="multipart/form-data" id="form-finalizar">
-
-        <?php if(!$model->sala_control): ?>
+        <div id="finalizar_sala">
+        <?php //if(!$model->sala_control): ?>
             <h3 class="text-center">Sala de control</h3>
             <div class="row">
                 <div class="col-md-12">
@@ -1132,7 +1224,8 @@ echo "</pre>";*/
 
             <div class="row">
                 <div class="col-md-6">
-                    <input type="hidden" name="form" value="sala">
+                    <input type="hidden" name="form" id="tipo_form">
+                    <input type="hidden" name="sistema" id="tipo_sistema">
                     <label>Fecha</label>
                     <input type="date" name="fecha_sala" class="form-control" value="<?= $model->fecha_sala_control?>" <?php //echo $model->sala_control==true?'disabled':'' ?>>
                 </div>
@@ -1148,12 +1241,21 @@ echo "</pre>";*/
                     <?php endif; ?>
                 </div>
             </div>
-        <?php endif; ?>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Observacion</label>
+                    <textarea class="form-control" rows="5" name="obs_sala"></textarea>
+                </div>
+                
+            </div>
+        </div>
+        <?php //endif; ?>
                 
 
                 
-                   
-        <?php if($model->sala_control && !$model->acta_entrega): ?>
+        <div id="finalizar_acta">
+        <?php //if($model->sala_control && !$model->acta_entrega): ?>
             <h3 class="text-center">Acta de entrega</h3>
             <div class="row">
                 <div class="col-md-6">
@@ -1166,7 +1268,7 @@ echo "</pre>";*/
             
             <div class="row">
                 <div class="col-md-6">
-                     <input type="hidden" name="form" value="acta">
+                     <!-- <input type="hidden" name="form" value="acta"> -->
                     <label>Fecha </label>
                     <input type="date" name="fecha_acta" class="form-control" value="<?= $model->fecha_acta_entrega?>">
                 </div>
@@ -1183,10 +1285,19 @@ echo "</pre>";*/
                     <?php endif; ?>
                 </div>
             </div>
-  
-        <?php endif; ?>
+    
+             <div class="row">
+                <div class="col-md-12">
+                    <label>Observacion</label>
+                    <textarea class="form-control" rows="5" name="obs_acta"></textarea>
+                </div>
+                
+            </div>
+        <?php //endif; ?>
+        </div>       
 
-        <?php if($model->acta_entrega && !$model->facturacion): ?>
+        <?php //if($model->acta_entrega && !$model->facturacion): ?>
+        <div id="finalizar_factura">
             <h3 class="text-center">Facturacion</h3>
             <div class="row">
                 <div class="col-md-6">
@@ -1214,7 +1325,7 @@ echo "</pre>";*/
 
             <div class="row">
                  <div class="col-md-6">
-                    <input type="hidden" name="form" value="factura">
+                   <!--  <input type="hidden" name="form" value="factura"> -->
                     <input type="hidden" name="dias_seguidos" value="<?= $dias?>">
                     <label>Fecha</label>
                     <input type="date" name="fecha_factura" class="form-control">
@@ -1231,7 +1342,15 @@ echo "</pre>";*/
                     <?php endif; ?>
                 </div>
             </div>
-        <?php endif; ?>
+             <div class="row">
+                <div class="col-md-12">
+                    <label>Observacion</label>
+                    <textarea class="form-control" rows="5" name="obs_factura"></textarea>
+                </div>
+                
+            </div>
+        <?php //endif; ?>
+        </div>
 
       </div>
       <div class="modal-footer">
@@ -1318,13 +1437,13 @@ echo "</pre>";*/
 
                 <div class="row">
                    
-                    <div class="col-md-4">
+                    <!-- <div class="col-md-4">
                         
                         <?php
-                            $provedores['33']='N/A';
-                            echo $form->field($model_seguimiento, 'id_provedor')->dropDownList($provedores,['prompt'=>'Select...']); 
+                            /*$provedores['33']='N/A';
+                            echo $form->field($model_seguimiento, 'id_provedor')->dropDownList($provedores,['prompt'=>'Select...']); */
                         ?>
-                    </div>
+                    </div> -->
 
                     <div class="col-md-4">
                         <?= $form->field($model_seguimiento, 'usuario')->textInput([
@@ -1464,6 +1583,29 @@ echo "</pre>";*/
 </div>
 
 <script type="text/javascript">
+
+    function proceso_finalizar(form,sistema){
+        $('#tipo_form').val(form);
+        $('#tipo_sistema').val(sistema);
+        switch (form) {
+          case 'sala':
+            $('#finalizar_sala').show();
+            $('#finalizar_acta').hide();
+            $('#finalizar_factura').hide();
+           break;
+          case 'acta':
+           
+            $('#finalizar_acta').show();
+            $('#finalizar_sala').hide();
+            $('#finalizar_factura').hide();
+           break;
+          case 'factura':
+            $('#finalizar_factura').show();
+            $('#finalizar_sala').hide();
+            $('#finalizar_acta').hide();
+           break;
+        }
+    }
 
     $("#form-finalizar").submit(function(event) {
         /* Act on the event */

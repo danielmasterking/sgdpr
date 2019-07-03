@@ -28,6 +28,7 @@ use app\models\LogFechaProyectos;
 use app\models\CronogramaProyecto;
 use app\models\Empresa;
 use app\models\ProyectosPresupuestoAdicional;
+use app\models\ProyectosDetalleFinalizar;
 use yii\web\UploadedFile;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
@@ -293,12 +294,12 @@ class ProyectoDependenciaController extends Controller
     {
         $model = new Proyectos();
         $empresas=Empresa::find()->all();
-        $array_empresas=ArrayHelper::map($empresas, 'nit', 'nombre');
-
+        //$array_empresas=ArrayHelper::map($empresas, 'nit', 'nombre');
+        $array_empresas=$model->Provedores();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->setAttribute('fecha_apertura',$_POST['Proyectos']['fecha_apertura']);
             $model->save();
-            $provedores=$_POST['provedor'];
+            /*$provedores=$_POST['provedor'];
 
             if(count($provedores)>0){
                 foreach ($provedores as $pr) {
@@ -307,7 +308,7 @@ class ProyectoDependenciaController extends Controller
                     $proyecto_provedor->setAttribute('id_provedor',$pr);
                     $proyecto_provedor->save();
                 }
-            }
+            }*/
 
             $usuarios=$_POST['usuarios'];
 
@@ -556,14 +557,14 @@ class ProyectoDependenciaController extends Controller
             $arraySistema[]=$ps->id_sistema;
         }
 
-        $empresas=Empresa::find()->all();
-        $array_empresas=ArrayHelper::map($empresas, 'nit', 'nombre');
-
+        //$empresas=Empresa::find()->all();
+        //$array_empresas=ArrayHelper::map($empresas, 'nit', 'nombre');
+        $array_empresas=$model->Provedores();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->setAttribute('fecha_apertura',$_POST['Proyectos']['fecha_apertura']);
             $model->save();
-            ProyectoProvedor::deleteAll('id_proyecto = :id ', [':id' =>$id]);
+           /* ProyectoProvedor::deleteAll('id_proyecto = :id ', [':id' =>$id]);
             $provedores=$_POST['provedor'];
 
             if(count($provedores)>0){
@@ -573,7 +574,7 @@ class ProyectoDependenciaController extends Controller
                     $proyecto_provedor->setAttribute('id_provedor',$pr);
                     $proyecto_provedor->save();
                 }
-            }
+            }*/
 
             ProyectoUsuarios::deleteAll('id_proyecto = :id ', [':id' =>$id]);
             $usuarios=$_POST['usuarios'];
@@ -1684,17 +1685,22 @@ class ProyectoDependenciaController extends Controller
     }
 
     public function actionFinalizar($id){
-        $model=$this->findModel($id);
+        $model=ProyectosDetalleFinalizar::find()->where('id_proyecto='.$id.' AND id_sistema='.$_POST['sistema'].' ')->one();
+        if($model==null){
+            $model=new ProyectosDetalleFinalizar;
+        }
         $form=$_POST['form'];
 
         switch ($form) {
             case 'sala':
-                $model->setAttribute('sala_control', true);
+                $model->setAttribute('id_proyecto', $id);
+                $model->setAttribute('id_sistema',$_POST['sistema']);
                 if($_POST['check-sala']==1){
                     $model->setAttribute('na_sala', true);
                 }else{
 
                     $model->setAttribute('fecha_sala_control', $_POST['fecha_sala']);
+                    $model->setAttribute('observacion_sala', $_POST['obs_sala']);
                    if($_FILES['file_sala']['name']!=''){
                        Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/sala_control/';
                        $shortPath = '/uploads/proyecto_finalizar/sala_control/';
@@ -1716,11 +1722,15 @@ class ProyectoDependenciaController extends Controller
             break;
 
             case 'acta':
-                $model->setAttribute('acta_entrega', true);
+                //$model->setAttribute('acta_entrega', true);
+                $model->setAttribute('id_proyecto', $id);
+
+                $model->setAttribute('id_sistema',$_POST['sistema']);
                 if($_POST['check-acta']==1){
                     $model->setAttribute('na_acta', true);
                 }else{
                     $model->setAttribute('fecha_acta_entrega', $_POST['fecha_acta']);
+                    $model->setAttribute('observacion_sala', $_POST['obs_sala']);
                    if($_FILES['file_acta']['name']!=''){
                        Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/acta_entrega/';
                        $shortPath = '/uploads/proyecto_finalizar/acta_entrega/';
@@ -1741,14 +1751,18 @@ class ProyectoDependenciaController extends Controller
             break;
 
             case 'factura':
-                $model->setAttribute('facturacion', true);
-                $model->setAttribute('estado_proyecto', "F");
-                $model->setAttribute('dias_seguidos', $_POST['dias_seguidos']);
+                // $model->setAttribute('facturacion', true);
+                $model->setAttribute('id_proyecto', $id);
+
+                $model->setAttribute('id_sistema',$_POST['sistema']);
+                //$model->setAttribute('estado_proyecto', "F");
+                //$model->setAttribute('dias_seguidos', $_POST['dias_seguidos']);
                 if($_POST['check-facturacion']==1){
                     $model->setAttribute('na_factura', true);
                 }else{
                     $model->setAttribute('recibe_factura', $_POST['recibio_factura']);
-                    $model->setAttribute('fecha_entrega', $_POST['fecha_factura']);
+                    $model->setAttribute('fecha_entrega_factura', $_POST['fecha_factura']);
+                    $model->setAttribute('observacion_sala', $_POST['obs_sala']);
                     if($_FILES['file_factura']['name']!=''){
                         echo "<pre>";
                         print_r($_FILES['file_factura']);

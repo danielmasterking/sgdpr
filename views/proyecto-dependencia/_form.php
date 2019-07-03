@@ -49,6 +49,7 @@ use kartik\datecontrol\DateControl;
 			<?= $form->field($model, 'fecha_apertura')->widget(DateControl::classname(), [
 				  'autoWidget'=>true,
 				 'displayFormat' => 'php:Y-m-d',
+         'disabled'=>$model->isNewRecord?false:true,
 				 'saveFormat' => 'php:Y-m-d',
 				  'type'=>DateControl::FORMAT_DATE,
      
@@ -60,40 +61,7 @@ use kartik\datecontrol\DateControl;
    		<div class="col-md-6">
    			<?= $form->field($model, 'solicitante')->textInput(['maxlength' => true,'readonly'=>'']) ?>		
    		</div>
-
-   		<div class="col-md-6">
-   			<label>Provedores</label>
-   			<?php 
-          if(!$model->isNewRecord){
-   				 echo Select2::widget([
-	                    'name' => 'provedor[]',
-	                    'data' => $model->Provedores(),
-	                    //'size' => Select2::SMALL,
-                      'value'=>$arrayProvedor,
-	                    'options' => ['placeholder' => 'Selecciona Provedores ...', 'multiple' => true,'id'=>'provedor'],
-	                    'pluginOptions' => [
-	                        'allowClear' => true
-	                    ],
-                	]);
-
-          }else{
-            echo Select2::widget([
-                      'name' => 'provedor[]',
-                      'data' => $model->Provedores(),
-                      //'size' => Select2::SMALL,
-                      'options' => ['placeholder' => 'Selecciona Provedores ...', 'multiple' => true,'id'=>'provedor'],
-                      'pluginOptions' => [
-                          'allowClear' => true
-                      ],
-                  ]);
-          }
-
-   			?>
-   		</div>
-   	</div>
-
-    <div class="row"> 
-      <div class="col-md-12">
+      <div class="col-md-6">
       <label>Usuarios asignados</label>
         <?php
           if(!$model->isNewRecord){
@@ -120,9 +88,39 @@ use kartik\datecontrol\DateControl;
           }
         ?>
       </div>
-   
-    </div>
 
+   		<!-- <div class="col-md-6">
+   			<label>Provedores</label>
+   			<?php 
+          /*if(!$model->isNewRecord){
+   				 echo Select2::widget([
+	                    'name' => 'provedor[]',
+	                    'data' => $model->Provedores(),
+	                    //'size' => Select2::SMALL,
+                      'value'=>$arrayProvedor,
+	                    'options' => ['placeholder' => 'Selecciona Provedores ...', 'multiple' => true,'id'=>'provedor'],
+	                    'pluginOptions' => [
+	                        'allowClear' => true
+	                    ],
+                	]);
+
+          }else{
+            echo Select2::widget([
+                      'name' => 'provedor[]',
+                      'data' => $model->Provedores(),
+                      //'size' => Select2::SMALL,
+                      'options' => ['placeholder' => 'Selecciona Provedores ...', 'multiple' => true,'id'=>'provedor'],
+                      'pluginOptions' => [
+                          'allowClear' => true
+                      ],
+                  ]);
+          }*/
+
+   			?>
+   		</div> -->
+   	</div>
+
+    
     
     <br>
     <div class="row">

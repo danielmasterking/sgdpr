@@ -32,7 +32,7 @@ class ProyectoSeguimiento extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_sistema', 'fecha', 'reporte', /*'avance',*/ 'usuario','id_provedor','id_tipo_reporte'], 'required'],
+            [['id_sistema', 'fecha', 'reporte', /*'avance',*/ 'usuario','id_tipo_reporte'], 'required'],
             [['id_sistema'], 'integer'],
             [['fecha'], 'safe'],
             [['reporte'], 'string'],
