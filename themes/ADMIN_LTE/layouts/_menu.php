@@ -256,6 +256,11 @@
         <?php }?>
        
         <?php if(in_array("administrador", $permisos)){ ?>
+        <li class="<?= $action=='index' && $controller=='tipos-finalizado-proyectos'?'active':'' ?>">
+          <a href="<?= Yii::$app->request->baseUrl.'/tipos-finalizado-proyectos/index'?>">
+            <i class="far fa-dot-circle"></i> <span>Tipos finalizado proyectos</span>
+          </a>
+        </li>
         <li class="<?= $action=='index' && $controller=='usuario'?'active':'' ?>">
           <a href="<?= Yii::$app->request->baseUrl.'/usuario/index'?>">
             <i class="fa fa-user fa-fw"></i> <span>&nbsp;&nbsp;&nbsp;Usuarios</span>

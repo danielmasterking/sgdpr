@@ -74,60 +74,61 @@ class ProyectosDetalleFinalizar extends \yii\db\ActiveRecord
 
     public static function ActivarEstado($id_proyecto,$id_sistema){
        $query = (new \yii\db\Query())
-            ->select('fecha_sala_control,fecha_acta_entrega,fecha_entrega_factura,na_acta')
-            ->from('proyectos_detalle_finalizar')
-            ->where('id_proyecto='.$id_proyecto.' AND (id_sistema='.$id_sistema.')')
-            ->one();
-        $button="sala";
-        if($query==null){
-            $button=$button;
-        }elseif($query['fecha_sala_control']!=null && $query['fecha_acta_entrega']==null || $query['fecha_acta_entrega']=='0000-00-00' && $query['na_acta']==false){
-            $button='acta';
-        }elseif($query['fecha_sala_control']!=null && $query['fecha_acta_entrega']!=null || $query['fecha_sala_control']=='0000-00-00' || $query['fecha_acta_entrega']=='0000-00-00'){
-            $button='factura';
-        }
-        $array_finalizar=[];
-        switch ($button) {
-            case 'sala':
-                $array_finalizar=[
-                    'tipo_form'=>'sala',
-                    'class'=>'btn-danger',
-                    'icon'=>'<i class="fas fa-broadcast-tower"></i>',
-                    'texto'=>'Ok Sala'
-                ];
-               
+            ->select('tf.nombre boton,fp.id_tipo_finalizado')
+            ->from(' finalizados_asignados_proyectos fp')
+            ->innerjoin('tipos_finalizado_proyectos tf','tf.id=fp.id_tipo_finalizado')
+            ->where('fp.id_proyecto='.$id_proyecto.' AND (fp.id_sistema='.$id_sistema.')')
+            ->orderby('fp.orden ASC');
+            //->all();
+        
 
-            break;
+        $rowsCount= clone $query;
+        $modelcount = $rowsCount->count();
 
-            case 'acta':
+        if($modelcount>0){
 
-                $array_finalizar=[
-                    'tipo_form'=>'acta',
-                    'class'=>'btn-warning',
-                    'icon'=>'<i class="fas fa-book"></i>',
-                    'texto'=>'Ok Acta'
-                ];
+            $boton=[];
+            $comand=$query->all();
+            foreach ($comand as $key => $value) {
+                $query2=(new \yii\db\Query())
+                ->select('pf.*')
+                ->from(' proyectos_detalle_finalizar pf')
+                ->where('id_proyecto='.$id_proyecto.' AND (id_sistema='.$id_sistema.') AND (id_tipo_finalizado='.$value['id_tipo_finalizado'].')')
+                ->one();
+
+                if ($query2==null) {
+                    $boton['boton']=$value['boton'];
+                    $boton['tipo_finalizado']=$value['id_tipo_finalizado'];
+                    $boton['estado']="A";
+                    $boton['clase']="btn-primary";
+                    $boton['icon']="fa-check";
+                    break;
+                }
+            }
+            
+
+            if (count($boton)==0) {
+                $boton['boton']="Finalizado";
+                $boton['tipo_finalizado']='';
+                $boton['estado']="F";
+                $boton['clase']="btn-success";
+                $boton['icon']="fa-clipboard-list";
                 
-            break;
-
-            case 'factura':
-                $array_finalizar=[
-                    'tipo_form'=>'factura',
-                    'class'=>'btn-success',
-                    'icon'=>'<i class="fas fa-clipboard-list"></i>',
-                    'texto'=>'Factura'
-                ];
-
-            break;
-            
-            
+            }
+        }else{
+            $boton['boton']="No asignado";
+            $boton['tipo_finalizado']='';
+            $boton['estado']="S";
+            $boton['clase']="btn-info";
+            $boton['icon']="fa-clipboard-list";
         }
-        return $array_finalizar;
+        return $boton;
+        
     }
 
     public static function GetFinalizacion($id_proyecto,$id_sistema){
         $query = (new \yii\db\Query())
-            ->select('fecha_sala_control,fecha_acta_entrega,fecha_entrega_factura,na_acta,na_sala,na_factura')
+            ->select('fecha_sala_control,fecha_acta_entrega,fecha_entrega_factura,na_acta,na_sala,na_factura,fecha_migo,na_migo')
             ->from('proyectos_detalle_finalizar')
             ->where('id_proyecto='.$id_proyecto.' AND (id_sistema='.$id_sistema.')')
             ->one();

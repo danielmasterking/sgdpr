@@ -7,6 +7,8 @@ use yii\helpers\ArrayHelper;
 use app\models\ProyectoSeguimiento;
 use app\models\SistemaProyectos;
 use app\models\LogFechaProyectos;
+use app\models\FinalizadosAsignadosProyectos;
+use app\models\LogFechainicioProyectos;
 /**
  * This is the model class for table "proyectos".
  *
@@ -53,9 +55,9 @@ class Proyectos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['ceco', 'solicitante', /*'presupuesto_total', 'presupuesto_seguridad', 'presupuesto_riesgo', 'presupuesto_activo', 'presupuesto_gasto', 'fecha_finalizacion', */'created_on'/*,'nombre'*/], 'required'],
-            [['presupuesto_total', 'suma_total', 'suma_seguridad', 'suma_riesgo', 'suma_activo', 'suma_gasto'], 'number'],
-            [['fecha_finalizacion', 'created_on', 'modified_in','presupuesto_seguridad', 'presupuesto_riesgo'], 'safe'],
+            [['ceco', 'solicitante', 'created_on','dias_trabajo'], 'required'],
+            [['presupuesto_total', 'suma_total', 'suma_seguridad', 'suma_riesgo', 'suma_activo', 'suma_gasto','dias_trabajo'], 'number'],
+            [['fecha_inicio_trabajo','fecha_finalizacion', 'created_on', 'modified_in','presupuesto_seguridad', 'presupuesto_riesgo'], 'safe'],
             [['nombre', 'orden_interna_gasto', 'orden_interna_activo'], 'string', 'max' => 64],
             [['ceco', 'modificado_por'], 'string', 'max' => 15],
             [['solicitante'], 'string', 'max' => 50],
@@ -92,7 +94,9 @@ class Proyectos extends \yii\db\ActiveRecord
             'presupuesto_activo'=>'Presupuesto activo',
             'presupuesto_gasto'=>'Presupuesto gasto',
             'image2' => 'Cotizacion',
-            'fecha_apertura'=>'Fecha Finalizacion'
+            'fecha_apertura'=>'Fecha Finalizacion',
+            'fecha_inicio_trabajo'=>'Fecha Inicio Trabajos',
+            'dias_trabajo'=>'Dias de trabajo',
 
         ];
     }
@@ -260,6 +264,27 @@ class Proyectos extends \yii\db\ActiveRecord
         }else{
             return $fecha;
         }
+    }
+
+    public function Get_fecha_inicio($id,$fecha){
+
+        $model=LogFechainicioProyectos::find()->where('id_proyecto='.$id)->orderby('fecha Desc')->limit(1)->one();
+
+        if($model!=null){
+            return $model->fecha;
+        }else{
+            return $fecha;
+        }
+    }
+
+    public function Get_finalizados_seleccionados($proyecto,$sistema){
+        $array_finalizados_sel=[];
+        $finalizados_pr=FinalizadosAsignadosProyectos::find()->where('id_proyecto='.$proyecto.' AND id_sistema='.$sistema)->all();
+        foreach ($finalizados_pr as $fpr) {
+            $array_finalizados_sel[]=$fpr->id_tipo_finalizado;
+        }
+
+        return  $array_finalizados_sel;
     }
 
     

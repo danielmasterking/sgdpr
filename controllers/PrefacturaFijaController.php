@@ -469,7 +469,7 @@ class PrefacturaFijaController extends Controller
                 if(trim($_POST['dependencias2'])!='' && trim($_POST['dependencias2'])!='0'){
                     $dependencia=trim($_POST['dependencias2']);
                 }
-                $rows->andWhere("dp.mes like '%". $buscar."%' OR dp.ano like '%".$buscar."%' OR em.nombre like '%".$buscar."%' OR dp.usuario like '%".$buscar."%' OR dp.nombre_factura like '%".$buscar."%'  OR dp.numero_factura like '%".$buscar."%'");
+                $rows->andWhere("dp.mes like '%". $buscar."%' OR dp.ano like '%".$buscar."%' OR em.nombre like '%".$buscar."%' OR dp.usuario like '%".$buscar."%' OR dp.nombre_factura like '%".$buscar."%'  OR dp.numero_factura like '%".$buscar."%' OR cc.ceco like '%".$buscar."%'");
                 if($dependencia!=''){
                     $rows->andWhere("cc.nombre like '%".$dependencia."%'");
                 }

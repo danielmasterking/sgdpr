@@ -21,6 +21,7 @@ use app\models\Pedido;
 use app\models\ProyectoPedidos;
 use app\models\ProyectoPedidoEspecial;
 use app\models\DetallePedido;
+use app\models\DetallePedidoEspecial;
 use app\models\SistemaProyectos;
 use app\models\ProyectoSistema;
 use app\models\ProyectosHistoricoPorcentaje;
@@ -29,6 +30,9 @@ use app\models\CronogramaProyecto;
 use app\models\Empresa;
 use app\models\ProyectosPresupuestoAdicional;
 use app\models\ProyectosDetalleFinalizar;
+use app\models\TiposFinalizadoProyectos;
+use app\models\FinalizadosAsignadosProyectos;
+use app\models\LogFechainicioProyectos;
 use yii\web\UploadedFile;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
@@ -148,10 +152,21 @@ class ProyectoDependenciaController extends Controller
             $model_log->save();
             return $this->redirect(['view','id'=>$id]);
         }
+
+         if (isset($_POST['fecha_cambio_inicio'])) {
+            $model_log=new LogFechainicioProyectos;
+            $model_log->setAttribute('fecha',$_POST['fecha_fin']);
+            $model_log->setAttribute('descripcion',$_POST['motivo']);
+            $model_log->setAttribute('id_proyecto',$id);
+            $model_log->save();
+            return $this->redirect(['view','id'=>$id]);
+        }
+
         $detalle=ProyectoSeguimiento::find()->where('id_proyecto='.$id)->orderby('fecha DESC')->all();
         $presupuestos = ProyectosPresupuesto::find()->where('fk_proyectos='.$id)->orderby('id DESC')->all();
 
         $log_fechas=LogFechaProyectos::find()->where('id_proyecto='.$id)->orderby('id Desc')->all();
+        $log_fechas_inicio=LogFechainicioProyectos::find()->where('id_proyecto='.$id)->orderby('id Desc')->all();
         /*$porcentaje_total = (new \yii\db\Query())
         ->select('(SUM(avance)/COUNT(id)) as TOTAL')
         ->from('proyecto_seguimiento')
@@ -173,13 +188,13 @@ class ProyectoDependenciaController extends Controller
        
         foreach ($sistemas as $value_st) {
             $query_costo = (new \yii\db\Query())
-            ->select('SUM(precio_neto) as TOTAL,gasto_activo')
+            ->select('SUM(precio_neto*cantidad) as TOTAL,gasto_activo')
             ->from('proyecto_pedidos')
             ->where('proyecto_id='.$id.' AND sistema="'.$value_st->sistema->nombre.'" ')
             ->one();
             if ($query_costo['gasto_activo']=='activo') {
                $iva=$model->iva;
-               $total_iva=($query_costo['TOTAL']*$iva)/100;
+               $total_iva=(($query_costo['TOTAL']*$iva)/100);
                $total_final=($query_costo['TOTAL']+$total_iva);
             }else{
                 $total_final=$query_costo['TOTAL'];
@@ -188,14 +203,14 @@ class ProyectoDependenciaController extends Controller
            
 
             $query_costo_pedido = (new \yii\db\Query())
-            ->select('SUM((CASE WHEN precio_sugerido>=0 THEN precio_sugerido ELSE precio_neto END)) as TOTAL,gasto_activo')
+            ->select('SUM((CASE WHEN precio_sugerido>=0 THEN precio_sugerido ELSE precio_neto END)*cantidad) as TOTAL,gasto_activo')
             ->from('proyecto_pedido_especial')
             ->where('(proyecto_id='.$id.' AND sistema="'.$value_st->sistema->nombre.'") ')
             ->one();
 
             if ($query_costo_pedido['gasto_activo']=='activo') {
                $iva=$model->iva;
-               $total_iva_especial=($query_costo_pedido['TOTAL']*$iva)/100;
+               $total_iva_especial=(($query_costo_pedido['TOTAL']*$iva)/100);
                $total_final_especial=($query_costo_pedido['TOTAL']+$total_iva_especial);
             }else{
                 $total_final_especial=$query_costo_pedido['TOTAL'];
@@ -281,6 +296,7 @@ class ProyectoDependenciaController extends Controller
             'model_adicional_proyecto'=>$model_adicional_proyecto,
             'query_saldo_adicional'=>$query_saldo_adicional,
             'array_gasto_pedidos'=>$array_gasto_pedidos,
+            'log_fechas_inicio'=>$log_fechas_inicio
             
         ]);
     }
@@ -296,6 +312,7 @@ class ProyectoDependenciaController extends Controller
         $empresas=Empresa::find()->all();
         //$array_empresas=ArrayHelper::map($empresas, 'nit', 'nombre');
         $array_empresas=$model->Provedores();
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $model->setAttribute('fecha_apertura',$_POST['Proyectos']['fecha_apertura']);
             $model->save();
@@ -341,7 +358,27 @@ class ProyectoDependenciaController extends Controller
                 }
             }
 
-            return $this->redirect(['view','id'=>$model->id]);
+            $tipos_finalizado=$_POST['tipos_finalizado'];
+            if (count($tipos_finalizado)) {
+                foreach ($tipos_finalizado as $key_tf => $tf) {
+                    $orden=1;
+                    foreach ($tf as $key_dtf => $dtf) {
+                        $detalle_finalizados=new FinalizadosAsignadosProyectos;
+                        $detalle_finalizados->setAttribute('id_tipo_finalizado',$dtf);
+                        $detalle_finalizados->setAttribute('id_sistema',$key_tf);
+                        $detalle_finalizados->setAttribute('id_proyecto',$model->id);
+                        $detalle_finalizados->setAttribute('orden',$orden);
+                        $detalle_finalizados->save();
+                        $orden++;
+
+                    }
+                }
+            }
+
+            /*echo "<pre>";
+            print_r($_POST[tipos_finalizado]);
+            echo "</pre>";*/
+           return $this->redirect(['view','id'=>$model->id]);
         } else {
 
             $model->created_on=date('Y-m-d');
@@ -359,14 +396,16 @@ class ProyectoDependenciaController extends Controller
             }
 
             $dependencias     = CentroCosto::find()->where("estado IN('D','A')")->orderBy(['nombre' => SORT_ASC])->all();
-            
+            $tipos_finalizado=TiposFinalizadoProyectos::find()->all();
+            $array_finalizados=ArrayHelper::map($tipos_finalizado, 'id', 'nombre');
             return $this->render('create', [
                 'model' => $model,
                 'dependencias'     => $dependencias,
                 'distritosUsuario' => $distritosUsuario,
                 'marcasUsuario'    => $marcasUsuario,
                 'zonasUsuario'     => $zonasUsuario,
-                'array_empresas'   => $array_empresas
+                'array_empresas'   => $array_empresas,
+                'array_finalizados' =>$array_finalizados
             ]);
         }
     }
@@ -557,6 +596,8 @@ class ProyectoDependenciaController extends Controller
             $arraySistema[]=$ps->id_sistema;
         }
 
+       
+
         //$empresas=Empresa::find()->all();
         //$array_empresas=ArrayHelper::map($empresas, 'nit', 'nombre');
         $array_empresas=$model->Provedores();
@@ -609,12 +650,34 @@ class ProyectoDependenciaController extends Controller
                 }
             }
 
+            FinalizadosAsignadosProyectos::deleteAll('id_proyecto = :id ', [':id' =>$id]);
+            $tipos_finalizado=$_POST['tipos_finalizado'];
+            if (count($tipos_finalizado)) {
+                foreach ($tipos_finalizado as $key_tf => $tf) {
+                    $orden=1;
+                    foreach ($tf as $key_dtf => $dtf) {
+                        $detalle_finalizados=new FinalizadosAsignadosProyectos;
+                        $detalle_finalizados->setAttribute('id_tipo_finalizado',$dtf);
+                        $detalle_finalizados->setAttribute('id_sistema',$key_tf);
+                        $detalle_finalizados->setAttribute('id_proyecto',$model->id);
+                        $detalle_finalizados->setAttribute('orden',$orden);
+                        $detalle_finalizados->save();
+                        $orden++;
+
+                    }
+                }
+            }
+
+
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
 
         	if($model->fecha_apertura=='0000-00-00'){
         		$model->fecha_apertura='';
         	}
+
+            $tipos_finalizado=TiposFinalizadoProyectos::find()->all();
+            $array_finalizados=ArrayHelper::map($tipos_finalizado, 'id', 'nombre');
 
             return $this->render('update', [
                 'model' => $model,
@@ -626,7 +689,9 @@ class ProyectoDependenciaController extends Controller
                 'arrayUsuarios'    =>$arrayUsuarios,
                 'arraySistema'     =>$arraySistema,
                 'array_empresas'   =>$array_empresas,
-                'proyectoSistema'  =>$proyectoSistema
+                'proyectoSistema'  =>$proyectoSistema,
+                'array_finalizados'=>$array_finalizados
+
             ]);
         }
     }
@@ -927,7 +992,7 @@ class ProyectoDependenciaController extends Controller
                 }
             }
             //copiar 1 a 1 a las tablas de pedidos especial
-           /* foreach ($pedidos_especial as $pe) {
+           foreach ($pedidos_especial as $pe) {
                 $modelo_detalle_esp = new DetallePedidoEspecial();
                 $modelo_detalle_esp->setAttribute('producto_sugerido', $pe->producto_sugerido);
                 $modelo_detalle_esp->setAttribute('cantidad', $pe->cantidad);
@@ -949,7 +1014,7 @@ class ProyectoDependenciaController extends Controller
                 if(!$modelo_detalle_esp->save()){
                     $respuesta="";print_r($modelo_detalle_esp->getErrors());exit();
                 }
-            }*/
+            }
             $command = Yii::$app->db->createCommand(
                 "UPDATE proyectos SET ".
                 "estado='CERRADO'".
@@ -1172,7 +1237,7 @@ class ProyectoDependenciaController extends Controller
             }
         }
         $rows = (new \yii\db\Query())
-        ->select('pp.gasto_activo gasto_activo, pp.precio_neto precio_neto, pp.id id, dm.texto_breve material, pr.nombre proveedor, pp.cantidad cantidad, pp.solicitante solicitante, dm.material codigo, DATE(pp.created_on) fecha, pp.repetido repetido, pp.tipo_presupuesto tipo_presupuesto, pp.motivo_rechazo motivo_rechazo,pp.sistema')
+        ->select('pp.gasto_activo gasto_activo, pp.precio_neto precio_neto, pp.id id, dm.texto_breve material, pr.nombre proveedor, pp.cantidad cantidad, pp.solicitante solicitante, dm.material codigo, DATE(pp.created_on) fecha, pp.repetido repetido, pp.tipo_presupuesto tipo_presupuesto, pp.motivo_rechazo motivo_rechazo,pp.sistema,ge-oc')
         ->from('proyecto_pedidos pp, proyectos p, detalle_maestra dm, proyecto_estado_pedidos pe, proveedor pr, maestra_proveedor mp')
         ->where('pp.proyecto_id='.$array_post['proyecto'].' AND p.id=pp.proyecto_id AND pp.detalle_maestra_id=dm.id AND pp.estado_id=pe.id AND dm.maestra_proveedor_id=mp.id AND pr.id=mp.proveedor_id AND pp.estado_id='.$estado);
         // quite esto dm.proveedor=pr.codigo AND ** 5 de julio 2017
@@ -1310,7 +1375,7 @@ class ProyectoDependenciaController extends Controller
             }
         }
         $rows = (new \yii\db\Query())
-        ->select("pp.gasto_activo gasto_activo, (CASE WHEN pp.precio_sugerido>=0 THEN pp.precio_sugerido ELSE pp.precio_neto END) precio_neto, pp.id id, pp.archivo archivo, (CASE WHEN pp.producto_sugerido = '' THEN dm.texto_breve ELSE pp.producto_sugerido END) material, pp.cantidad cantidad, pp.solicitante solicitante, DATE(pp.created_on) fecha, pp.repetido repetido, pp.tipo_presupuesto tipo_presupuesto, pp.motivo_rechazo motivo_rechazo,dm.material AS num_material,pp.sistema")
+        ->select("pp.gasto_activo gasto_activo, (CASE WHEN pp.precio_sugerido>=0 THEN pp.precio_sugerido ELSE pp.precio_neto END) precio_neto, pp.id id, pp.archivo archivo, (CASE WHEN pp.producto_sugerido = '' THEN dm.texto_breve ELSE pp.producto_sugerido END) material, pp.cantidad cantidad, pp.solicitante solicitante, DATE(pp.created_on) fecha, pp.repetido repetido, pp.tipo_presupuesto tipo_presupuesto, pp.motivo_rechazo motivo_rechazo,dm.material AS num_material,pp.sistema,pp.ge-oc")
         ->from('proyecto_pedido_especial pp, proyectos p, maestra_especial dm, proyecto_estado_pedidos pe')
         ->where('pp.proyecto_id='.$array_post['proyecto'].' AND p.id=pp.proyecto_id AND pp.maestra_especial_id=dm.id AND pp.estado_id=pe.id AND pp.estado_id='.$estado);
         if(isset($_POST['desde'])){
@@ -1685,148 +1750,57 @@ class ProyectoDependenciaController extends Controller
     }
 
     public function actionFinalizar($id){
-        $model=ProyectosDetalleFinalizar::find()->where('id_proyecto='.$id.' AND id_sistema='.$_POST['sistema'].' ')->one();
-        if($model==null){
+       // $model=ProyectosDetalleFinalizar::find()->where('id_proyecto='.$id.' AND id_sistema='.$_POST['sistema'].' ')->one();
+        //if($model==null){
             $model=new ProyectosDetalleFinalizar;
-        }
+        //}
         $form=$_POST['form'];
 
-        switch ($form) {
-            case 'sala':
-                $model->setAttribute('id_proyecto', $id);
-                $model->setAttribute('id_sistema',$_POST['sistema']);
-                if($_POST['check-sala']==1){
-                    $model->setAttribute('na_sala', true);
-                }else{
+       
+        // $model->setAttribute('facturacion', true);
+        $model->setAttribute('id_proyecto', $id);
 
-                    $model->setAttribute('fecha_sala_control', $_POST['fecha_sala']);
-                    $model->setAttribute('observacion_sala', $_POST['obs_sala']);
-                   if($_FILES['file_sala']['name']!=''){
-                       Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/sala_control/';
-                       $shortPath = '/uploads/proyecto_finalizar/sala_control/';
-                       $name=$id."-".$_FILES['file_sala']['name'];
-                       $path    = Yii::$app->params['uploadPath'] . $name;
-                       $model->setAttribute('adjunto_sala_control', $shortPath.$name);
-                       move_uploaded_file($_FILES['file_sala']['tmp_name'], $path);
-                   }
-
-                }
-
-                if($model->save()){
-                    echo "todo esta bien";
-                }else{
-
-                    echo "Hubo un error";
-                }
-
-            break;
-
-            case 'acta':
-                //$model->setAttribute('acta_entrega', true);
-                $model->setAttribute('id_proyecto', $id);
-
-                $model->setAttribute('id_sistema',$_POST['sistema']);
-                if($_POST['check-acta']==1){
-                    $model->setAttribute('na_acta', true);
-                }else{
-                    $model->setAttribute('fecha_acta_entrega', $_POST['fecha_acta']);
-                    $model->setAttribute('observacion_sala', $_POST['obs_sala']);
-                   if($_FILES['file_acta']['name']!=''){
-                       Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/acta_entrega/';
-                       $shortPath = '/uploads/proyecto_finalizar/acta_entrega/';
-                       $name=$id."-".$_FILES['file_acta']['name'];
-                       $path    = Yii::$app->params['uploadPath'] . $name;
-                       $model->setAttribute('adjunto_acta_entrega', $shortPath.$name);
-                       move_uploaded_file($_FILES['file_acta']['tmp_name'], $path);
-                   }
-                }
-
-                if($model->save()){
-                    echo "todo esta bien";
-                }else{
-
-                    echo "Hubo un error";
-                }
-
-            break;
-
-            case 'factura':
-                // $model->setAttribute('facturacion', true);
-                $model->setAttribute('id_proyecto', $id);
-
-                $model->setAttribute('id_sistema',$_POST['sistema']);
-                //$model->setAttribute('estado_proyecto', "F");
-                //$model->setAttribute('dias_seguidos', $_POST['dias_seguidos']);
-                if($_POST['check-facturacion']==1){
-                    $model->setAttribute('na_factura', true);
-                }else{
-                    $model->setAttribute('recibe_factura', $_POST['recibio_factura']);
-                    $model->setAttribute('fecha_entrega_factura', $_POST['fecha_factura']);
-                    $model->setAttribute('observacion_sala', $_POST['obs_sala']);
-                    if($_FILES['file_factura']['name']!=''){
-                        echo "<pre>";
-                        print_r($_FILES['file_factura']);
-                        echo "</pre>";
-                       Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/factura/';
-                       $shortPath = '/uploads/proyecto_finalizar/factura/';
-                       $name=$id."-".$_FILES['file_factura']['name'];
-                       $path    = Yii::$app->params['uploadPath'] . $name;
-                       $model->setAttribute('adjunto_factura', $shortPath.$name);
-                       move_uploaded_file($_FILES['file_factura']['tmp_name'], $path);
-                   }
-                }
-
-                if($model->save()){
-
-                    echo "todo esta bien";
-                }else{
-
-                    echo "Hubo un error";
-                }
-            break;
-          
+        $model->setAttribute('id_sistema',$_POST['sistema']);
+        $model->setAttribute('id_tipo_finalizado',$form);
+        //$model->setAttribute('estado_proyecto', "F");
+        //$model->setAttribute('dias_seguidos', $_POST['dias_seguidos']);
+        if($_POST['check']==1){
+            $model->setAttribute('no_aplica', true);
+        }else{
+            //$model->setAttribute('recibe_factura', $_POST['recibio_factura']);
+            $model->setAttribute('fecha', $_POST['fecha']);
+            $model->setAttribute('observacion', $_POST['obs']);
+            if($_FILES['file']['name']!=''){
+                echo "<pre>";
+                print_r($_FILES['file']);
+                echo "</pre>";
+               Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/';
+               $shortPath = '/uploads/proyecto_finalizar/';
+               $name=$id."-".$_FILES['file']['name'];
+               $path    = Yii::$app->params['uploadPath'] . $name;
+               $model->setAttribute('adjunto', $shortPath.$name);
+               move_uploaded_file($_FILES['file']['tmp_name'], $path);
+           }
         }
 
-       /*if(isset($_POST['finalizar'])){
-            $model->setAttribute('estado_proyecto', "F");
-            $model->setAttribute('dias_seguidos', $_POST['dias_seguidos']);
-            $model->save();
-       }elseif(isset($_POST['abrir'])){
-            $model->setAttribute('estado_proyecto', "A");
-            $model->save();
-       }else{
-           if($_POST['check-sala']==1){
-               $sala_control=$_POST['check-sala']==1?true:false;
-               $model->setAttribute('sala_control', $sala_control);
-               $model->setAttribute('fecha_sala_control', $_POST['fecha_sala']);
-               if(isset($_FILES['file_sala'])){
-                   Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/sala_control/';
-                   $shortPath = '/uploads/proyecto_finalizar/sala_control/';
-                   $name=$id."-".$_FILES['file_sala']['name'];
-                   $path    = Yii::$app->params['uploadPath'] . $name;
-                   $model->setAttribute('adjunto_sala_control', $shortPath.$name);
-                   move_uploaded_file($_FILES['file_sala']['tmp_name'], $path);
-               }
-               $model->save();
+        if($model->save()){
 
+            //echo "todo esta bien";
+
+            $cantidad_finalizados_asignados=FinalizadosAsignadosProyectos::find()->where('id_proyecto='.$id)->count();
+            $cantidad_finalizados_sistema=$model->find()->where('id_proyecto='.$id)->count();
+
+            if($cantidad_finalizados_asignados==$cantidad_finalizados_sistema){
+                //echo "Terminado";
+                $proyectos=proyectos::findOne($id);
+                $proyectos->setAttribute('estado_proyecto', "F");
+                $proyectos->setAttribute('dias_seguidos', $_POST['dias_seguidos']);
+                $proyectos->save();
             }
+        }else{
 
-            if($_POST['check-acta']==1){
-               $sala_control=$_POST['check-acta']==1?true:false;
-               $model->setAttribute('acta_entrega', $sala_control);
-               $model->setAttribute('fecha_acta_entrega', $_POST['fecha_acta']);
-               if(isset($_FILES['file_acta'])){
-                   Yii::$app->params['uploadPath'] = Yii::$app->basePath . '/web/uploads/proyecto_finalizar/acta_entrega/';
-                   $shortPath = '/uploads/proyecto_finalizar/acta_entrega/';
-                   $name=$id."-".$_FILES['file_acta']['name'];
-                   $path    = Yii::$app->params['uploadPath'] . $name;
-                   $model->setAttribute('adjunto_acta_entrega', $shortPath.$name);
-                   move_uploaded_file($_FILES['file_acta']['tmp_name'], $path);
-               }
-               $model->save();
-
-            }
-        }*/
+            //echo "Hubo un error";
+        }
 
           
         return $this->redirect(['view', 
@@ -1961,5 +1935,65 @@ class ProyectoDependenciaController extends Controller
             }
         }
 
+    }
+
+    public function actionMarcarEnviado(){
+        $tipo=$_POST['tipo'];
+        $id=$_POST['id'];
+
+        switch ($tipo) {
+            case 'N':
+                $model = ProyectoPedidos::findOne($id);
+                $model->setAttribute('ge-oc', true);
+                $model->save();
+                break;
+            case 'E':
+                $model = ProyectoPedidoEspecial::findOne($id);
+                $model->setAttribute('ge-oc', true);
+                $model->save();
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return [
+            'respuesta' => true,
+        ];
+    }
+
+    public function actionMarcarEnviadoTodos(){
+        $array = explode(",",$_POST['productos']);
+        $tipo=$_POST['tipo'];
+        
+        switch ($tipo) {
+            case 'N':
+                foreach ($array as  $value) {
+                   $model = ProyectoPedidos::findOne($value);
+                    $model->setAttribute('ge-oc', true);
+                    $model->save();
+                }
+                
+                break;
+            case 'E':
+                foreach ($array as  $value) {
+                   $model = ProyectoPedidoEspecial::findOne($value);
+                    $model->setAttribute('ge-oc', true);
+                    $model->save();
+                }
+                
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return [
+            'respuesta' => true,
+        ];
     }
 }

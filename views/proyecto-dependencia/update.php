@@ -107,12 +107,14 @@ foreach($dependencias as $value){
         'arrayProvedor'=>$arrayProvedor,
         'arrayUsuarios'=>$arrayUsuarios,
         'proyectoSistema'=>$proyectoSistema,
-        'array_empresas'=>$array_empresas
+        'array_empresas'=>$array_empresas,
+        'array_finalizados'=>$array_finalizados
     ]) ?>
 
 </div>
 <script type="text/javascript">
 	var empresas=<?= json_encode($array_empresas) ?>;
+	var tipos_finalizado=<?= json_encode($array_finalizados) ?>;
 	console.log(empresas);
 	$('#btn-agregar').click(function(event) {
 		var sistema=$('#sistemas option:selected').text();
@@ -129,6 +131,19 @@ foreach($dependencias as $value){
 			existe=td==sistema?1:existe;
 		});
 
+		var select_finalizados="<select name='tipos_finalizado["+id_sistema+"][]' id='tipo_finalizado_"+id_sistema+"' multiple='true' class='form-control'>";
+		$.each( tipos_finalizado, function( key, value ) {
+		//if(value=="Acta"){
+		//	var checked="selected";
+		//}else{
+			var checked="";
+		//}
+
+		  select_finalizados+="<option value='"+key+"' "+checked+">"+value+"</option>";
+		});
+		select_finalizados+="</select>";
+
+
 		console.log(existe)
 		if(existe==0){
 			if(id_sistema!=0){
@@ -141,10 +156,12 @@ foreach($dependencias as $value){
 				html+="<td>"+sistema+input+"</td>";
 				html+="<td><select name='encargado[]' id='encargado_"+id_sistema+"'>"+option+"</select>"+input_otro+"</td>";
 				html+="<td>"+check+"</td>";
+				html+="<td>"+select_finalizados+"</td>";
 				html+="<td><button class='btn btn-danger btn-xs' type='button' onclick='quitar(this);'><i class='fa fa-trash'></i></button></td>";
 				html+="</tr>";
 
 				$('#tbl_encargado tbody').prepend(html);
+				$('#tipo_finalizado_'+id_sistema).select2()
 			}else{
 				alert('Debes seleccionar un sistema')
 			}

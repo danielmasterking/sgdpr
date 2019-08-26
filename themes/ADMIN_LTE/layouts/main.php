@@ -1,7 +1,29 @@
 <?php
-
+$url_actual_sistema=Yii::$app->request->url;
+/*echo $url_actual_sistema;
+$url_actual=str_replace("/sgdpr/web/","",$url_actual_sistema);
+echo "<br>".$url_actual;*/
 if (Yii::$app->session->isActive){
     //$this->redirect(['site/index','flash' => 'La sessión actual ha terminado por favor ingrese nuevamente.']);
+ /* $this->registerJs("
+     
+        var autoLockTimer;
+        window.onload = resetTimer;
+        window.onmousemove = resetTimer;
+        window.onmousedown = resetTimer; // catches touchscreen presses
+        window.onclick = resetTimer;     // catches touchpad clicks
+        window.onscroll = resetTimer;    // catches scrolling with arrow keys
+        window.onkeypress = resetTimer;
+ 
+        function lockScreen() {
+            window.location.href = '".\yii\helpers\Url::to(['site/lock-screen','url'=>$url_actual_sistema])."';
+        }
+ 
+        function resetTimer() {
+            clearTimeout(autoLockTimer);
+            autoLockTimer = setTimeout(lockScreen, 300000);  // time is in milliseconds
+        }
+    ");*/
 }
 
 /* @var $this \yii\web\View */
@@ -75,6 +97,8 @@ AppAsset::register($this);
 
   <link rel="icon" type="image/png" href="<?php echo $this->theme->baseUrl; ?>/dist/img/431px-Grupo_Exito_logo.png" />
 
+  <!--vue js-->
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script> 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
@@ -319,7 +343,7 @@ AppAsset::register($this);
 });*/
 
   $(document).ready(function () {
-     $('.sidebar-menu').tree();
+    $('.sidebar-menu').tree();
     $(".loader").fadeOut("slow");
     $('.info-notificacion').html('<i class="fas fa-sync fa-spin"></i>');
    

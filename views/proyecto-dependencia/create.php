@@ -95,6 +95,8 @@ foreach($dependencias as $value){
 
 	}
 }
+
+//print_r($array_finalizados);
 ?>
 
 <div class="proyecto-dependencia-create">
@@ -104,14 +106,16 @@ foreach($dependencias as $value){
 
     <?= $this->render('_form', [
         'model' => $model,
-        'data_dependencias'=>$data_dependencias
+        'data_dependencias'=>$data_dependencias,
+        'array_finalizados'=>$array_finalizados
     ]) ?>
 
 </div>
 
 <script type="text/javascript">
 	var empresas=<?= json_encode($array_empresas) ?>;
-	console.log(empresas);
+	var tipos_finalizado=<?= json_encode($array_finalizados) ?>;
+	console.log(tipos_finalizado);
 	$('#btn-agregar').click(function(event) {
 		var sistema=$('#sistemas option:selected').text();
 		var id_sistema=$('#sistemas option:selected').val();
@@ -122,10 +126,22 @@ foreach($dependencias as $value){
 		console.log(id_sistema)
 		var existe=0;
 		$('#tbl_encargado tbody tr').each(function(){
-			var td=$(this).find("td")[0].innerHTML.replace(/<[^>]*>?/g, '');
+			var td=$(this).find("td")[0].innerHTML.replace(/<[^>]*>?/g, '');//elimininamos los espacios vacios 
 			console.log(td)
 			existe=td==sistema?1:existe;
 		});
+
+		var select_finalizados="<select name='tipos_finalizado["+id_sistema+"][]' id='tipo_finalizado_"+id_sistema+"' multiple='true' class='form-control'>";
+		$.each( tipos_finalizado, function( key, value ) {
+		//if(value=="Acta"){
+		//	var checked="selected";
+		//}else{
+			var checked="";
+		//}
+
+		  select_finalizados+="<option value='"+key+"' "+checked+">"+value+"</option>";
+		});
+		select_finalizados+="</select>";
 
 		console.log(existe)
 		if(existe==0){
@@ -139,10 +155,12 @@ foreach($dependencias as $value){
 				html+="<td>"+sistema+input+"</td>";
 				html+="<td><select name='encargado[]' id='encargado_"+id_sistema+"'>"+option+"</select>"+input_otro+"</td>";
 				html+="<td>"+check+"</td>";
+				html+="<td>"+select_finalizados+"</td>";
 				html+="<td><button class='btn btn-danger btn-xs' type='button' onclick='quitar(this);'><i class='fa fa-trash'></i></button></td>";
 				html+="</tr>";
 
 				$('#tbl_encargado tbody').prepend(html);
+				$('#tipo_finalizado_'+id_sistema).select2()
 			}else{
 				alert('Debes seleccionar un sistema')
 			}

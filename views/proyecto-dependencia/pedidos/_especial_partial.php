@@ -39,6 +39,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
     	
   	</ul>
 </div>
+<button class="btn btn-success btn-xs" onclick="MarcarEnviadoTodos('E');"><i class="fa fa-thumbs-up"></i> GE-OC-Varios</button>
 <?php } ?>
 <table class="table table-hover" width="100%">
 	<thead>
@@ -55,6 +56,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 				if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){?>
 					<th style="width: 20%;">Precio Neto</th>
 			<?php } ?>
+			<th style="width: 10%;">GE-OC</th>
 			<th style="width: 10%;">Cotizacion</th>
 			<th style="width: 10%;">Solicita</th>
 			<th style="width: 10%;">Fecha</th>
@@ -90,6 +92,15 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 					<td><?='$ '.number_format($key['precio_neto'], 0, '.', '.').' COP'?></td>
 			<?php } ?>
 			<td>
+					<?php 
+						if($key['ge-oc']==true){
+							echo"<label class='label label-success'>Enviado</label>";
+						}else{
+							echo"<label class='label label-danger'>Pendiente</label>";
+						}
+					?>
+				</td>
+			<td>
 				<?php if($presupuesto->archivo!=''){ ?>
 					<a href="<?php echo 'http://cvsc.com.co/sgs/web/'.$presupuesto->archivo;?>" download>
 					 	<i class="fas fa-download"></i>
@@ -111,6 +122,9 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 				<?php 	}
 					
 				?>
+				<?php if($key['ge-oc']==false){ ?>
+					<button class="btn btn-success btn-xs" onclick="MarcarEnviado(<?=$key['id']?>,'E');"><i class="fa fa-thumbs-up"></i> GE-OC</button>
+					<?php } ?>
 			<?php }?>
 			<?php if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){?>
 				<div class="btn-group dropup">

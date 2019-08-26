@@ -233,7 +233,13 @@ class SiteController extends Controller
                 $permisos = Yii::$app->session['permisos-exito'];
             }
             if(in_array("dependencia-ver", $permisos)){
-               $this->redirect(['centro-costo/index']);
+              if(isset($_POST['url_actual'])){
+                $url_actual=str_replace("/sgdpr/web/","",$_POST['url_actual']);
+              }else{
+                $url_actual='centro-costo/index';
+              }
+               $this->redirect([$url_actual]);
+              
               //echo $model->rememberMe;
             }else{
                 $this->redirect(['site/about']);
@@ -362,4 +368,23 @@ $ismobile=preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|z
     
 
     }
+
+
+  public function actionLockScreen($url)
+  {
+      // save current username  
+      $this->layout="_lockscreen";  
+      $username = Yii::$app->session['usuario-exito'];
+       
+      // force logout     
+      Yii::$app->user->logout();
+       
+      // render form lockscreen
+      $model = new LoginForm(); 
+      $model->username = $username;    //set default value 
+      return $this->render('lockScreen', [
+          'model' => $model,
+          'url'=>$url
+      ]);     
+  }
 }

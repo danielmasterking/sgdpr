@@ -97,7 +97,7 @@ $this->params['breadcrumbs'][] = $this->title;
 		]) ?>
 	</div>
 	<div class="col-md-6">
-		<?//= $form->field($model, 'ano')->textInput(['value' => $year,'maxlength' => true,'readonly'  => 'readonly']) ?>
+		
 		<?= $form->field($model, 'ano')->dropDownList([
             '2018' => '2018', 
             '2019' => '2019' 

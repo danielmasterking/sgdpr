@@ -61,7 +61,8 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                  
                 <?php 
                     if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){?>
-                    <td style="width: 25%;font-weight: bold;">Total Con IVA</td>    
+                    <td style="width: 25%;font-weight: bold;">Total Con IVA</td>  
+                    <td style="width: 25%;font-weight: bold;">Presupuesto</td>    
                 <?php } ?>
                 <td style="width: 25%;font-weight: bold;">Saldo</td>
                 <?php if(in_array("presupuesto_ver_metros_cuadrados", $permisos)):?>
@@ -69,7 +70,8 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                 <td style="width: 25%;font-weight: bold;">Total Metros2</td>
 
                 <?php endif;?>
-                <td style="width: 25%;font-weight: bold;">Total Adicional</td>
+                <td style="width: 25%;font-weight: bold;">Adicional</td>
+                <td style="width: 25%;font-weight: bold;">Presupuesto total</td>
                 <td style="width: 12%;"></td>
             </th>
             <!--<tr>
@@ -235,12 +237,17 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     
                 <?php } ?>
                 
-
+             
                 <td id="total_iva_activo">
                     <?php
                     echo '$ '.number_format($total_iva_activo, 0, '.', '.').' COP'?>
                 </td>
-               
+                <td>
+                    <?php  
+                        $total_presupuesto_activo=$total_iva_activo;
+                        echo '$ '.number_format($total_presupuesto_activo, 0, '.', '.').' COP';
+                    ?>
+                </td>
 
                  <?php  if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){ ?>
                 <td id="saldo_activo">
@@ -265,6 +272,12 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
             <?php endif;?>
                 <td>
                    <?php  echo '$ '.number_format($model->suma_adicional_activo, 0, '.', '.').' COP';  ?> 
+                </td>
+                <td>
+                    <?php 
+                        $total_prespuesto_final_activo=($total_presupuesto_activo+$model->suma_adicional_activo);
+                        echo '$ '.number_format($total_prespuesto_final_activo, 0, '.', '.').' COP'; 
+                    ?>
                 </td>
                 <td id="money-activo">
                     <?php 
@@ -294,7 +307,12 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     <?php
                     //echo '$ '.number_format($total_iva_gasto, 0, '.', '.').' COP'?>
                 </td>
-
+                <td>
+                    <?php 
+                        $total_presupuesto_gasto=$model->suma_gasto;
+                        echo '$ '.number_format($total_presupuesto_gasto, 0, '.', '.').' COP';
+                    ?>
+                </td>
                 <?php if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){ ?>
                  <td id="saldo_gasto">
                     <?php 
@@ -319,6 +337,12 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                 <?php endif;?>
                  <td>
                    <?php  echo '$ '.number_format($model->suma_adicional_gasto, 0, '.', '.').' COP';  ?> 
+                </td>
+                <td>
+                    <?php 
+                        $total_prespuesto_final_gasto=($total_presupuesto_gasto+$model->suma_adicional_gasto);
+                        echo '$ '.number_format($total_prespuesto_final_gasto, 0, '.', '.').' COP'; 
+                    ?>
                 </td>
                 <td id="money-gasto">
                     <?php 
@@ -350,7 +374,12 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     
                     echo '$ '.number_format($total_iva, 0, '.', '.').' COP'?>
                 </td>
-
+                <td>
+                    <?php  
+                        $total_presupuesto_final=($total_presupuesto_activo+$total_presupuesto_gasto);
+                        echo '<b style="">$ '.number_format(($total_presupuesto_final), 0, '.', '.').'</b> COP';
+                    ?>
+                </td>
                 <?php if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){ ?>
                     <td id="saldo_total">
                     <?php 
@@ -383,6 +412,12 @@ if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?
                     $total_adicional=($model->suma_adicional_activo+$model->suma_adicional_gasto);
                     echo '$ '.number_format($total_adicional, 0, '.', '.').' COP';  
                    ?> 
+                </td>
+                <td>
+                    <?php 
+                        $total_de_adicionales=($total_prespuesto_final_gasto+$total_prespuesto_final_activo);
+                        echo '$ '.number_format($total_de_adicionales, 0, '.', '.').' COP'; 
+                    ?>
                 </td>
                 <td id="money-total">
                     <?php 

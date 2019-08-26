@@ -250,7 +250,7 @@ class NotificacionController extends Controller
        $notificacion=Notificacion::find()
         ->leftJoin('notificacion_zona', ' notificacion_zona.id_notificacion= notificacion.id')
         ->leftJoin('notificacion_usuario', ' notificacion_usuario.id_notificacion= notificacion.id')
-        ->where(' ( notificacion.fecha_final >= "'.$date.'" ) and (notificacion_zona.id_zona '.$in_final.' or notificacion_usuario.usuario IN("'.Yii::$app->session['usuario-exito'].'") ) AND (tipo IN("C","M"))
+        ->where(' ( notificacion.fecha_final >= "'.$date.'" ) and (notificacion_zona.id_zona '.$in_final.' or notificacion_usuario.usuario IN("'.Yii::$app->session['usuario-exito'].'") ) AND (tipo IN(/*"C",*/"M"))
           AND ((select leido from notificacion_usuario where id_notificacion=notificacion.id AND usuario="'.Yii::$app->session['usuario-exito'].'" )=0)')
         ->orderBy('id DESC')
         ->limit(10)
@@ -284,10 +284,10 @@ class NotificacionController extends Controller
             
         ]);
 
-        $res_pedido=$this->renderPartial('_notificacion_pedido',[
+        /*$res_pedido=$this->renderPartial('_notificacion_pedido',[
             
             'notificacion2'=>$notificacion,
-        ]);
+        ]);*/
 
         //Mysql_free_result();
 

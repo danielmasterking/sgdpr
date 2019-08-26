@@ -87,14 +87,14 @@ $this->title='Login'
         <!-- /.col -->
       </div>
       <br>
-      <div class="row">
+      <!-- <div class="row">
         <div class="col-xs-12">
 
           <button class="btn btn-success btn-block btn-flat" type="button" data-toggle="modal" data-target="#myModal">
             <i class="fas fa-key"></i> Recuperar Contraseña
           </button>
         </div>
-      </div>
+      </div> -->
     <?php ActiveForm::end(); ?>
 
 

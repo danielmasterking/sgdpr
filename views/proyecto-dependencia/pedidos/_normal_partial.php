@@ -32,6 +32,8 @@ if( isset(Yii::$app->session['permisos-exito']) ){
     	
   	</ul>
 </div>
+
+<button class="btn btn-success btn-xs" onclick="MarcarEnviadoTodos('N');"><i class="fa fa-thumbs-up"></i> GE-OC-Varios</button>
 <?php } ?>
 <div class="table-responsive">
 	<table  class="table table-hover" width="100%">
@@ -49,6 +51,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 					if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){?>
 						<th style="width: 20%;">Precio Neto</th>
 				<?php } ?>
+				<th style="width: 10%;">GE-OC</th>
 				<th style="width: 10%;">Solicita</th>
 				<th style="width: 10%;">Fecha</th>
 				<?php 
@@ -78,6 +81,15 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 					if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){?>
 						<td><?='$ '.number_format($key['precio_neto'], 0, '.', '.').' COP'?></td>
 				<?php } ?>
+				<td>
+					<?php 
+						if($key['ge-oc']==true){
+							echo"<label class='label label-success'>Enviado</label>";
+						}else{
+							echo"<label class='label label-danger'>Pendiente</label>";
+						}
+					?>
+				</td>
 				<td><?= $key['solicitante']?></td>
 				<td><?= $key['fecha']?></td>
 				
@@ -85,10 +97,14 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 				<?php if(in_array("coordinador", $permisos) || in_array("administrador", $permisos)){?>
 					<?php 
 						    if($estado==1){?>
-								<button class="btn btn-primary lock" data-toggle="modal" data-target="#modal-no-aprobado" onclick="setDataNa(2,<?=$key['id']?>,'normal','<?=$key['cantidad']?>')"><i class="fa fa-thumbs-down"></i> No Aprobar</button>
+								<button class="btn btn-primary lock btn-xs" data-toggle="modal" data-target="#modal-no-aprobado" onclick="setDataNa(2,<?=$key['id']?>,'normal','<?=$key['cantidad']?>')"><i class="fa fa-thumbs-down"></i> No Aprobar</button>
 					<?php 	}else if($estado==2){?>
-								<button class="btn btn-primary lock" onclick="cambiarEstado(1,<?=$key['id']?>,'normal','<?=$key['cantidad']?>')"><i class="fa fa-thumbs-up"></i> Aprobar</button>
+								<button class="btn btn-primary lock btn-xs" onclick="cambiarEstado(1,<?=$key['id']?>,'normal','<?=$key['cantidad']?>')"><i class="fa fa-thumbs-up"></i> Aprobar</button>
 					<?php 	}?>
+
+					<?php if($key['ge-oc']==false){ ?>
+					<button class="btn btn-success btn-xs" onclick="MarcarEnviado(<?=$key['id']?>,'N');"><i class="fa fa-thumbs-up"></i> GE-OC</button>
+					<?php } ?>
 				<?php 	}?>
 					<?php if(in_array("revision-financiera", $permisos) || in_array("administrador", $permisos)){?>
 						<div class="btn-group dropup">

@@ -367,27 +367,36 @@ date_default_timezone_set ( 'America/Bogota');
         <td <?=$styleth.'"'?> ><?='$ '.number_format(($total_servicio_fijo+$total_servicio_variable)/*-$total_noprestado*/, 0, '.', '.').' COP'?></td>
     </tr>
 </table>
-<br><br>
+
 <br>
-<table style="width: 100%;border:0px;">
+<table style="width: 100%;border:0px;" cellpadding="5">
     <tr>
-        <td style="text-align: center;border:0px;width: 50%;font-size: 10px;">
+        <td style="text-align:center;border:0px;width: 50%;font-size: 10px;" >
             <hr style="width: 90%;">
-            <b>VBO. ADMINISTRADOR</b>
+           <b >VBO. ADMINISTRADOR</b>
+           <p style="font-size: 8px;">(*FIRMA-CEDULA-NOMBRE)(SELLO)</p>
         </td>
-        <td style="text-align: center;border:0px;width: 50%;font-size: 10px;">
+        <td style="text-align:center;border:0px;width: 50%;font-size: 10px;">
             <hr style="width: 90%;">
-            <b>VBO. SEGURIDAD</b>
+           <!--  <b>VBO. SEGURIDAD</b><p style="font-size: 8px;">(FIRMA-CEDULA-NOMBRE)</p> -->
+           <b >VBO. SEGURIDAD</b>
+           <p style="font-size: 8px;">(*FIRMA-CEDULA-NOMBRE)</p>
         </td>
     </tr>
+     
     <tr>
-        <td style="text-align: center;border:0px;width: 50%;font-size: 10px;">
+        <td style="text-align:center;border:0px;width: 50%;font-size: 10px;">
             <hr style="width: 90%;">
-            <b>VBO. EMPRESA SEGURIDAD</b>
+           <!--  <b>VBO. EMPRESA SEGURIDAD</b><p style="font-size: 8px;">(FIRMA Y CEDULA)</p> -->
+            <b >VBO. EMPRESA SEGURIDAD</b>
+           <p style="font-size: 8px;">(*FIRMA-CEDULA-NOMBRE)</p>
         </td>
-        <td style="text-align: center;border:0px;width: 50%;font-size: 10px;">
+        <td style="text-align:center;border:0px;width: 50%;font-size: 10px;">
             <hr style="width: 90%;">
-            <b>VBO. COORD. SEGURIDAD</b>
+          <!--   <b>VBO. COORD. SEGURIDAD</b><p style="font-size: 8px;">(FIRMA Y CEDULA)</p> -->
+             <b >VBO. COORD. SEGURIDAD</b>
+           <p style="font-size: 8px;">(*FIRMA-CEDULA-NOMBRE)</p>
         </td>
     </tr>
+    
 </table>

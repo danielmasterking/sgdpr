@@ -44,7 +44,7 @@
   <style type="text/css">
     body{
 
-      background-image: url(<?php echo $this->theme->baseUrl."/dist/img/EXITO-ENVIGADO.jpg"; ?>) !important;
+      background-image: url(<?php echo $this->theme->baseUrl."/dist/img/fondo_login-min.jpg"; ?>) !important;
       background-size: 100% 100% !important;
       background-repeat: no-repeat !important;
       /*background-attachment: fixed !important;*/
@@ -64,7 +64,7 @@
 
 <div class="col-md-4 col-md-offset-4" >
   <div class="login-logo">
-    <a href="#" >Sistema de gestíon <b>DPR</b></a>
+    <a href="#" style="color: white;">Sistema de gestíon <b>DPR</b></a>
   </div>
   <!-- /.login-logo -->
   <?php echo $content ?>

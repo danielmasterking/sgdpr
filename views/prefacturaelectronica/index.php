@@ -53,9 +53,9 @@ foreach($dependencias as $dependencia){
         <i class="fa fa-reply"></i> Volver a Prefactura
     </a>
 
-    <!-- <a href="<?php echo Url::toRoute('prefacturaelectronica/create')?>" class="btn btn-primary">
+    <a href="<?php echo Url::toRoute('prefacturaelectronica/create')?>" class="btn btn-primary">
         <i class="fa fa-file"></i> Crear Prefactura
-    </a> -->
+    </a>
     <?php 
 
     $flashMessages = Yii::$app->session->getAllFlashes();

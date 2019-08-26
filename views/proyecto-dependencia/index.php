@@ -45,7 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <th>Nombre</th>
                         <th>Marca</th>
                         <th>Regional</th>
-                        <th>Fecha de finalizacion</th>
+                        <th>Fecha Fin-entrega</th>
                         <!-- <th>Estado Presupuesto</th> -->
                         <!-- <th># Seguimientos</th> -->
                         <th>Ultima Actualizacion</th>
@@ -59,7 +59,16 @@ $this->params['breadcrumbs'][] = $this->title;
                 <tbody>
                     <?php 
                         foreach($rows as $row):
-                            $fecha_final=$proyectos->Get_fecha_finalizacion($row->id,$row->fecha_apertura);
+                            //$fecha_final=$proyectos->Get_fecha_finalizacion($row->id,$row->fecha_apertura);
+                            if($row->fecha_inicio_trabajo!="0000-00-00"){
+                                $fecha_inicio_trabajos=$proyectos->Get_fecha_inicio($row->id,$row->fecha_inicio_trabajo);
+                                $fecha_final=strtotime ( '+'.(int)$row->dias_trabajo.' day' , strtotime ( $fecha_inicio_trabajos ) ) ;
+                                $fecha_final=date ( 'Y-m-d' , $fecha_final );
+                            }else{
+                                $fecha_inicio_trabajos=null;
+                                $fecha_final=null;
+
+                            }
                     ?>
                     <tr>
                         <td>
@@ -72,7 +81,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= $row->nombre?></td>
                         <td><?= $row->cecoo->marca->nombre?></td>   
                         <td><?= $row->cecoo->ciudad->zona->zona->nombre?></td>    
-                        <td><?= $fecha_final?></td>
+                        <td><?= $fecha_inicio_trabajos?></td>
                         <!-- <td><?//= $row->estado?></td> -->
                         <!-- <td><?//= $model->NumSeguimientos($row->id)?></td> -->
                         <td>
@@ -98,7 +107,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         </td>   
                         <td>
                             <?php 
-                            if($row->fecha_apertura!="0000-00-00"){
+                            if($row->fecha_inicio_trabajo!="0000-00-00"){
                                //$fecha_final=$proyectos->Get_fecha_finalizacion($row->id,$row->fecha_apertura);
                                $date1 = new DateTime(date('Y-m-d'));
                                 $date2 = new DateTime($fecha_final);
