@@ -131,9 +131,9 @@ AppAsset::register($this);
     <!-- Logo -->
     <a href="#" class="logo" style="color: black;">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>D</b>PR-test</span>
+      <span class="logo-mini"><b>D</b>PR</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>SG</b>DPR-test</span>
+      <span class="logo-lg"><b>SG</b>DPR</span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
