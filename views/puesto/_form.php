@@ -51,7 +51,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 	
 	<div class="col-md-12">
 	 
-	 <table class="table table-responsive">
+	 <table class="table table-responsive my-data" data-page-length="30">
 	   
 		   <thead>
 		   
