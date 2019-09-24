@@ -162,6 +162,10 @@ $this->title = 'Configuracion de Dispositivo Fijo';
 			  		
 			  		<i class="fa fa-archive" aria-hidden="true"></i>
 			  	</a>
+			  	<!-- Button trigger modal -->
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Modal-Puesto" onclick="ActionPuestoForm(<?= $value->id ?>,'<?= $codigo_dependencia?>');">
+				 Puesto
+				</button>
 			  	</td>
 			</tr>
 	 	<?php endforeach;?>
@@ -246,7 +250,7 @@ $this->title = 'Configuracion de Dispositivo Fijo';
   </div>
 </div>
 
-
+<?= $this->render('_puesto_partial',['puestos'=>$puestos]) ?>
 <!-- Modal -->
 <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
@@ -294,6 +298,18 @@ $this->title = 'Configuracion de Dispositivo Fijo';
 		var action="<?php echo Yii::$app->request->baseUrl . '/centro-costo/asignar_grupo'; ?>?disp="+id+"&codigo="+codigo;
 
 		$('#form_asignar').attr({
+			action: action,
+			
+		});
+
+	}
+
+
+	function ActionPuestoForm(id,codigo){
+
+		var action="<?php echo Yii::$app->request->baseUrl . '/centro-costo/asignar_puesto'; ?>?disp="+id+"&codigo="+codigo;
+
+		$('#form_puesto').attr({
 			action: action,
 			
 		});

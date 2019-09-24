@@ -1,7 +1,7 @@
 <?php
 
 namespace app\models;
-
+use app\models\Puesto;
 use Yii;
 
 /**
@@ -182,5 +182,14 @@ class CentroCosto extends \yii\db\ActiveRecord
     public function getVisitaDias()
     {
         return $this->hasMany(VisitaDia::className(), ['centro_costo_codigo' => 'codigo']);
+    }
+
+    public static function Puestos(){
+        $puestos = Puesto::find()->where('estado="A"')->orderBy(['nombre' => SORT_ASC])->all();
+        $array_puesto=[];
+        foreach ($puestos as $key => $value) {
+            $array_puesto[$value->id]=$value->nombre;
+        }
+        return $array_puesto; 
     }
 }

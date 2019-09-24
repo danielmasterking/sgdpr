@@ -493,6 +493,7 @@ class CentroCostoController extends Controller
         $grupos_all=$grupos->find()->where('codigo_dependencia="'.$id.'" ')->all();
         $lista_grupos=ArrayHelper::map($grupos_all,'id','nombre');
 
+        $puestos=CentroCosto::Puestos();
 
 
         return $this->render('modelo', [
@@ -501,7 +502,8 @@ class CentroCostoController extends Controller
             'filas_modelo'       => $filas_modelo,
             'grupos'=>$grupos,
             'list_grupos'=>$lista_grupos,
-            'model'=>$modelo_pref
+            'model'=>$modelo_pref,
+            'puestos'=>$puestos
 
         ]);
     }
@@ -532,6 +534,16 @@ class CentroCostoController extends Controller
 
     public function actionAsignar_grupo($disp,$codigo){
         ModeloPrefactura::updateAll(['id_grupo' => $_POST['grupo']], ['=', 'id', $disp]);
+
+        Yii::$app->session->setFlash('success','Asignado correctamente');
+
+        return $this->redirect(['modelo', 'id' => $codigo]);
+
+
+    }
+
+    public function actionAsignar_puesto($disp,$codigo){
+        ModeloPrefactura::updateAll(['puesto_id' => $_POST['puestos']], ['=', 'id', $disp]);
 
         Yii::$app->session->setFlash('success','Asignado correctamente');
 
