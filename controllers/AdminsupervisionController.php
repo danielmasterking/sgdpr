@@ -902,7 +902,7 @@ class AdminsupervisionController extends Controller
         $query=CentroCosto::find()
         ->leftJoin('ciudad', ' ciudad.codigo_dane= centro_costo.ciudad_codigo_dane')
         ->leftJoin('ciudad_zona', ' ciudad_zona.ciudad_codigo_dane= ciudad.codigo_dane')
-        ->where('ciudad_zona.zona_id='.$_POST['zona'].' AND centro_costo.estado NOT IN("C")  ')
+        ->where('ciudad_zona.zona_id='.$_POST['zona'].' AND centro_costo.estado NOT IN("C")  AND centro_costo.empresa="'.$_POST['empresa'].'" ')
         ->all();
 
         $option="";
