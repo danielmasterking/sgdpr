@@ -1476,6 +1476,15 @@ class UsuarioController extends Controller
 
     }
 
+    public function actionVisita_activacion($id){
+        $query=Evento::find()->where('usuario="'.$id.'"')->orderby('fecha DESC')->all();
+        return $this->render('visita_activacion', [
+                'visitas' => $query,
+                'usuario'>$id
+
+            ]);
+    }
+
     public function actionIncidente($id)
     {
         //obtener objeto usuario

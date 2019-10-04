@@ -15,6 +15,7 @@ $investigaciones = isset($investigaciones) ? $investigaciones : '';
 $siniestros = isset($siniestros) ? $siniestros : '';
 $gestiones=isset($gestiones)?$gestiones:'';
 $semestral=isset($semestral)?$semestral:'';
+$visitas_activacion=isset($visitas_activacion)?$visitas_activacion:'';
 $data_user=Usuario::findOne($usuario);
 
 
@@ -59,6 +60,8 @@ if( isset(Yii::$app->session['permisos-exito']) ){
     //if($area=='Seguridad' or $data_user->ambas_areas=='S'){
     ?>
 	 <li role="presentation" class="<?= $visitas ?>"><?php echo Html::a('Visitas',Yii::$app->request->baseUrl.'/usuario/visita?id='.$usuario); ?></li>
+
+    <li role="presentation" class="<?= $visitas_activacion ?>"><?php echo Html::a('Visitas Por activacion',Yii::$app->request->baseUrl.'/usuario/visita_activacion?id='.$usuario); ?></li>
 
    <li role="presentation" class="<?= $semestral ?>"><?php echo Html::a('Insp Semestral ',Yii::$app->request->baseUrl.'/usuario/insp-semestral?id='.$usuario); ?></li>
    
