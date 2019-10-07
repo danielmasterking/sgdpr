@@ -251,7 +251,7 @@ foreach($roles as $key){
 
 
 							 echo DateControl::widget([
-							'name'=>'fecha_final', 
+							'name'=>'fecha_final',
 							'type'=>DateControl::FORMAT_DATE,
 							'autoWidget' => true,
 							'value'=>$fecha_final,
@@ -318,8 +318,8 @@ foreach($roles as $key){
 	  			$total_deps=0;
 	  			foreach ($deps as $key => $value) {
 	  				if($value->indicador_semestre=='S'){
-	  					$primerSemestre=VisitaMensual::CalifSemestre($value->codigo,1,$fecha_inicial);
-	  					$segundoSemestre=VisitaMensual::CalifSemestre($value->codigo,2,$fecha_inicial);
+	  					$primerSemestre=VisitaMensual::CalifSemestre($value->codigo,1,$fecha_inicial,$fecha_final);
+	  					$segundoSemestre=VisitaMensual::CalifSemestre($value->codigo,2,$fecha_inicial,$fecha_final);
 	  					$totalAno=($primerSemestre+$segundoSemestre)/2;
 
 	  					$total_calif_semestral+=$totalAno;

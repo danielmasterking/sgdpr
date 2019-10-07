@@ -99,7 +99,7 @@ class VisitaMensual extends \yii\db\ActiveRecord
         return $this->hasOne(CentroCosto::className(), ['codigo' => 'centro_costo_codigo']);
     }
 
-    public static function CalifSemestre($dependencia,$semestre,$inicio){
+    public static function CalifSemestre($dependencia,$semestre,$inicio,$final=''){
 
         $visitaMensual=VisitaMensual::find();
         $ano=date('Y');
@@ -109,15 +109,22 @@ class VisitaMensual extends \yii\db\ActiveRecord
         }
         switch ($semestre) {
             case 1:
-                
-                $TotalSemestre=$visitaMensual->where('centro_costo_codigo="'.$dependencia.'" AND  fecha_visita BETWEEN "'.$ano.'-01-01" AND
-                "'.$ano.'-06-30" AND estado="cerrado" ')->count();
+                if ($final!='') {
+                   $condition='"'.$inicio.'" AND "'.$final.'" ';
+                }else{
+                    $condition='"'.$ano.'-01-01" AND "'.$ano.'-06-30"';
+                }
+                $TotalSemestre=$visitaMensual->where('centro_costo_codigo="'.$dependencia.'" AND  fecha_visita BETWEEN '.$condition.' AND estado="cerrado" ')->count();
 
                 break;
 
             case 2: 
-                $TotalSemestre=$visitaMensual->where('centro_costo_codigo="'.$dependencia.'" AND fecha_visita BETWEEN "'.$ano.'-07-01" AND
-                "'.$ano.'-12-31" AND estado="cerrado"')->count();
+                if ($final!='') {
+                   $condition='"'.$inicio.'" AND "'.$final.'" ';
+                }else{
+                    $condition='"'.$ano.'-07-01" AND "'.$ano.'-12-31"';
+                }
+                $TotalSemestre=$visitaMensual->where('centro_costo_codigo="'.$dependencia.'" AND fecha_visita BETWEEN '.$condition.' AND estado="cerrado"')->count();
             break;
         }
 

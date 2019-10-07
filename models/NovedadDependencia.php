@@ -70,9 +70,11 @@ class NovedadDependencia extends \yii\db\ActiveRecord
 
             $ano=date("Y", strtotime($inicio)); 
 
-
-            $filtro1="'$ano-01-01' AND '$ano-06-31'";
-            
+            if($final!=''){
+                $filtro1="'$inicio' AND '$final'";
+            }else{
+                $filtro1="'$ano-01-01' AND '$ano-06-31'";
+            }
         }
 
         $sqlSem='SELECT COUNT(capacitacion.id) as cantidad FROM capacitacion  
@@ -103,10 +105,11 @@ class NovedadDependencia extends \yii\db\ActiveRecord
         }else{
 
             $ano=date("Y", strtotime($inicio)); 
-
-
-            $filtro2="'$ano-07-01' AND '$ano-12-31'";
-            
+            if($final!=''){
+                $filtro2="'$inicio' AND '$final'";
+            }else{
+                $filtro2="'$ano-07-01' AND '$ano-12-31'";
+            }  
         }
 
 
