@@ -56,6 +56,7 @@ use app\models\Capacitacion;
 use app\models\VisitaMensualDetalle;
 use app\models\NovedadCapacitacion;
 use app\models\NovedadPedido;
+use app\models\GerentesDependencia;
 
 class CentroCostoController extends Controller
 {
@@ -1751,5 +1752,29 @@ class CentroCostoController extends Controller
          'array_novedades'=>$array_novedades
         ]);
         
+    }
+
+    function actionGerentes($codigo){
+        $gerentesModel=new GerentesDependencia;
+        if ($gerentesModel->load(Yii::$app->request->post())) {
+            $post=Yii::$app->request->post();
+            $usuarios=$post['GerentesDependencia']['usuario'];
+            GerentesDependencia::deleteAll(['codigo_dependencia' => $codigo]);
+            foreach ($usuarios as $key => $value) {
+               $model=new GerentesDependencia;
+               $model->setAttribute('usuario', $value);
+               $model->setAttribute('codigo_dependencia', $codigo);
+
+               $model->save();
+            }
+            return $this->redirect(['gerentes','codigo'=>$codigo]);
+        }else{
+
+            $gerentesModel->usuario=$gerentesModel->GetGerentes($codigo);
+            return $this->render('gerentes', [
+             'gerentesModel'=>$gerentesModel,
+             'codigo'=>$codigo
+            ]);
+        }
     }
 }

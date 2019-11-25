@@ -64,11 +64,12 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 <h3 style="text-align: center;">Contactos </h3>	  
 	<?php 
 	if(in_array("administrador", $permisos) || in_array("contacto-crear", $permisos)):?>
-  	<div class="form-group">
-   		<?= Html::a('<i class="fa fa-plus"></i>',Yii::$app->request->baseUrl.'/responsable/create?id='.$codigo_dependencia,['class'=>'btn btn-primary pull-right']) ?>  
-  	</div>
+  	
+	<?= Html::a('<i class="fa fa-plus"></i>',Yii::$app->request->baseUrl.'/responsable/create?id='.$codigo_dependencia,['class'=>'btn btn-primary pull-right']) ?>  
+	
+  	
   	<?php endif;?>
-  <p>&nbsp;</p>
+  
 	 <table  class="table" cellspacing="0" width="100%">
 	 
        <thead>

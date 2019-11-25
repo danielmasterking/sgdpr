@@ -1792,4 +1792,9 @@ class PrefacturaFijaController extends Controller
     public function actionActualizar_ftes(){
         PrefacturaDispositivo::updateAll(['ftes'=>$_POST['total_ftes'],'ftes_diurno'=>$_POST['ftes_diurno'],'ftes_nocturno'=>$_POST['ftes_nocturno'] ], ['=', 'id', $_POST['id'] ]);
     }
+
+
+    function actionAprobacion_gerente(){
+        
+    }
 }

@@ -140,7 +140,9 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar']);  
 						   }
 						   
-							
+							if(in_array("ver-crear-eliminar-gerente", $permisos)){
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/gerentes?codigo='.$dependencia->codigo,['title'=>'Gerentes','class'=>'btn btn-success btn-xs']);
+							}
 
 								?>
 							</td>
@@ -189,6 +191,10 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 							
 							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar']);  
 						   }
+
+						   if(in_array("ver-crear-eliminar-gerente", $permisos)){
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/gerentes?codigo='.$dependencia->codigo,['title'=>'Gerentes','class'=>'btn btn-success btn-xs']);
+							}
 								?>
 							</td>
 							<td><?= $dependencia->cebe?></td>
@@ -236,6 +242,10 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 							
 							echo Html::a('<i class="fa fa-trash" ></i>',Yii::$app->request->baseUrl.'/centro-costo/delete?id='.$dependencia->codigo,['data-method'=>'post','class'=>'btn btn-danger btn-xs','data-confirm'=>'Seguro desea eliminar']);  
 						   }
+
+						   if(in_array("ver-crear-eliminar-gerente", $permisos)){
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/gerentes?codigo='.$dependencia->codigo,['title'=>'Gerentes','class'=>'btn btn-success btn-xs']);
+							}
 							?>
 						</td>
 							<td><?= $dependencia->cebe?></td>
