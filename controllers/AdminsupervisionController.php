@@ -907,9 +907,9 @@ class AdminsupervisionController extends Controller
 
         $option="";
         foreach ($query as $value) {
-            if($value->marca->nombre!='VIVA' && $value->marca->nombre!='INDUSTRIA'){
+            //if($value->marca->nombre!='VIVA' && $value->marca->nombre!='INDUSTRIA'){
                 $option.="<option value='".$value->codigo."'>".$value->nombre."</option>";
-            }
+            //}
         }
 
         echo json_encode(array('resp'=>$option));
