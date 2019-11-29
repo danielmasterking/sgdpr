@@ -234,7 +234,7 @@ class PrefacturaFijaController extends Controller
     ) -(SELECT COALESCE(SUM(valor_mes) ,0)
     FROM  prefactura_dispositivo 
     WHERE   tipo_servicio="No Prestado" and id_prefactura_fija=dp.id and tipo="variable"
-    ) ) total_variable','dp.numero_factura','dp.fecha_factura','dp.regional','dp.ciudad','cc.ceco','em.nit'])
+    ) ) total_variable','dp.numero_factura','dp.fecha_factura','dp.regional','dp.ciudad','cc.ceco','em.nit','dp.estado_pedido'])
             ->from('prefactura_fija dp, centro_costo cc, empresa em')
             ->where('dp.centro_costo_codigo=cc.codigo AND dp.empresa=em.nit');
     //}elseif(in_array("administrador", $permisos) ||  in_array("prefactura-analista", $permisos) ){
@@ -338,7 +338,7 @@ class PrefacturaFijaController extends Controller
     ) -(SELECT COALESCE(SUM(valor_mes) ,0)
     FROM  prefactura_dispositivo 
     WHERE   tipo_servicio="No Prestado" and id_prefactura_fija=dp.id and tipo="variable"
-    ) ) total_variable','dp.numero_factura','dp.fecha_factura','dp.regional','dp.ciudad','cc.ceco','em.nit'])
+    ) ) total_variable','dp.numero_factura','dp.fecha_factura','dp.regional','dp.ciudad','cc.ceco','em.nit','dp.estado_pedido'])
             ->from('prefactura_fija dp, centro_costo cc, empresa em')
             ->where('dp.centro_costo_codigo=cc.codigo AND dp.empresa=em.nit AND ( dp.centro_costo_codigo '.$in_final.' ) ');
 
@@ -445,7 +445,7 @@ class PrefacturaFijaController extends Controller
     ) -(SELECT COALESCE(SUM(valor_mes) ,0)
     FROM  prefactura_dispositivo 
     WHERE   tipo_servicio="No Prestado" and id_prefactura_fija=dp.id and tipo="variable"
-    ) ) total_variable','dp.numero_factura','dp.fecha_factura','dp.regional','dp.ciudad','cc.ceco','em.nit'])
+    ) ) total_variable','dp.numero_factura','dp.fecha_factura','dp.regional','dp.ciudad','cc.ceco','em.nit','dp.estado_pedido'])
             ->from('prefactura_fija dp, centro_costo cc, empresa em')
             ->where('dp.centro_costo_codigo=cc.codigo AND dp.empresa=em.nit AND ( dp.usuario="'.Yii::$app->session['usuario-exito'].'" ) ');
             /////////////////////////////////////////////////////////
@@ -1826,7 +1826,7 @@ class PrefacturaFijaController extends Controller
         $query = (new \yii\db\Query())
         ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,ciudad')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido="S" AND estado="cerrado" AND /*DATE(created) >= "2019-03-01"*/ mes > 3 AND ano="2019"');
+        ->where('estado_pedido="G"  AND /*DATE(created) >= "2019-03-01"*/ mes > 3 AND ano="2019"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -1935,5 +1935,12 @@ class PrefacturaFijaController extends Controller
             print_r($model->getErrors());
         }
 
+    }
+
+    public function actionEnviar_aprobacion_gerente($id){
+        $model = $this->findModel($id);
+        $model->setAttribute('estado_pedido','G');
+        $model->save();
+        return $this->redirect(['index']);
     }
 }

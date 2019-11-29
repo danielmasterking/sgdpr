@@ -83,6 +83,11 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 					    	</a>
 					    <?php endif ?>
 				    <?php }?>
+				    <?php if($pref['estado_pedido']!='G' && $pref['estado_pedido']!='L'){?>
+				    	<a data-confirm='Seguro desea enviar a aprobacion' href="<?php echo Url::toRoute('prefactura-fija/enviar_aprobacion_gerente?id='.$pref['id'])?>" class="btn btn-success btn-xs" target="_blank">
+				        	<i class="fas fa-check"></i> Aprobacion
+				    	</a>
+				    <?php } ?>
 			    </td>
 			    <?php 
 			    	//AQUI SE CALCULA EL VALOR TOTAL DE FTES Y EL VALOR TOTAL DEL SERVICIO
