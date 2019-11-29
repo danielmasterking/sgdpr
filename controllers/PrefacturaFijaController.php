@@ -26,7 +26,9 @@ use app\models\GruposPrefactura;
 use yii\helpers\ArrayHelper;
 use app\models\AdminDispositivo;
 use app\models\AdminDependencia;
-
+use app\models\Pedido;
+use app\models\Ciudad;
+use yii\data\Pagination;
 class PrefacturaFijaController extends Controller
 {
     public function behaviors(){
@@ -1795,6 +1797,143 @@ class PrefacturaFijaController extends Controller
 
 
     function actionAprobacion_gerente(){
+        $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
+        $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
+        $zonasUsuario = array();
+        $marcasUsuario = array();
         
+        if($usuario != null){
+          $zonasUsuario = $usuario->zonas;      
+          $marcasUsuario = $usuario->marcas;
+        }
+        $data_marcas=array();
+        foreach($marcasUsuario as $marca){
+            
+            $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
+        }
+
+        $data_regional=[];
+        foreach ($zonasUsuario as $reg){
+            $data_regional[$reg->zona->nombre]=$reg->zona->nombre;
+        }
+
+        $empresas = Empresa::find()->orderBy(['nombre' => SORT_ASC])->all();
+        $list_empresas=ArrayHelper::map($empresas,'nombre','nombre');
+
+        $ciudad=Ciudad::find()->orderBy(['nombre' => SORT_ASC])->all();
+        $list_ciudad=ArrayHelper::map($ciudad,'nombre','nombre');        
+
+        $query = (new \yii\db\Query())
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,ciudad')
+        ->from('prefactura_consolidado_pedido')
+        ->where('estado_pedido="S" AND estado="cerrado" AND /*DATE(created) >= "2019-03-01"*/ mes > 3 AND ano="2019"');
+        //FILTROS
+        if(isset($_GET['enviar'])){
+           
+            if(isset($_GET['dependencias']) && $_GET['dependencias']!=''){
+                $query->andWhere('dependencia="'.$_GET['dependencias'].'" ');
+            }
+            if(isset($_GET['marca']) && $_GET['marca']!=''){
+                $query->andWhere('marca="'.$_GET['marca'].'" ');
+            }
+
+            if(isset($_GET['regional']) && $_GET['regional']!=''){
+                $query->andWhere('regional="'.$_GET['regional'].'" ');
+            }
+
+            if(isset($_GET['mes']) && $_GET['mes']!=''){
+                $query->andWhere('mes="'.$_GET['mes'].'" ');
+            }
+            if(isset($_GET['empresas']) && $_GET['empresas']!=''){
+                $query->andWhere('empresa="'.$_GET['empresas'].'" ');
+            }
+
+            if(isset($_GET['ciudad']) && $_GET['ciudad']!=''){
+                $query->andWhere('ciudad="'.$_GET['ciudad'].'" ');
+            }
+
+            if(isset($_GET['buscar']) && $_GET['buscar']!=''){
+                $query->andWhere(" 
+                dependencia like '%".$_GET['buscar']."%' OR 
+                marca like '%".$_GET['buscar']."%' OR 
+                ceco like '%".$_GET['buscar']."%' 
+                OR usuario like '%".$_GET['buscar']."%' 
+                OR cebe like '%".$_GET['buscar']."%' 
+                OR regional like '%".$_GET['buscar']."%' 
+                OR ano like '%".$_GET['buscar']."%'
+                OR ciudad like '%".$_GET['buscar']."%' 
+                ");
+            }
+        }
+
+        $ordenado=isset($_GET['ordenado']) && $_GET['ordenado']!=''?$_GET['ordenado']:"id";
+        $forma=isset($_GET['forma']) && $_GET['forma']!=''?$_GET['forma']:"SORT_ASC";
+
+        $query->orderBy([
+            $ordenado => $forma
+        ]);
+
+        $count = $query->count();
+        // crea un objeto paginación con dicho total
+        $pagination = new Pagination(['totalCount' => $count]);
+        $limit=30;
+        $command = $query->offset($pagination->offset)->limit($limit)->createCommand();
+
+        // Ejecutar el comando:
+        $rows = $command->queryAll();
+
+        $pagina=isset($_GET['page'])?$_GET['page']:1;
+        
+        return $this->render('aprobacion_gerente', [
+            'rows'=>$rows,
+            'pagination'=>$pagination,
+            'count'=>$count,
+            'dependencias'=>$dependencias,
+            'marcas'=>$data_marcas,
+            'pagina'=>$pagina,
+            'data_regional'=>$data_regional,
+            'list_empresas'=>$list_empresas,
+            'list_ciudad'=>$list_ciudad
+        ]);
+    }
+
+    public function actionAprobarRechazar(){
+        $count=count($_POST['seleccion']);
+        $checks=$_POST['seleccion'];
+
+        if(isset($_POST['aprobar'])){
+            foreach ($checks as $value) {
+                $model=PrefacturaFija::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_pedido', 'L');
+                $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
+                $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
+                $model->save();
+            }
+        }else if(isset($_POST['rechazar'])){
+            foreach ($checks as $value) {
+                $model=PrefacturaFija::find()->where('id='.$value)->one();
+                $model->setAttribute('estado_pedido', 'R');
+                $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
+                $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
+                $model->setAttribute('fecha_rechazo',date('Y-m-d'));
+                $model->save();
+            }
+        }
+
+        return $this->redirect(['aprobacion_gerente']);
+
+    }
+
+    public function actionAprobarPrefactura($id){//A= Aprobar
+        $model=PrefacturaFija::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_pedido', 'L');
+        $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
+        $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
+        if($model->save()){
+            return $this->redirect(['aprobacion_gerente']);
+        }else{
+            print_r($model->getErrors());
+        }
+
     }
 }
