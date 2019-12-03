@@ -442,7 +442,7 @@ foreach($roles as $key){
 			   
 			   <?php
 			       //validar roles
-				   if( in_array("administrador", $permisos) ){
+				   if( in_array("administrador", $permisos) || in_array("ver_cordinadores_nacional", $permisos)){
 				
 				?>							   			   
 				  <tr>			   
