@@ -4,7 +4,8 @@ use yii\helpers\Url;
 use kartik\widgets\Select2;
 
 
-$this->title = 'Aprobación Gerente';
+$this->title = 'Aprobación Prefactura';
+
 ?>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>
@@ -169,7 +170,7 @@ $this->title = 'Aprobación Gerente';
         'pagination' => $pagination
     ]);
 ?> 
-<form action="<?php echo Url::toRoute('aprobar-rechazar')?>" method="post" id="form-aprobar-rechazar">
+<form action="<?php echo Url::toRoute('aprobar-rechazar')?>?status=<?= $estado_siguiente ?>" method="post" id="form-aprobar-rechazar">
 
 <button class="btn btn-primary" type="submit" name="aprobar" title="Aprobar Todos">
     <i class="fas fa-clipboard-check"></i> Aprobar
@@ -357,7 +358,7 @@ $this->title = 'Aprobación Gerente';
         })
         .then((confirm) => {
           if (confirm) {
-            location.href="<?php echo Url::toRoute('aprobar-prefactura')?>?id="+id;
+            location.href="<?php echo Url::toRoute('aprobar-prefactura')?>?id="+id+"&status=<?= $estado_siguiente?>";
           } else {
             return false;
           }

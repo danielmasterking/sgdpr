@@ -1796,7 +1796,7 @@ class PrefacturaFijaController extends Controller
     }
 
 
-    function actionAprobacion_gerente(){
+    function actionAprobacion_gerente($estado='G'){
         $dependencias=Pedido::DependenciasUsuario(Yii::$app->session['usuario-exito'],'Name');
         $usuario = Usuario::findOne(Yii::$app->session['usuario-exito']);
         $zonasUsuario = array();
@@ -1823,10 +1823,12 @@ class PrefacturaFijaController extends Controller
         $ciudad=Ciudad::find()->orderBy(['nombre' => SORT_ASC])->all();
         $list_ciudad=ArrayHelper::map($ciudad,'nombre','nombre');        
 
+        
+        
         $query = (new \yii\db\Query())
-        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,ciudad')
+        ->select('id,dependencia,ceco,cebe,marca,regional,empresa,mes,ano,total_fijo,total_variable,total_mes,ciudad,estado_pedido')
         ->from('prefactura_consolidado_pedido')
-        ->where('estado_pedido="G"  AND /*DATE(created) >= "2019-03-01"*/ mes > 3 AND ano="2019"');
+        ->where('estado_pedido="'.$estado.'"  AND /*DATE(created) >= "2019-03-01"*/ mes > 3 AND ano="2019"');
         //FILTROS
         if(isset($_GET['enviar'])){
            
@@ -1884,6 +1886,18 @@ class PrefacturaFijaController extends Controller
 
         $pagina=isset($_GET['page'])?$_GET['page']:1;
         
+        switch ($estado) {
+            case 'G':
+               $estado_siguiente='L';
+                break;
+            case 'L':
+               $estado_siguiente='Z';
+                break;
+
+            case 'Z':
+               $estado_siguiente='S';
+                break;            
+        }
         return $this->render('aprobacion_gerente', [
             'rows'=>$rows,
             'pagination'=>$pagination,
@@ -1893,18 +1907,19 @@ class PrefacturaFijaController extends Controller
             'pagina'=>$pagina,
             'data_regional'=>$data_regional,
             'list_empresas'=>$list_empresas,
-            'list_ciudad'=>$list_ciudad
+            'list_ciudad'=>$list_ciudad,
+            'estado_siguiente'=>$estado_siguiente
         ]);
     }
 
-    public function actionAprobarRechazar(){
+    public function actionAprobarRechazar($status){
         $count=count($_POST['seleccion']);
         $checks=$_POST['seleccion'];
 
         if(isset($_POST['aprobar'])){
             foreach ($checks as $value) {
                 $model=PrefacturaFija::find()->where('id='.$value)->one();
-                $model->setAttribute('estado_pedido', 'L');
+                $model->setAttribute('estado_pedido', $status);
                 $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
                 $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
                 $model->save();
@@ -1924,13 +1939,27 @@ class PrefacturaFijaController extends Controller
 
     }
 
-    public function actionAprobarPrefactura($id){//A= Aprobar
+    public function actionAprobarPrefactura($id,$status){//A= Aprobar
         $model=PrefacturaFija::find()->where('id='.$id)->one();
-        $model->setAttribute('estado_pedido', 'L');
+        $model->setAttribute('estado_pedido', $status);
         $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
         $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
         if($model->save()){
             return $this->redirect(['aprobacion_gerente']);
+        }else{
+            print_r($model->getErrors());
+        }
+
+    }
+
+    public function actionRechazarPrefactura($id){//R= Rechazar
+        $model=PrefacturaFija::find()->where('id='.$id)->one();
+        $model->setAttribute('estado_pedido', 'R');
+        $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
+        $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
+        $model->setAttribute('fecha_rechazo',date('Y-m-d'));
+        if($model->save()){
+            return $this->redirect(['aprobacion_gerente-index']);
         }else{
             print_r($model->getErrors());
         }
