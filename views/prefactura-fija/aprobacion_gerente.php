@@ -3,9 +3,23 @@ use yii\widgets\LinkPager;
 use yii\helpers\Url;
 use kartik\widgets\Select2;
 
+switch ($estado) {
+  case 'G':
+    $this->title = 'Aprobación Prefactura Por gerente';
+    break;
 
-$this->title = 'Aprobación Prefactura';
+  case 'L':
+    $this->title = 'Aprobación Prefactura Por lider de seguridad';
+    break;
 
+  case 'Z':
+    $this->title = 'Aprobación Prefactura Por coordinador regional de seguridad';
+    break;
+  
+  default:
+    $this->title = 'Aprobación Prefactura Por gerente';
+    break;
+}
 ?>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <h1><i class="glyphicon glyphicon-list-alt"></i> <?= $this->title ?></h1>

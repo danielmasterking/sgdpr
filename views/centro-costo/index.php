@@ -142,6 +142,10 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 						   
 							if(in_array("ver-crear-eliminar-gerente", $permisos)){
 								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/gerentes?codigo='.$dependencia->codigo,['title'=>'Gerentes','class'=>'btn btn-success btn-xs']);
+
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/lideres_seguridad?codigo='.$dependencia->codigo,['title'=>'Lideres de seguridad','class'=>'btn btn-warning btn-xs']);
+
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/coordinadores_seguridad?codigo='.$dependencia->codigo,['title'=>'coordinadores de seguridad','class'=>'btn btn-default btn-xs']);
 							}
 
 								?>
@@ -194,6 +198,10 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 
 						   if(in_array("ver-crear-eliminar-gerente", $permisos)){
 								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/gerentes?codigo='.$dependencia->codigo,['title'=>'Gerentes','class'=>'btn btn-success btn-xs']);
+
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/lideres_seguridad?codigo='.$dependencia->codigo,['title'=>'Lideres de seguridad','class'=>'btn btn-warning btn-xs']);
+
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/coordinadores_seguridad?codigo='.$dependencia->codigo,['title'=>'coordinadores de seguridad','class'=>'btn btn-default btn-xs']);
 							}
 								?>
 							</td>
@@ -245,6 +253,10 @@ $tamano_dependencias_permitidas = count($dependencias_permitidas);
 
 						   if(in_array("ver-crear-eliminar-gerente", $permisos)){
 								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/gerentes?codigo='.$dependencia->codigo,['title'=>'Gerentes','class'=>'btn btn-success btn-xs']);
+
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/lideres_seguridad?codigo='.$dependencia->codigo,['title'=>'Lideres de seguridad','class'=>'btn btn-warning btn-xs']);
+
+								echo Html::a('<i class="fa fa-user"  aria-hidden="true"></i>',Yii::$app->request->baseUrl.'/centro-costo/coordinadores_seguridad?codigo='.$dependencia->codigo,['title'=>'coordinadores de seguridad','class'=>'btn btn-default btn-xs']);
 							}
 							?>
 						</td>

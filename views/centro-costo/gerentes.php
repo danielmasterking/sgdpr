@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use kartik\widgets\Select2;
 use yii\widgets\ActiveForm;
 use  yii\helpers\Url;
-$this->title = 'Gerentes';
+$this->title = 'Gerentes Seguridad';
 ?>
 <a href="<?php echo Url::toRoute('centro-costo/index')?>" class="btn btn-primary " >
     <i class="fa fa-arrow-left"></i> 

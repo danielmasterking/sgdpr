@@ -57,6 +57,8 @@ use app\models\VisitaMensualDetalle;
 use app\models\NovedadCapacitacion;
 use app\models\NovedadPedido;
 use app\models\GerentesDependencia;
+use app\models\LideresDependencia;
+use app\models\CoordinadoresDependencia;
 
 class CentroCostoController extends Controller
 {
@@ -1754,7 +1756,7 @@ class CentroCostoController extends Controller
         
     }
 
-    function actionGerentes($codigo){
+    public function actionGerentes($codigo){
         $gerentesModel=new GerentesDependencia;
         if ($gerentesModel->load(Yii::$app->request->post())) {
             $post=Yii::$app->request->post();
@@ -1772,6 +1774,54 @@ class CentroCostoController extends Controller
 
             $gerentesModel->usuario=$gerentesModel->GetGerentes($codigo);
             return $this->render('gerentes', [
+             'gerentesModel'=>$gerentesModel,
+             'codigo'=>$codigo
+            ]);
+        }
+    }
+
+    public function actionLideres_seguridad($codigo){
+        $gerentesModel=new LideresDependencia;
+        if ($gerentesModel->load(Yii::$app->request->post())) {
+            $post=Yii::$app->request->post();
+            $usuarios=$post['LideresDependencia']['usuario'];
+            LideresDependencia::deleteAll(['codigo_dependencia' => $codigo]);
+            foreach ($usuarios as $key => $value) {
+               $model=new LideresDependencia;
+               $model->setAttribute('usuario', $value);
+               $model->setAttribute('codigo_dependencia', $codigo);
+
+               $model->save();
+            }
+            return $this->redirect(['lideres_seguridad','codigo'=>$codigo]);
+        }else{
+
+            $gerentesModel->usuario=$gerentesModel->GetGerentes($codigo);
+            return $this->render('lideres_seguridad', [
+             'gerentesModel'=>$gerentesModel,
+             'codigo'=>$codigo
+            ]);
+        }
+    }
+
+    public function actionCoordinadores_seguridad($codigo){
+        $gerentesModel=new CoordinadoresDependencia;
+        if ($gerentesModel->load(Yii::$app->request->post())) {
+            $post=Yii::$app->request->post();
+            $usuarios=$post['CoordinadoresDependencia']['usuario'];
+            CoordinadoresDependencia::deleteAll(['codigo_dependencia' => $codigo]);
+            foreach ($usuarios as $key => $value) {
+               $model=new CoordinadoresDependencia;
+               $model->setAttribute('usuario', $value);
+               $model->setAttribute('codigo_dependencia', $codigo);
+
+               $model->save();
+            }
+            return $this->redirect(['coordinadores_seguridad','codigo'=>$codigo]);
+        }else{
+
+            $gerentesModel->usuario=$gerentesModel->GetGerentes($codigo);
+            return $this->render('coordinadores_seguridad', [
              'gerentesModel'=>$gerentesModel,
              'codigo'=>$codigo
             ]);
