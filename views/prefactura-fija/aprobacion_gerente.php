@@ -184,7 +184,7 @@ switch ($estado) {
         'pagination' => $pagination
     ]);
 ?> 
-<form action="<?php echo Url::toRoute('aprobar-rechazar')?>?status=<?= $estado_siguiente ?>" method="post" id="form-aprobar-rechazar">
+<form action="<?php echo Url::toRoute('aprobar-rechazar')?>?status=<?= $estado_siguiente ?>&estado=<?= $estado ?>" method="post" id="form-aprobar-rechazar">
 
 <button class="btn btn-primary" type="submit" name="aprobar" title="Aprobar Todos">
     <i class="fas fa-clipboard-check"></i> Aprobar
@@ -359,7 +359,7 @@ switch ($estado) {
 
     });
     function Rechazo(id){
-        $('#form-rechazo').attr('action', '<?php echo Url::toRoute('rechazar-prefactura')?>'+'?id='+id);
+        $('#form-rechazo').attr('action', '<?php echo Url::toRoute('rechazar-prefactura')?>'+'?id='+id+'&estado=<?= $estado?>');
     }
 
     function Aprobar(id){
@@ -372,7 +372,7 @@ switch ($estado) {
         })
         .then((confirm) => {
           if (confirm) {
-            location.href="<?php echo Url::toRoute('aprobar-prefactura')?>?id="+id+"&status=<?= $estado_siguiente?>";
+            location.href="<?php echo Url::toRoute('aprobar-prefactura')?>?id="+id+"&status=<?= $estado_siguiente?>&estado=<?= $estado?>";
           } else {
             return false;
           }

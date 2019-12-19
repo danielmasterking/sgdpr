@@ -231,6 +231,30 @@
           </a>
         </li>
         <?php }?>
+
+        <?php if(in_array("administrador", $permisos) || in_array("ver_aprobacion_gerente", $permisos)){ ?>
+        <li class="<?//= $action=='aprobacion_gerente' && $controller=='prefactura-fija'?'active':'' ?>">
+          <a href="<?= Yii::$app->request->baseUrl.'/prefactura-fija/aprobacion_gerente'?>">
+            &nbsp;<i class="far fa-file-excel"></i> <span>&nbsp;&nbsp;&nbsp;Aprobacion Prefactura-Gerente</span>
+          </a>
+        </li>
+        <?php }?>
+
+        <?php if(in_array("administrador", $permisos) || in_array("ver_aprobacion_lider", $permisos)){ ?>
+        <li class="<?//= $action=='aprobacion_gerente' && $controller=='prefactura-fija'?'active':'' ?>">
+          <a href="<?= Yii::$app->request->baseUrl.'/prefactura-fija/aprobacion_gerente?estado=L'?>">
+            &nbsp;<i class="far fa-file-excel"></i> <span>&nbsp;&nbsp;&nbsp;Aprobacion Prefactura-Lider Seguridad</span>
+          </a>
+        </li>
+        <?php }?>
+
+        <?php if(in_array("administrador", $permisos) || in_array("ver_aprobacion_coordinador", $permisos)){ ?>
+        <li class="<?//= $action=='aprobacion_gerente' && $controller=='prefactura-fija'?'active':'' ?>">
+          <a href="<?= Yii::$app->request->baseUrl.'/prefactura-fija/aprobacion_gerente?estado=Z'?>">
+            &nbsp;<i class="far fa-file-excel"></i> <span>&nbsp;&nbsp;&nbsp;Aprobacion Prefactura-coordinador</span>
+          </a>
+        </li>
+        <?php }?>
         
         <?php if(in_array("servicio-prefacturacion", $permisos)){ ?>
         <li class="<?= $action=='informedispositivos' && $controller=='prefactura-fija'?'active':'' ?>">

@@ -1913,7 +1913,7 @@ class PrefacturaFijaController extends Controller
         ]);
     }
 
-    public function actionAprobarRechazar($status){
+    public function actionAprobarRechazar($status,$estado){
         $count=count($_POST['seleccion']);
         $checks=$_POST['seleccion'];
 
@@ -1936,31 +1936,31 @@ class PrefacturaFijaController extends Controller
             }
         }
 
-        return $this->redirect(['aprobacion_gerente']);
+        return $this->redirect(['aprobacion_gerente','estado'=>$estado]);
 
     }
 
-    public function actionAprobarPrefactura($id,$status){//A= Aprobar
+    public function actionAprobarPrefactura($id,$status,$estado){//A= Aprobar
         $model=PrefacturaFija::find()->where('id='.$id)->one();
         $model->setAttribute('estado_pedido', $status);
         $model->setAttribute('usuario_aprueba', Yii::$app->session['usuario-exito']);
         $model->setAttribute('fecha_aprobacion',date('Y-m-d'));
         if($model->save()){
-            return $this->redirect(['aprobacion_gerente']);
+            return $this->redirect(['aprobacion_gerente','estado'=>$estado]);
         }else{
             print_r($model->getErrors());
         }
 
     }
 
-    public function actionRechazarPrefactura($id){//R= Rechazar
+    public function actionRechazarPrefactura($id,$estado){//R= Rechazar
         $model=PrefacturaFija::find()->where('id='.$id)->one();
         $model->setAttribute('estado_pedido', 'R');
         $model->setAttribute('motivo_rechazo_prefactura',$_POST['observacion']);
         $model->setAttribute('usuario_rechaza', Yii::$app->session['usuario-exito']);
         $model->setAttribute('fecha_rechazo',date('Y-m-d'));
         if($model->save()){
-            return $this->redirect(['aprobacion_gerente']);
+            return $this->redirect(['aprobacion_gerente','estado'=>$estado]);
         }else{
             print_r($model->getErrors());
         }
