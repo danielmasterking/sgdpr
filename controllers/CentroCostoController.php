@@ -1177,7 +1177,7 @@ class CentroCostoController extends Controller
         $model      = new ModeloPrefactura();
         date_default_timezone_set ( 'America/Bogota');
         //$year = date('Y',time());
-        $year ='2019';
+        $year ='2020';
         $servicios  = DetalleServicio::find()->where("ano='".$year."'")->orderBy(['codigo' => SORT_ASC])->all();
         $puesto  = Puesto::find()->where('estado="A"')->all();
         $jornada  = Jornada::find()->all();
