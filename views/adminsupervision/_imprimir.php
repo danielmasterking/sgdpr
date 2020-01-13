@@ -9,7 +9,7 @@ date_default_timezone_set ( 'America/Bogota');
 ?>
 
 
-<h3 style="text-align: center;font-size: 16px;">ADMINISTRACION Y SUPERVICION MES DE <?=strtoupper ($meses[$query->mes-1]);?> de <?=$query->ano?></h3>
+<h3 style="text-align: center;font-size: 16px;">ADMINISTRACION Y SUPERVICION MES DE <?=strtoupper ($meses[$query->mes-1]);?> de <?=$query->ano?> - ID:<?=$query->id?> </h3>
 
 
 <table style="width: 100%;border-collapse: collapse;">

@@ -14,6 +14,7 @@ use yii\helpers\Url;
     <thead>
         <tr>
             <th></th>
+            <th>Id</th>
             <th>Fecha Factura</th>
             <th>Numero Factura</th>
             <th>Fecha Creado</th>
@@ -55,6 +56,7 @@ use yii\helpers\Url;
                  <?php }?>
 
             </td>
+            <td><?= $row['id'] ?></td>
             <td><?= $row['fecha_factura'] ?></td>
             <td><?= $row['numero_factura'] ?></td>
             <td><?= $row['created'] ?></td>
