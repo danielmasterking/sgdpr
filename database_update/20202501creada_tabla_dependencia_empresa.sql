@@ -1,0 +1,1 @@
+CREATE TABLE `empresa_dependencia` ( `id` INT NOT NULL AUTO_INCREMENT , `codigo_dependencia` VARCHAR(100) NOT NULL , `nit_empresa` VARCHAR(100) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
