@@ -548,6 +548,7 @@ class PrefacturaFijaController extends Controller
                 'mode' => 'export',
                 'fileName' => 'listado de prefacturas', 
                 'columns' => [
+                    'id',
                    'numero_factura',
                    'fecha_factura',
                    'nombre_factura',
@@ -571,6 +572,7 @@ class PrefacturaFijaController extends Controller
                     
                 ],
                 'headers' => [
+                    'id'=>'Id',
                     'numero_factura'=>'Numero Factura',
                     'fecha_factura'=>'Fecha Factura',
                     'nombre_factura'=>'Nombre Factura',
@@ -1566,12 +1568,12 @@ class PrefacturaFijaController extends Controller
         date_default_timezone_set ( 'America/Bogota');
         //$year = date('Y',time());
         $pf = PrefacturaFija::findOne($id);
-        if($pf->mes=='01' || $pf->ano=='2018'){
+        /*if($pf->mes=='01' || $pf->ano=='2018'){
             $year ='2018';
-        }else{
+        }else{*/
 
             $year = date('Y',time());
-        }
+        //}
         $servicios  = DetalleServicio::find()->where("ano='".$year."'")->orderBy(['codigo' => SORT_ASC])->all();
         $puesto  = Puesto::find()->where('estado="A"')->all();
         $jornada  = Jornada::find()->all();

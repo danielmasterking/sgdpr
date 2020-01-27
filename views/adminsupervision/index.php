@@ -107,7 +107,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
          <br>
         <div class="row">
-            <div class="col-md-6" >
+            <div class="col-md-4" >
                 
                 <select class="form-control" id="mes" name="mes">
                     <option value="">Por Mes</option>
@@ -124,6 +124,16 @@ $this->params['breadcrumbs'][] = $this->title;
                     <option value="11">Noviembre</option>
                     <option value="12">Diciembre</option>
 
+                </select>
+            </div>
+            <div class="col-md-4" >
+                
+                <select class="form-control" id="ano" name="ano">
+                    <option value="">Por año</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
                 </select>
             </div>
         </div>
@@ -173,6 +183,7 @@ $this->params['breadcrumbs'][] = $this->title;
         var marca=$("#marcas2").val();
         var mes=$("#mes").val();
         var empresa=$("#empresas option:selected").val();
+        var ano=$("#ano option:selected").val();
         $.ajax({
             url:"<?php echo Url::toRoute('adminsupervision/index')?>",
             type:'POST',
@@ -188,7 +199,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 page: page,
                 marca:marca,
                 mes:mes,
-                empresas:empresa
+                empresas:empresa,
+                ano:ano
             },
             beforeSend:  function() {
                 $('#info').html('Cargando... <i class="fa fa-spinner fa-spin fa-1x fa-fw"></i>');

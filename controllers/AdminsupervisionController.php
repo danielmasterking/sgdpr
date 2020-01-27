@@ -144,6 +144,10 @@ class AdminsupervisionController extends Controller
             $rows->andWhere("admin_supervision.empresa like '%".$_POST['empresas']."%'");
         }
 
+        if (trim($_POST['ano'])!='') {
+            $rows->andWhere("ano ='".$_POST['ano']."'");
+        }
+
         $rowsCount= clone $rows;
 
         $ordenado='id';
@@ -183,8 +187,9 @@ class AdminsupervisionController extends Controller
                 'models' => $query,
                 'mode' => 'export',
                 'fileName' => 'Administracion y supervision', 
-                'columns' => ['mes','ano','usuario','created','numero_factura','fecha_factura','ftes_totales','total_factura','empresa'],
+                'columns' => ['id','mes','ano','usuario','created','numero_factura','fecha_factura','ftes_totales','total_factura','empresa'],
                 'headers' => [
+                    'id' => 'Id',
                     'mes' => 'MES',
                     'ano' => 'AÑO',
                     'usuario'=>'Usuario',

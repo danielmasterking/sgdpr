@@ -84,22 +84,22 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 					    	</a>
 					    <?php endif ?>
 				    <?php }?>
-				    <?php if($pref['estado_pedido']!='G' && $pref['estado_pedido']!='L' && $pref['estado_pedido']!='S' && $pref['estado_pedido']!='Z' && $pref['estado_pedido']!='R'){?>
+				    <?php /*if($pref['estado_pedido']!='G' && $pref['estado_pedido']!='L' && $pref['estado_pedido']!='S' && $pref['estado_pedido']!='Z' && $pref['estado_pedido']!='R'){?>
 				    	<a data-confirm='Seguro desea enviar a aprobacion' href="<?php echo Url::toRoute('prefactura-fija/enviar_aprobacion_gerente?id='.$pref['id'])?>" class="btn btn-info btn-xs" target="_blank">
 				        	<i class="fas fa-check"></i> Aprobacion
 				    	</a>
-				    <?php } ?>
-				    <?php if($pref['estado_pedido']=='G' || $pref['estado_pedido']=='L'  || $pref['estado_pedido']=='Z' ){?>
+				    <?php } */?>
+				    <?php /*if($pref['estado_pedido']=='G' || $pref['estado_pedido']=='L'  || $pref['estado_pedido']=='Z' ){?>
 				    	<label class="label label-warning">...En proceso</label>
-					<?php } ?>
-				    <?php if($pref['estado_pedido']=='S'){?>
+					<?php } */?>
+				    <?php /*if($pref['estado_pedido']=='S'){?>
 				    	<label class="label label-success">Aprobado <?= $pref['fecha_aprobacion']?></label>
-				    <?php } ?>
-				    <?php if($pref['estado_pedido']=='R'){?>
+				    <?php } */?>
+				    <?php /*if($pref['estado_pedido']=='R'){?>
 				    	<label class="label label-danger">Rechazada <?= $pref['fecha_rechazo']?> 
 				    	 <a href="javascript:void(0)" title="Motivo rechazo" style="color:white;font-size: 13px;" data-toggle="modal" data-target="#myModal" onclick="motivo_rechazo('<?= $pref['motivo_rechazo_prefactura'] ?>');"><i class="fa fa-eye"></i></a>
 				        </label>
-				    <?php } ?>
+				    <?php } */?>
 
 			    </td>
 			    <?php 
