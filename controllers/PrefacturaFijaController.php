@@ -1229,6 +1229,7 @@ class PrefacturaFijaController extends Controller
             $zonasUsuario     = $usuario->zonas;
             $marcasUsuario    = $usuario->marcas;
             $distritosUsuario = $usuario->distritos;
+            $empresasUsuario = $usuario->empresas;
 
         }
 
