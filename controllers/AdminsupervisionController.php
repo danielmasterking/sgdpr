@@ -20,6 +20,8 @@ use kartik\mpdf\Pdf;
 use yii\filters\AccessControl;
 use app\models\Empresa;
 use yii\data\Pagination;
+use app\models\EmpresaDependencia;
+
 
 /**
  * AdminsupervisionController implements the CRUD actions for AdminSupervision model.
@@ -902,13 +904,27 @@ class AdminsupervisionController extends Controller
         $query=CentroCosto::find()
         ->leftJoin('ciudad', ' ciudad.codigo_dane= centro_costo.ciudad_codigo_dane')
         ->leftJoin('ciudad_zona', ' ciudad_zona.ciudad_codigo_dane= ciudad.codigo_dane')
-        ->where('ciudad_zona.zona_id='.$_POST['zona'].' AND centro_costo.estado NOT IN("C")  AND centro_costo.empresa="'.$_POST['empresa'].'" ')
+        ->where('ciudad_zona.zona_id='.$_POST['zona'].' AND centro_costo.estado NOT IN("C")  ')
         ->all();
 
         $option="";
         foreach ($query as $value) {
             //if($value->marca->nombre!='VIVA' && $value->marca->nombre!='INDUSTRIA'){
+            $modelo_emp_dep=new EmpresaDependencia();
+            $emp_dep=$modelo_emp_dep->get_empresa_deps($value->codigo);
+            $existe=false;
+            if($emp_dep!=null){
+                foreach ($emp_dep as $emp) {
+                    if(in_array($_POST['empresa'],$emp_dep) ){
+                        $existe=true;
+                        break;
+                    }
+                }
+            }
+
+            if($existe){
                 $option.="<option value='".$value->codigo."'>".$value->nombre."</option>";
+            }
             //}
         }
 

@@ -10,7 +10,7 @@ $permisos = array();
 if( isset(Yii::$app->session['permisos-exito']) ){
 	$permisos = Yii::$app->session['permisos-exito'];
 }
-$this->title = 'Dependencias';
+$this->title = 'Dependenciass';
 //var_dump(Yii::$app->session->getTimeout());
 $permisos = array();
 

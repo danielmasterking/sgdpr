@@ -5,6 +5,7 @@ use yii\grid\GridView;
 use yii\helpers\Url;
 use kartik\date\DatePicker;
 use kartik\widgets\Select2;
+use app\models\EmpresaDependencia;
 
 $this->title = 'Listado de Pre-facturas';
 $this->params['breadcrumbs'][] = $this->title;
@@ -36,9 +37,20 @@ $data_dependencias = array();
 foreach($dependencias as $dependencia){
     if(in_array($dependencia->ciudad_codigo_dane,$ciudades_permitidas) ){
         if(in_array($dependencia->marca_id,$marcas_permitidas) ){
-            //if(in_array($dependencia->empresa,$empresas_permitidas) ){
+            $modelo_emp_dep=new EmpresaDependencia();
+            $emp_dep=$modelo_emp_dep->get_empresa_deps($dependencia->codigo);
+            $existe=false;
+            if($emp_dep!=null){
+                foreach ($emp_dep as $emp) {
+                    if(in_array($emp,$empresas_permitidas) ){
+                        $existe=true;
+                        break;
+                    }
+                }
+            }
+            if($existe){
                 $data_dependencias[$dependencia->nombre] =  $dependencia->nombre;
-            //}
+            }
         }
     }
 }

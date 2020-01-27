@@ -59,7 +59,7 @@ use app\models\NovedadPedido;
 use app\models\GerentesDependencia;
 use app\models\LideresDependencia;
 use app\models\CoordinadoresDependencia;
-
+use app\models\EmpresaDependencia;
 class CentroCostoController extends Controller
 {
     public function behaviors(){
@@ -951,6 +951,7 @@ class CentroCostoController extends Controller
 
         $array_post = Yii::$app->request->post();
         $model      = new CentroCosto();
+        $modelo_empresa_dep=new EmpresaDependencia();
         $model->fecha_apertura=date('Y-m-d');
 
         $usuario          = Usuario::findOne(Yii::$app->session['usuario-exito']);
@@ -970,8 +971,17 @@ class CentroCostoController extends Controller
 
             $distrito = array_key_exists('distrito', $array_post) ? $array_post['distrito'] : '';
             $model->setAttribute('fecha_apertura', $array_post['fecha_apertura-centrocosto-fecha_apertura-disp']);
-            $model->save();
 
+            
+            $model->save();
+            if (isset($array_post['empresas'])) {
+                foreach ($array_post['empresas'] as $emp_dep) {
+                    $modelo_empresa_dep_save=new EmpresaDependencia();
+                    $modelo_empresa_dep_save->setAttribute('codigo_dependencia', $model->codigo);
+                    $modelo_empresa_dep_save->setAttribute('nit_empresa', $emp_dep);
+                    $modelo_empresa_dep_save->save();
+                }
+            }
             if ($distrito != '') {
 
                 $model_r = new CentroDistrito();
@@ -991,7 +1001,8 @@ class CentroCostoController extends Controller
                 'marcasUsuario'    => $marcasUsuario,
                 'distritosUsuario' => $distritosUsuario,
                 'empresas'         => $empresas,
-                'empresas_electronica'=>$list_empresas
+                'empresas_electronica'=>$list_empresas,
+                'modelo_empresa_dep'=>$modelo_empresa_dep
             ]);
         }
     }
@@ -1012,7 +1023,8 @@ class CentroCostoController extends Controller
         $list_empresas=ArrayHelper::map($empresas_electronica,'nit','nombre');
 
         $model            = $this->findModel($id);
-
+        $modelo_empresa_dep=new EmpresaDependencia();
+        $empresas_dep=$modelo_empresa_dep->get_empresa_deps($id);
         if($model->fecha_apertura=='0000-00-00'){
             $model->fecha_apertura=date('Y-m-d');
         }
@@ -1039,6 +1051,16 @@ class CentroCostoController extends Controller
             $distrito = array_key_exists('distrito', $array_post) ? $array_post['distrito'] : '';
             $model->setAttribute('fecha_apertura', $array_post['fecha_apertura-centrocosto-fecha_apertura-disp']);
             $model->save();
+
+
+            if (isset($array_post['empresas'])) {
+                foreach ($array_post['empresas'] as $emp_dep) {
+                    $modelo_empresa_dep_save=new EmpresaDependencia();
+                    $modelo_empresa_dep_save->setAttribute('codigo_dependencia', $model->codigo);
+                    $modelo_empresa_dep_save->setAttribute('nit_empresa', $emp_dep);
+                    $modelo_empresa_dep_save->save();
+                }
+            }
 
             $presupuesto = Presupuesto::find()->where(['centro_costo_codigo' => $model->codigo])->one();
 
@@ -1076,7 +1098,8 @@ class CentroCostoController extends Controller
                 'marcasUsuario'    => $marcasUsuario,
                 'distritosUsuario' => $distritosUsuario,
                 'empresas'         => $empresas,
-                'empresas_electronica'=>$list_empresas
+                'empresas_electronica'=>$list_empresas,
+                'empresas_dep'=>$empresas_dep
             ]);
         }
     }

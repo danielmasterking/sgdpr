@@ -19,5 +19,6 @@ $this->title = 'Actualizar Dependencia '.$model->nombre;
 		'zonasUsuario' => $zonasUsuario,	
 		'actualizar' => 's',
 		'empresas' => $empresas,
-		'empresas_electronica'=>$empresas_electronica
+		'empresas_electronica'=>$empresas_electronica,
+		'empresas_dep'=>$empresas_dep
     ]) ?>

@@ -115,12 +115,34 @@ foreach ($distritos as $value) {
 	}
     ?>
 
-	<?= $form->field($model, 'empresa')->widget(Select2::classname(), [
-       
-	   'data' => $data_empresas,
-	   'options' => ['placeholder' => 'Selecccione empresa'],
-    
-      ])?>	  
+    <label>Empresas</label>
+    <?php 
+    	if ($model->isNewRecord) {
+    		echo Select2::widget([
+                'name' => 'empresas[]',
+                'data' => $data_empresas,
+                //'size' => Select2::SMALL,
+                'options' => ['placeholder' => 'Selecciona empresas ...', 'multiple' => true,'id'=>'empresas'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+        	]);
+    	}else{
+    		echo Select2::widget([
+                'name' => 'empresas[]',
+                'data' => $data_empresas,
+                //'size' => Select2::SMALL,
+                'value'=>$empresas_dep,
+                'options' => ['placeholder' => 'Selecciona empresas ...', 'multiple' => true,'id'=>'empresas'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+        	]);
+    	}
+
+
+    ?>
+	
 
 
       <?= $form->field($model, 'empresa_electronica')->widget(Select2::classname(), [

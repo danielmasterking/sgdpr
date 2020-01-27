@@ -9,114 +9,63 @@ use yii\helpers\ArrayHelper;
 $this->title = 'Actualizar';
 $this->params['breadcrumbs'][] = ['label' => 'Admin Supervisions', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
-
+use app\models\EmpresaDependencia;
 $list_dep=ArrayHelper::map($dependencias,'codigo','nombre');
 
 // echo "<pre>";
 // print_r($list_dep);
 // echo "</pre>";
 
-$ciudades_zonas = array();
+$ciudades_zonas = array();//almacena las regionales permitidas al usuario
 
-foreach($zonasUsuario as $zonaO){
-	
-     $ciudades_zonas [] = $zonaO->zona->ciudades;	
-	
+foreach($zonasUsuario as $zona){
+	$ciudades_zonas [] = $zona->zona->ciudades;
 }
-
 $ciudades_permitidas = array();
-
+$ciudades_zonas_permitidas = array();//guarda solo la regional y la ciudad para filtrar por javascript
 foreach($ciudades_zonas as $ciudades){
-	
 	foreach($ciudades as $ciudad){
-		
+		foreach($zonas as $z){
+			if($z->id==$ciudad->zona_id){
+				$regionales[$z->id] = $z->nombre;break;
+			}
+		}
 		$ciudades_permitidas [] = $ciudad->ciudad->codigo_dane;
-		
+		$ciudades_zonas_permitidas [] = array('zona' => $ciudad->zona_id, 'nombre' => $ciudad->ciudad->nombre, 'codigo' => $ciudad->ciudad->codigo_dane);
 	}
-	
 }
-
 $marcas_permitidas = array();
-
+$marcas = array();
 foreach($marcasUsuario as $marca){
-	
-	if($marca->marca->nombre!='VIVA' && $marca->marca->nombre!='INDUSTRIA'){
-		$marcas_permitidas [] = $marca->marca_id;
-	}
-
+	$marcas_permitidas [] = $marca->marca_id;
+	$marcas[$marca->marca->nombre] = $marca->marca->nombre;
 }
-
-$dependencias_distritos = array();
-
-foreach($distritosUsuario as $distrito){
-	
-     $dependencias_distritos [] = $distrito->distrito->dependencias;	
-	
-}
-
-$dependencias_permitidas = array();
-
-foreach($dependencias_distritos as $dependencias0){
-	
-	foreach($dependencias0 as $dependencia0){
-		
-		$dependencias_permitidas [] = $dependencia0->dependencia->codigo;
-		
-	}
-	
-}
-
 $empresas_permitidas = array();
-$list_empresas=array();
 foreach($empresasUsuario as $empresa){
 	$empresas_permitidas [] = $empresa->nit;
-
 	$list_empresas[$empresa->nit]=$empresa->empresa->nombre;
 }
 
-
-//print_r($list_empresas);
-
-
-$tamano_dependencias_permitidas = count($dependencias_permitidas);
-
 $data_dependencias = array();
-
-$array_dep=array();
-
-foreach($dependencias as $value){
-	
-	if(in_array($value->ciudad_codigo_dane,$ciudades_permitidas)){
-		
-		if(in_array($value->marca_id,$marcas_permitidas)){
-			//if(in_array($value->empresa,$empresas_permitidas) ){
-			   if($tamano_dependencias_permitidas > 0){
-				   
-				   if(in_array($value->codigo,$dependencias_permitidas)){
-					   
-					 $data_dependencias [] = array('codigo' => $value->codigo, 'nombre' => $value->nombre);	
-
-					 $array_dep[$value->codigo] =  $value->nombre;
-					   
-				   }else{
-					   
-					   	//temporal mientras se asocian distritos
-					   $data_dependencias [] = array('codigo' => $value->codigo, 'nombre' => $value->nombre);
-
-					   $array_dep[$value->codigo] =  $value->nombre;	  
-					   
-				   }
-				   
-				   
-			   }else{
-				   
-				   $data_dependencias [] = array('codigo' => $value->codigo, 'nombre' => $value->nombre);
-				   $array_dep[$value->codigo] =  $value->nombre;			
-			   }	
-			//}
-       
+foreach($dependencias as $dependencia){
+	if(in_array($dependencia->ciudad_codigo_dane,$ciudades_permitidas) ){
+		if(in_array($dependencia->marca_id,$marcas_permitidas) ){
+            $modelo_emp_dep=new EmpresaDependencia();
+            $emp_dep=$modelo_emp_dep->get_empresa_deps($dependencia->codigo);
+            $existe=false;
+            if($emp_dep!=null){
+                foreach ($emp_dep as $emp) {
+                    if(in_array($emp,$empresas_permitidas) ){
+                        $existe=true;
+                        break;
+                    }
+                }
+            }
+			if($existe){
+				//$data_dependencias[] = array('codigo' => $dependencia->codigo, 'nombre' => $dependencia->nombre);
+				$array_dep[$dependencia->codigo] =  $dependencia->nombre;	
+			}
 		}
-
 	}
 }
 

@@ -29,6 +29,8 @@ use app\models\AdminDependencia;
 use app\models\Pedido;
 use app\models\Ciudad;
 use yii\data\Pagination;
+use app\models\EmpresaDependencia;
+
 class PrefacturaFijaController extends Controller
 {
     public function behaviors(){
@@ -1231,81 +1233,53 @@ class PrefacturaFijaController extends Controller
         }
 
 
-        $ciudades_zonas = array();
+        $ciudades_zonas = array();//almacena las regionales permitidas al usuario
 
             foreach($zonasUsuario as $zona){
-                
-                 $ciudades_zonas [] = $zona->zona->ciudades;    
-                
+                $ciudades_zonas [] = $zona->zona->ciudades;
             }
-
             $ciudades_permitidas = array();
-
             foreach($ciudades_zonas as $ciudades){
-                
                 foreach($ciudades as $ciudad){
-                    
                     $ciudades_permitidas [] = $ciudad->ciudad->codigo_dane;
-                    
                 }
-                
             }
 
             $marcas_permitidas = array();
-
+            $data_marcas=array();
             foreach($marcasUsuario as $marca){
-                
-                    
-                    $marcas_permitidas [] = $marca->marca_id;
-
-            }
-
-            $dependencias_distritos = array();
-
-            foreach($distritosUsuario as $distrito){
-                
-                 $dependencias_distritos [] = $distrito->distrito->dependencias;    
-                
-            }
-
-            $dependencias_permitidas = array();
-
-            foreach($dependencias_distritos as $dependencias0){
-                
-                foreach($dependencias0 as $dependencia0){
-                    
-                    $dependencias_permitidas [] = $dependencia0->dependencia->codigo;
-                    
-                }
-                
+                $marcas_permitidas [] = $marca->marca_id;
+                $data_marcas [$marca->marca->nombre] = $marca->marca->nombre;
             }
 
 
-            foreach($dependencias as $value){
-    
-                if(in_array($value->ciudad_codigo_dane,$ciudades_permitidas)){
-                    
-                    if(in_array($value->marca_id,$marcas_permitidas)){
-                        
-                       if($tamano_dependencias_permitidas > 0){
-                           
-                           if(in_array($value->codigo,$dependencias_permitidas)){
-                               
-                             $data_dependencias[$value->codigo] =  $value->nombre;
-                               
-                           }else{
-                               //temporal mientras se asocian distritos
-                               $data_dependencias[] =  $value->codigo;
-                           }
-                           
-                           
-                       }else{
-                           
-                           $data_dependencias[] =  $value->codigo;
-                       }    
-                   
+            $empresas_permitidas = array();
+            foreach($empresasUsuario as $empresa){
+                $empresas_permitidas [] = $empresa->nit;
+            }
+
+
+
+
+            $data_dependencias = array();
+            foreach($dependencias as $dependencia){
+                if(in_array($dependencia->ciudad_codigo_dane,$ciudades_permitidas) ){
+                    if(in_array($dependencia->marca_id,$marcas_permitidas) ){
+                        $modelo_emp_dep=new EmpresaDependencia();
+                        $emp_dep=$modelo_emp_dep->get_empresa_deps($dependencia->codigo);
+                        $existe=false;
+                        if($emp_dep!=null){
+                            foreach ($emp_dep as $emp) {
+                                if(in_array($emp,$empresas_permitidas) ){
+                                    $existe=true;
+                                    break;
+                                }
+                            }
+                        }
+                        if($existe){
+                            $data_dependencias[] =  $dependencia->codigo;
+                        }
                     }
-
                 }
             }
             return $data_dependencias;
