@@ -31,7 +31,7 @@ date_default_timezone_set ( 'America/Bogota');
     </tr>
     <tr>
         <td <?=$styletd2?> ><b>EMPRESA DE SEGURIDAD:</b></td>
-        <td <?=$styletd2?> colspan="3"><?=$model->fkEmpresa->nombre?></td>
+        <td <?=$styletd2?> colspan="3"><?=$empresa?></td>
     </tr>
     <tr>
         <td <?=$styletd2?> ><b>CIUDAD:</b></td>
