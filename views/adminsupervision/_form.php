@@ -52,7 +52,8 @@ foreach ($empresasUsuario as $value) {
             <?//= $form->field($model, 'ano')->textInput(['value' => $year,'maxlength' => true,'readonly'  => 'readonly']); ?>
             <?= $form->field($model, 'ano')->dropDownList([
             '2018' => '2018', 
-            '2019' => '2019' 
+            '2019' => '2019',
+            '2020' => '2020' 
            
             ]) ?>
         </div>
