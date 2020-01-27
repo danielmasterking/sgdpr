@@ -26,6 +26,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
        				<?php endif ?>
        			</th>
        			<th style="text-align: center;">Ver</th>
+       			<th style="text-align: center;">Id</th>
        			<th style="text-align: center;">Numero factura</th>
        			<th style="text-align: center;">Fecha factura</th>
        			<th style="text-align: center;">Nombre factura</th>
@@ -129,6 +130,7 @@ if( isset(Yii::$app->session['permisos-exito']) ){
 			    	}
 
 			    ?>
+			    <td><?=$pref['id']?></td>
 			    <td><?=$pref['numero_factura']?></td>
 			    <td><?=$pref['fecha_factura']?></td>
 			    <td>

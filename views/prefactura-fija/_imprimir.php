@@ -7,7 +7,7 @@ $styleth='style="padding: 5px;text-align: center;font-size: 9px;border: 1px soli
 
 date_default_timezone_set ( 'America/Bogota');
 ?>
-<h3 style="text-align: center;font-size: 16px;">Pre-factura <?=$model->fkDependencia->nombre?> mes de <?=strtoupper ($meses[$model->mes-1]);?> de <?=$model->ano?></h3>
+<h3 style="text-align: center;font-size: 16px;">Pre-factura <?=$model->fkDependencia->nombre?> mes de <?=strtoupper ($meses[$model->mes-1]);?> de <?=$model->ano?> Id: <?= $model->id?></h3>
 <table style="width: 100%;border-collapse: collapse;">
     <tr>
         <td <?=$styletd2?> ><b>NOMBRE FACTURA:</b></td>
