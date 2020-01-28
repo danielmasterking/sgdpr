@@ -19,7 +19,7 @@ date_default_timezone_set ( 'America/Bogota');
             ?>
         </td>
         <td rowspan="7" style="border: 1px solid black;">
-            <img src="<?=$logo?>" width="200" width="110"/>
+            <img src="<?=$model->fkEmpresa->logo?>" width="200" width="110"/>
         </td>
     </tr>
     <tr>
@@ -31,7 +31,7 @@ date_default_timezone_set ( 'America/Bogota');
     </tr>
     <tr>
         <td <?=$styletd2?> ><b>EMPRESA DE SEGURIDAD:</b></td>
-        <td <?=$styletd2?> colspan="3"><?=$empresa?></td>
+        <td <?=$styletd2?> colspan="3"><?=$model->fkEmpresa->nombre?></td>
     </tr>
     <tr>
         <td <?=$styletd2?> ><b>CIUDAD:</b></td>
