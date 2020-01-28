@@ -1347,7 +1347,7 @@ class PrefacturaFijaController extends Controller
 
             $empresasUsuario = UsuarioEmpresa::find()->where('usuario="'.Yii::$app->session['usuario-exito'].'"')->one();
         
-            $empresa_guardar=$empresasUsuario->nit_empresa;
+            $empresa_guardar=$empresasUsuario->nit;
             $model->setAttribute('empresa', $empresa_guardar);
             $model->setAttribute('regional', $zona->nombre);
             // $model->setAttribute('nombre_factura', $_POST['nombre_factura']);
