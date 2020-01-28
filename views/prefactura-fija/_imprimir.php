@@ -19,7 +19,7 @@ date_default_timezone_set ( 'America/Bogota');
             ?>
         </td>
         <td rowspan="7" style="border: 1px solid black;">
-            <img src="<?=$model->fkEmpresa->logo?>" width="200" width="110"/>
+            <img src="<?=$logo?>" width="200" width="110"/>
         </td>
     </tr>
     <tr>

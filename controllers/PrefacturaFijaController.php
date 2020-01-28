@@ -1646,14 +1646,16 @@ class PrefacturaFijaController extends Controller
         $empresasUsuario = UsuarioEmpresa::find()->where('usuario="'.Yii::$app->session['usuario-exito'].'"')->one();
         
         $empresa=$empresasUsuario->empresa->nombre;
-
+        $nit=$empresasUsuario->nit;
         $prefactura  = PrefacturaFija::findOne($id);
+        $logo=$prefactura->get_logo_empresa($nit);
         date_default_timezone_set ( 'America/Bogota');
         $dispositivos = PrefacturaDispositivo::find()->where('id_prefactura_fija='.$id)->all();
         $content = $this->renderPartial('_imprimir', array(
             'model' => $prefactura,
             'dispositivos' => $dispositivos,
-            'empresa'=>$empresa
+            'empresa'=>$empresa,
+            'logo'=>$logo
         ), true);
 
         $pdf = Yii::$app->pdf; // or new Pdf();

@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii;
-
+use app\models\Empresa;
 /**
  * This is the model class for table "prefactura_fija".
  *
@@ -91,5 +91,12 @@ class PrefacturaFija extends \yii\db\ActiveRecord
     public function getFkEmpresa()
     {
         return $this->hasOne(Empresa::className(), ['nit' => 'empresa']);
+    }
+
+    public function get_logo_empresa($nit){
+
+        $find=Empresa::find()->where('nit="'.$nit.'"')->one();
+        return $find->logo;
+
     }
 }
